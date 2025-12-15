@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Add New Address - Food Delivery</title>
+  <link rel="stylesheet" href="style.css">
+  <!-- ⚠️ LocalStorage Service (DB 연동 시 이 줄 삭제) -->
+  <script src="storage.js"></script>
+</head>
+<body>
+  <div class="screen-label">Add_New_Address</div>
+  
+  <div class="container">
+    <!-- Header -->
+    <div class="orders-header">
+      <button class="icon-btn back-btn" style="position: static;" onclick="history.back()">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M15 18l-6-6 6-6"/>
+        </svg>
+      </button>
+      <div style="width: 40px;"></div>
+    </div>
+    
+    <!-- Map -->
+    <div class="map-container">
+      <div class="map-marker"></div>
+      <button style="position: absolute; top: 16px; right: 16px; padding: 8px 16px; background: #2D3E50; color: white; border: none; border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer;">
+        Move to edit location
+      </button>
+    </div>
+    
+    <!-- Address Preview -->
+    <div class="address-preview">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+        <circle cx="12" cy="10" r="3"/>
+      </svg>
+      <p>3235 Royal Ln. Mesa, New Jersy 34567</p>
+    </div>
+    
+    <!-- Form -->
+    <form onsubmit="return validateAddress(event)">
+      <div class="form-group">
+        <label class="form-label" for="street">STREET</label>
+        <div class="form-row">
+          <input 
+            type="text" 
+            id="street" 
+            class="form-input" 
+            placeholder="Hasan Nagar"
+            style="grid-column: 1 / -1;"
+            required
+          >
+        </div>
+      </div>
+      
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label" for="postcode">POST CODE</label>
+          <input 
+            type="text" 
+            id="postcode" 
+            class="form-input" 
+            placeholder="34567"
+            required
+          >
+        </div>
+      </div>
+      
+      <div class="form-group">
+        <label class="form-label" for="apartment">APPARTMENT</label>
+        <input 
+          type="text" 
+          id="apartment" 
+          class="form-input" 
+          placeholder="345"
+        >
+      </div>
+      
+      <div class="form-group">
+        <label class="form-label">LABEL AS</label>
+        <div class="label-options">
+          <button type="button" class="label-btn active" onclick="selectLabel(this)">Home</button>
+          <button type="button" class="label-btn" onclick="selectLabel(this)">Work</button>
+          <button type="button" class="label-btn" onclick="selectLabel(this)">Other</button>
+        </div>
+      </div>
+      
+      <button type="submit" class="btn-primary">SAVE LOCATION</button>
+    </form>
+  </div>
+  
+  <script>
+    // 라벨 선택 기능
+    function selectLabel(button) {
+      // 모든 라벨 버튼의 active 클래스 제거
+      document.querySelectorAll('.label-btn').forEach(btn => {
+        btn.classList.remove('active');
+      });
+      // 클릭한 버튼에 active 클래스 추가
+      button.classList.add('active');
+    }
+    
+    /* ==========================================================================
+       📍 주소 추가 페이지 로직
+       
+       ⚠️ DB 연동 시 수정 필요:
+       - AddressStorage.addAddress() → fetch('/api/addresses', {method:'POST'})
+       ========================================================================== */
+    
+    // 주소 폼 유효성 검사
+    function validateAddress(event) {
+      event.preventDefault();
+      
+      const street = document.getElementById('street').value.trim();
+      const postcode = document.getElementById('postcode').value.trim();
+      const apartment = document.getElementById('apartment').value.trim();
+      
+      // 거리 주소 빈 값 체크
+      if (street === '') {
+        alert('거리 주소를 입력해주세요');
+        return false;
+      }
+      
+      // 거리 주소 길이 체크
+      if (street.length < 5) {
+        alert('거리 주소는 5자 이상 입력해주세요');
+        return false;
+      }
+      
+      // 우편번호 빈 값 체크
+      if (postcode === '') {
+        alert('우편번호를 입력해주세요');
+        return false;
+      }
+      
+      // 우편번호 숫자 체크
+      if (!/^\d+$/.test(postcode)) {
+        alert('우편번호는 숫자만 입력해주세요');
+        return false;
+      }
+      
+      // 우편번호 길이 체크 (5자리)
+      if (postcode.length !== 5) {
+        alert('우편번호는 5자리 숫자여야 합니다');
+        return false;
+      }
+      
+      // 선택된 라벨 가져오기
+      const labelButton = document.querySelector('.label-btn.active');
+      const label = labelButton ? labelButton.textContent : 'Home';
+      
+      // 주소 객체 생성
+      const address = {
+        street: street,
+        postcode: postcode,
+        apartment: apartment,
+        label: label,
+        fullAddress: `${street}, ${apartment ? apartment + ', ' : ''}${postcode}`
+      };
+      
+      // LocalStorage에 저장
+      AddressStorage.addAddress(address); // ⚠️ DB: await fetch('/api/addresses', {method:'POST', body:JSON.stringify(address)})
+      
+      // 모든 검사 통과
+      alert('주소가 저장되었습니다!');
+      location.href = '09_Address.html';
+      return false;
+    }
+  </script>
+</body>
+</html>

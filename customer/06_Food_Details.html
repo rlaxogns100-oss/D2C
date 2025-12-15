@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Food Details - Food Delivery</title>
+  <link rel="stylesheet" href="style.css">
+  <!-- ⚠️ LocalStorage Service (DB 연동 시 이 줄 삭제) -->
+  <script src="storage.js"></script>
+</head>
+<body>
+  <div class="screen-label">Food_Details</div>
+  
+  <div class="container">
+    <!-- Food Details Card -->
+    <div class="food-details">
+      <!-- Image with Back and Favorite Buttons -->
+      <div class="image-card">
+        <button class="icon-btn back-btn" onclick="history.back()">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M15 18l-6-6 6-6"/>
+          </svg>
+        </button>
+        
+        <button class="icon-btn favorite-btn active">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2">
+            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+          </svg>
+        </button>
+      </div>
+      
+      <!-- Food Name and Location -->
+      <h2 class="restaurant-name">Burger Bistro</h2>
+      
+      <div class="restaurant-subtitle">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+          <circle cx="12" cy="10" r="3"/>
+        </svg>
+        <span>Rose Garden</span>
+      </div>
+      
+      <!-- Info Section -->
+      <div class="info-section">
+        <div class="info-item rating">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+          </svg>
+          <span>4.7</span>
+        </div>
+        
+        <div class="info-item delivery">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="1" y="3" width="15" height="13" rx="2"/>
+            <path d="M16 8h4l3 3v5h-3"/>
+            <circle cx="5.5" cy="18.5" r="2.5"/>
+            <circle cx="18.5" cy="18.5" r="2.5"/>
+          </svg>
+          <span>Free</span>
+        </div>
+        
+        <div class="info-item time">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"/>
+            <path d="M12 6v6l4 2"/>
+          </svg>
+          <span>20 min</span>
+        </div>
+      </div>
+      
+      <!-- Description -->
+      <p class="description">Maecenas sed diam eget risus varius blandit sit amet non magna. Integer posuere erat a ante venenatis dapibus posuere velit aliquet.</p>
+      
+      <!-- Size Selection -->
+      <div class="size-section">
+        <h3>SIZE:</h3>
+        <div class="size-options">
+          <button class="size-option" onclick="selectSize(this, 28)">10"</button>
+          <button class="size-option active" onclick="selectSize(this, 32)">14"</button>
+          <button class="size-option" onclick="selectSize(this, 36)">16"</button>
+        </div>
+      </div>
+      
+      <!-- Ingredients -->
+      <div class="ingredients-section">
+        <h3>INGREDIENTS</h3>
+        <div class="ingredients">
+          <div class="ingredient-icon">🧅</div>
+          <div class="ingredient-icon">🍗</div>
+          <div class="ingredient-icon">🥓</div>
+          <div class="ingredient-icon">🍖</div>
+          <div class="ingredient-icon">🥩</div>
+        </div>
+      </div>
+      
+      <!-- Price and Counter -->
+      <div class="price-section">
+        <div class="price" id="price">$32</div>
+        <div class="counter">
+          <button class="counter-btn" onclick="decreaseQuantity()">−</button>
+          <span class="counter-value" id="quantity">2</span>
+          <button class="counter-btn" onclick="increaseQuantity()">+</button>
+        </div>
+      </div>
+      
+      <!-- Add to Cart Button -->
+      <button class="btn-primary" onclick="addToCart()">ADD TO CART</button>
+    </div>
+  </div>
+  
+  <script>
+    /* ==========================================================================
+       🍔 음식 상세 페이지 로직
+       
+       ⚠️ DB 연동 시 수정 필요:
+       - CartStorage.addItem() → fetch('/api/cart', {method:'POST'})
+       ========================================================================== */
+    
+    // 초기 값 (실제로는 서버에서 가져와야 함)
+    let quantity = 2;
+    let basePrice = 32;
+    let currentPrice = basePrice;
+    const productId = 'PROD001'; // ⚠️ DB: URL 파라미터나 서버에서 가져오기
+    const productName = 'Burger Bistro';
+    const restaurant = 'Rose Garden';
+    
+    // 수량 증가
+    function increaseQuantity() {
+      quantity++;
+      document.getElementById('quantity').textContent = quantity;
+      updateTotalPrice();
+    }
+    
+    // 수량 감소 (최소 1)
+    function decreaseQuantity() {
+      if (quantity > 1) {
+        quantity--;
+        document.getElementById('quantity').textContent = quantity;
+        updateTotalPrice();
+      }
+    }
+    
+    // 사이즈 선택
+    function selectSize(button, price) {
+      // 모든 사이즈 버튼의 active 클래스 제거
+      document.querySelectorAll('.size-option').forEach(btn => {
+        btn.classList.remove('active');
+      });
+      // 선택한 버튼에 active 클래스 추가
+      button.classList.add('active');
+      
+      // 기본 가격 변경
+      basePrice = price;
+      currentPrice = price;
+      updateTotalPrice();
+    }
+    
+    // 총 가격 업데이트
+    function updateTotalPrice() {
+      const totalPrice = basePrice * quantity;
+      document.getElementById('price').textContent = '$' + totalPrice;
+    }
+    
+    // 장바구니에 추가
+    function addToCart() {
+      const size = document.querySelector('.size-option.active').textContent;
+      
+      // 장바구니 아이템 생성
+      const cartItem = {
+        id: productId + '_' + size, // 상품ID + 사이즈로 고유 ID
+        name: productName,
+        restaurant: restaurant,
+        price: basePrice,
+        quantity: quantity,
+        size: size
+      };
+      
+      // LocalStorage에 저장
+      CartStorage.addItem(cartItem); // ⚠️ DB: await fetch('/api/cart', {method:'POST', body:JSON.stringify(cartItem)})
+      
+      alert(`${quantity}개 (사이즈: ${size})가 장바구니에 추가되었습니다!`);
+      location.href = '07_Cart.html';
+    }
+  </script>
+</body>
+</html>
