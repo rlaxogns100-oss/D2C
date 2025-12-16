@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>11 Order Alert</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    /* Modal/Alert Specific Styles */
+    body {
+      background-color: rgba(0, 0, 0, 0.6); /* Dimmed background */
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      backdrop-filter: blur(4px); /* Glassmorphism effect */
+    }
+
+    .alert-card {
+      background-color: var(--white);
+      width: 90%;
+      max-width: 335px;
+      border-radius: 24px;
+      padding: 32px 24px 24px;
+      text-align: center;
+      position: relative;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+      animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    @keyframes popIn {
+      from { transform: scale(0.8); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+
+    /* Icon Animation */
+    .alert-icon-wrapper {
+      width: 80px;
+      height: 80px;
+      background-color: var(--primary-orange);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: -72px auto 20px; /* Pull up */
+      border: 6px solid var(--white); /* White ring */
+      box-shadow: 0 4px 12px rgba(255, 107, 53, 0.3);
+      position: relative;
+    }
+
+    .pulse-ring {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      border: 2px solid var(--primary-orange);
+      animation: pulse 2s infinite;
+      opacity: 0;
+    }
+
+    @keyframes pulse {
+      0% { transform: scale(1); opacity: 1; }
+      100% { transform: scale(1.5); opacity: 0; }
+    }
+
+    /* Typography */
+    .alert-title {
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--text-dark);
+      margin-bottom: 4px;
+    }
+
+    .alert-time {
+      font-size: 13px;
+      color: var(--primary-orange);
+      font-weight: 600;
+      margin-bottom: 24px;
+    }
+
+    /* Info Summary Box */
+    .summary-box {
+      background-color: var(--bg-gray);
+      border-radius: 16px;
+      padding: 16px;
+      text-align: left;
+      margin-bottom: 20px;
+    }
+
+    .summary-row {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .summary-row:last-child {
+      margin-bottom: 0;
+    }
+
+    .row-icon {
+      color: var(--text-gray);
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+
+    .row-content {
+      font-size: 14px;
+      color: var(--text-dark);
+      line-height: 1.4;
+    }
+
+    .row-label {
+      font-size: 11px;
+      color: var(--text-gray);
+      margin-bottom: 2px;
+      display: block;
+    }
+
+    .highlight-text {
+      font-weight: 600;
+      color: var(--text-dark);
+    }
+
+    .request-tag {
+      display: inline-block;
+      font-size: 11px;
+      background-color: #FFF3CD;
+      color: #856404;
+      padding: 2px 6px;
+      border-radius: 4px;
+      margin-top: 4px;
+      font-weight: 600;
+    }
+
+    /* Buttons */
+    .action-group {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .btn-alert {
+      flex: 1;
+      padding: 14px;
+      border-radius: 12px;
+      font-size: 14px;
+      font-weight: 700;
+      border: none;
+      cursor: pointer;
+    }
+
+    .btn-reject {
+      background-color: #FEE2E2;
+      color: #DC2626;
+    }
+
+    .btn-accept {
+      background-color: var(--primary-orange);
+      color: var(--white);
+      box-shadow: 0 4px 12px rgba(255, 107, 53, 0.3);
+    }
+
+    .link-detail {
+      font-size: 13px;
+      color: var(--text-gray);
+      text-decoration: underline;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="alert-card">
+    <div class="alert-icon-wrapper">
+      <div class="pulse-ring"></div>
+      <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+        <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+      </svg>
+    </div>
+
+    <h2 class="alert-title">New Order Received!</h2>
+    <p class="alert-time">Just now • Order #32054</p>
+
+    <div class="summary-box">
+      <!-- Customer -->
+      <div class="summary-row">
+        <div class="row-icon">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+            <circle cx="12" cy="7" r="4"/>
+          </svg>
+        </div>
+        <div class="row-content">
+          <span class="highlight-text">John Smith</span>
+        </div>
+      </div>
+
+      <!-- Items -->
+      <div class="summary-row">
+        <div class="row-icon">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M18 8h1a4 4 0 0 1 0 8h-1"></path>
+            <path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"></path>
+            <line x1="6" y1="1" x2="6" y2="4"></line>
+            <line x1="10" y1="1" x2="10" y2="4"></line>
+            <line x1="14" y1="1" x2="14" y2="4"></line>
+          </svg>
+        </div>
+        <div class="row-content">
+          <span class="highlight-text">Chicken Thai Biriyani</span>
+          <span style="color: var(--text-gray); font-size: 12px;">+ 2 items</span>
+          <div style="font-size: 12px; margin-top: 2px;">$73.75</div>
+        </div>
+      </div>
+
+      <!-- Location -->
+      <div class="summary-row">
+        <div class="row-icon">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+            <circle cx="12" cy="10" r="3"/>
+          </svg>
+        </div>
+        <div class="row-content" style="font-size: 13px;">
+          2118 Thornridge Cir. Syracuse
+        </div>
+      </div>
+
+      <!-- Request -->
+      <div class="summary-row">
+        <div class="row-icon">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+          </svg>
+        </div>
+        <div class="row-content">
+          <div class="request-tag">⚠️ No Onion</div>
+          <div class="request-tag">⚠️ Leave at door</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="action-group">
+      <button class="btn-alert btn-reject">Reject</button>
+      <button class="btn-alert btn-accept">Accept</button>
+    </div>
+
+    <a href="10_Order_Details.html" class="link-detail">View Details</a>
+  </div>
+
+</body>
+</html>

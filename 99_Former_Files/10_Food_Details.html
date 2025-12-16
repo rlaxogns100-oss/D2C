@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>07 Food Details</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    /* Food Details Specific */
+    .food-detail-image-container {
+      margin: 0 24px 24px;
+      height: 240px;
+      background-color: #9CA3AF; /* Placeholder */
+      border-radius: 24px;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      padding: 16px;
+    }
+
+    .image-tags {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      width: 100%;
+    }
+
+    .tag-pill {
+      background-color: rgba(255, 255, 255, 0.9);
+      padding: 6px 16px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-dark);
+    }
+
+    .slider-dots {
+      display: flex;
+      gap: 6px;
+    }
+
+    .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background-color: rgba(255, 255, 255, 0.5);
+    }
+
+    .dot.active {
+      background-color: var(--white);
+      width: 20px;
+      border-radius: 4px;
+    }
+
+    /* Info Header */
+    .food-info-header {
+      padding: 0 24px;
+      margin-bottom: 24px;
+    }
+
+    .title-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 4px;
+    }
+
+    .food-title {
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--text-dark);
+    }
+
+    .food-price-lg {
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--text-dark);
+    }
+
+    .subtitle-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 13px;
+      color: var(--text-gray);
+    }
+
+    .location-pin {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .rating-badge {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .star-icon {
+      color: var(--primary-orange);
+    }
+
+    /* Ingredients Grid */
+    .ing-section {
+      padding: 0 24px;
+      margin-bottom: 24px;
+    }
+
+    .section-label {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-dark);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 16px;
+    }
+
+    .ing-grid {
+      display: flex;
+      gap: 16px;
+      overflow-x: auto;
+      padding-bottom: 10px;
+    }
+
+    .ing-card {
+      min-width: 64px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .ing-circle {
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      background-color: var(--primary-orange-light);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+    }
+
+    .ing-label {
+      font-size: 11px;
+      color: var(--text-gray);
+      text-align: center;
+    }
+
+    /* Description */
+    .desc-section {
+      padding: 0 24px 100px;
+    }
+
+    .desc-text {
+      font-size: 14px;
+      color: var(--text-gray);
+      line-height: 1.6;
+    }
+  </style>
+</head>
+<body>
+  <div class="screen-container">
+    <!-- Header -->
+    <div class="page-header">
+      <button class="icon-btn" onclick="history.back()">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M15 18l-6-6 6-6"/>
+        </svg>
+      </button>
+      <div class="page-title">Food Details</div>
+      <button class="reset-btn" style="color:var(--primary-orange);">EDIT</button>
+    </div>
+
+    <!-- Image Slider -->
+    <div class="food-detail-image-container">
+      <div class="image-tags">
+        <div class="tag-pill">Breakfast</div>
+        <div class="slider-dots">
+          <div class="dot"></div>
+          <div class="dot active"></div>
+          <div class="dot"></div>
+          <div class="dot"></div>
+        </div>
+        <div class="tag-pill">Delivery</div>
+      </div>
+    </div>
+
+    <!-- Info Header -->
+    <div class="food-info-header">
+      <div class="title-row">
+        <div class="food-title">Chicken Thai Biriyani</div>
+        <div class="food-price-lg">$60</div>
+      </div>
+      <div class="subtitle-row">
+        <div class="location-pin">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+            <circle cx="12" cy="10" r="3"/>
+          </svg>
+          Kentucky 39495
+        </div>
+        <div class="rating-badge">
+          <svg class="star-icon" width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+          </svg>
+          <span style="font-weight:600; color:var(--text-dark);">4.9</span>
+          <span>(10 Reviews)</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Ingredients -->
+    <div class="ing-section">
+      <div class="section-label">Ingredients</div>
+      <div class="ing-grid">
+        <div class="ing-card">
+          <div class="ing-circle">🧂</div>
+          <span class="ing-label">Salt</span>
+        </div>
+        <div class="ing-card">
+          <div class="ing-circle">🍗</div>
+          <span class="ing-label">Chicken</span>
+        </div>
+        <div class="ing-card">
+          <div class="ing-circle">🧅</div>
+          <span class="ing-label">Onion<br>(Allergy)</span>
+        </div>
+        <div class="ing-card">
+          <div class="ing-circle">🧄</div>
+          <span class="ing-label">Garlic</span>
+        </div>
+        <div class="ing-card">
+          <div class="ing-circle">🌶️</div>
+          <span class="ing-label">Peppers</span>
+        </div>
+      </div>
+      <div class="ing-grid" style="margin-top:16px;">
+        <div class="ing-card">
+          <div class="ing-circle">🫚</div>
+          <span class="ing-label">Ginger</span>
+        </div>
+        <div class="ing-card">
+          <div class="ing-circle">🥦</div>
+          <span class="ing-label">Broccoli</span>
+        </div>
+        <div class="ing-card">
+          <div class="ing-circle">🍊</div>
+          <span class="ing-label">Orange</span>
+        </div>
+        <div class="ing-card">
+          <div class="ing-circle">🥜</div>
+          <span class="ing-label">Walnut</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Description -->
+    <div class="desc-section">
+      <div class="section-label">Description</div>
+      <p class="desc-text">
+        Lorem ipsum dolor sit amet, consetdur Maton adipiscing elit. Bibendum in vel, mattis et amet dui mauris turpis.
+      </p>
+    </div>
+
+    <!-- Bottom Nav -->
+    <nav class="bottom-nav">
+      <div class="nav-item">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="3" y="3" width="7" height="7" rx="1"/>
+          <rect x="14" y="3" width="7" height="7" rx="1"/>
+          <rect x="3" y="14" width="7" height="7" rx="1"/>
+          <rect x="14" y="14" width="7" height="7" rx="1"/>
+        </svg>
+      </div>
+      <div class="nav-item">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <div class="nav-fab">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M12 5v14M5 12h14" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <div class="nav-item">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
+          <path d="M13.73 21a2 2 0 0 1-3.46 0" />
+        </svg>
+      </div>
+      <div class="nav-item active">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+          <circle cx="12" cy="7" r="4" />
+        </svg>
+      </div>
+    </nav>
+  </div>
+</body>
+</html>
