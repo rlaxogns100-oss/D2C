@@ -89,9 +89,11 @@
     </div>
   </div>
   
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+
   <script>
     // 회원가입 폼 유효성 검사
-    function validateSignUp(event) {
+    async function validateSignUp(event) {
       event.preventDefault();
       
       const name = document.getElementById('name').value.trim();
@@ -149,8 +151,33 @@
       }
       
       // 모든 검사 통과
-      alert('회원가입 성공!');
-      location.href = '04_Home.html';
+      try {
+        // API 명세에 따른 회원가입 요청
+        const response = await axios.post('/api/v1/users/signup', {
+          id: email,          // 명세서의 id (email)
+          password: password, // 명세서의 password
+          role: 'CUSTOMER',   // 손님 역할 고정
+          name: name          // 이름
+        });
+
+        if (response.status === 200 || response.status === 201) {
+          alert('회원가입 성공!');
+          location.href = '04_Home.html';
+        }
+      } catch (error) {
+        console.error('Signup error:', error);
+        
+        // 서버가 없거나 응답이 없는 경우 (테스트용)
+        if (!error.response) {
+          alert('서버와 연결할 수 없습니다.\n(테스트 모드: 홈으로 이동합니다)');
+          // 실제 운영 시에는 아래 줄 삭제
+          location.href = '04_Home.html';
+          return false;
+        }
+        
+        alert('회원가입 실패: ' + (error.response?.data?.message || '오류가 발생했습니다.'));
+      }
+
       return false;
     }
     

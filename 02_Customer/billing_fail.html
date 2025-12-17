@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>카드 등록 실패</title>
+    <link rel="stylesheet" type="text/css" href="billing-style.css" />
+  </head>
+
+  <body>
+    <div class="wrapper">
+      <div class="box_section">
+        <img width="100px" src="https://static.toss.im/lotties/error-spot-no-loop-space-apng.png" />
+        <h2>카드 등록을 실패했어요</h2>
+
+        <div class="p-grid typography--p" style="margin-top: 50px">
+          <div class="p-grid-col text--left"><b>에러메시지</b></div>
+          <div class="p-grid-col text--right" id="message" style="color: #e63740;"></div>
+        </div>
+        <div class="p-grid typography--p" style="margin-top: 10px">
+          <div class="p-grid-col text--left"><b>에러코드</b></div>
+          <div class="p-grid-col text--right" id="code"></div>
+        </div>
+
+        <button class="button" onclick="history.back()" style="margin-top: 30px;">다시 시도하기</button>
+      </div>
+    </div>
+
+    <script>
+      const urlParams = new URLSearchParams(window.location.search);
+      document.getElementById("code").textContent = urlParams.get("code");
+      document.getElementById("message").textContent = urlParams.get("message");
+    </script>
+  </body>
+</html>
+

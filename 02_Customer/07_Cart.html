@@ -63,13 +63,14 @@
        ========================================================================== */
     
     // 페이지 로드 시 장바구니 불러오기
-    document.addEventListener('DOMContentLoaded', function() {
+    // pageshow 이벤트: 뒤로가기로 왔을 때도 실행됨
+    window.addEventListener('pageshow', function(event) {
       loadCartItems();
     });
     
     // 장바구니 아이템 렌더링
     function loadCartItems() {
-      const cartItems = CartStorage.getAll(); // ⚠️ DB: await fetch('/api/cart')
+      const cartItems = CartStorage.getAll(); 
       const container = document.getElementById('cartItems');
       
       if (cartItems.length === 0) {
@@ -103,24 +104,24 @@
     
     // 장바구니 아이템 수량 증가
     function increaseCartQuantity(itemId) {
-      const cartItems = CartStorage.getAll(); // ⚠️ DB: await fetch('/api/cart')
+      const cartItems = CartStorage.getAll(); 
       const item = cartItems.find(i => i.id === itemId);
       
       if (item) {
         item.quantity++;
-        CartStorage.save(cartItems); // ⚠️ DB: await fetch('/api/cart/'+itemId, {method:'PUT'})
+        CartStorage.save(cartItems); 
         loadCartItems();
       }
     }
     
     // 장바구니 아이템 수량 감소
     function decreaseCartQuantity(itemId) {
-      const cartItems = CartStorage.getAll(); // ⚠️ DB: await fetch('/api/cart')
+      const cartItems = CartStorage.getAll(); 
       const item = cartItems.find(i => i.id === itemId);
       
       if (item && item.quantity > 1) {
         item.quantity--;
-        CartStorage.save(cartItems); // ⚠️ DB: await fetch('/api/cart/'+itemId, {method:'PUT'})
+        CartStorage.save(cartItems); 
         loadCartItems();
       }
     }
@@ -128,20 +129,20 @@
     // 장바구니 아이템 삭제
     function removeCartItem(itemId) {
       if (confirm('이 상품을 장바구니에서 삭제하시겠습니까?')) {
-        CartStorage.removeItem(itemId); // ⚠️ DB: await fetch('/api/cart/'+itemId, {method:'DELETE'})
+        CartStorage.removeItem(itemId); 
         loadCartItems();
       }
     }
     
     // 전체 금액 업데이트
     function updateTotalPrice() {
-      const total = CartStorage.getTotal(); // ⚠️ DB: 서버에서 계산된 값 사용
+      const total = CartStorage.getTotal();
       document.getElementById('totalPrice').textContent = '$' + total;
     }
     
     // 주문하기
     function placeOrder() {
-      const cartItems = CartStorage.getAll(); // ⚠️ DB: await fetch('/api/cart')
+      const cartItems = CartStorage.getAll(); 
       
       if (cartItems.length === 0) {
         alert('장바구니가 비어있습니다');
@@ -149,14 +150,17 @@
       }
       
       // 주문 생성
-      const order = OrderStorage.addOrder({ // ⚠️ DB: await fetch('/api/orders', {method:'POST'})
+      const order = OrderStorage.addOrder({ 
         items: cartItems,
         total: CartStorage.getTotal(),
         address: '2118 Thornridge Cir. Syracuse'
       });
       
-      // 장바구니 비우기
-      CartStorage.clear(); // ⚠️ DB: await fetch('/api/cart', {method:'DELETE'})
+      // 장바구니 비우기 (데이터 삭제)
+      CartStorage.clear(); 
+      
+      // 화면 갱신 (빈 장바구니 상태로 변경)
+      loadCartItems();
       
       alert('주문이 완료되었습니다!\n주문번호: ' + order.id);
       location.href = '08_My_Orders.html';

@@ -151,23 +151,34 @@
     
     // 장바구니에 추가
     function addToCart() {
-      const size = document.querySelector('.size-option.active').textContent;
+      const sizeBtn = document.querySelector('.size-option.active');
+      const size = sizeBtn.textContent;
+      
+      // ID 생성 시 특수문자(") 제거하여 안전한 ID 만들기
+      const safeSize = size.replace(/["']/g, ''); 
       
       // 장바구니 아이템 생성
       const cartItem = {
-        id: productId + '_' + size, // 상품ID + 사이즈로 고유 ID
+        id: `${productId}_${safeSize}`, // 안전한 ID 사용
         name: productName,
         restaurant: restaurant,
         price: basePrice,
         quantity: quantity,
-        size: size
+        size: size // 표시는 원래대로
       };
       
       // LocalStorage에 저장
-      CartStorage.addItem(cartItem); // ⚠️ DB: await fetch('/api/cart', {method:'POST', body:JSON.stringify(cartItem)})
+      CartStorage.addItem(cartItem); 
       
-      alert(`${quantity}개 (사이즈: ${size})가 장바구니에 추가되었습니다!`);
-      location.href = '07_Cart.html';
+      // 장바구니 이동 여부 확인
+      if (confirm(`${quantity}개 (사이즈: ${size})가 장바구니에 담겼습니다.\n장바구니로 이동하시겠습니까?`)) {
+        location.href = '07_Cart.html';
+      } else {
+        // 계속 쇼핑하기: 수량 초기화 등 선택적
+        quantity = 1;
+        document.getElementById('quantity').textContent = quantity;
+        updateTotalPrice();
+      }
     }
   </script>
 </body>

@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Payment</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="storage.js"></script>
+  <!-- 토스페이먼츠 결제위젯 SDK v2 -->
+  <script src="https://js.tosspayments.com/v2/standard"></script>
+  <style>
+    /* 무통장 입금 안내 스타일 */
+    .bank-transfer-info {
+      background-color: #FFF3E0; /* 연한 주황색 배경 */
+      border: 1px solid var(--primary-orange);
+      border-radius: var(--radius-md);
+      padding: var(--spacing-md);
+      margin-bottom: var(--spacing-lg);
+    }
+    
+    .bank-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 12px;
+      color: var(--primary-orange);
+      font-weight: 700;
+      font-size: 15px;
+    }
+    
+    .bank-details {
+      background-color: rgba(255, 255, 255, 0.6);
+      padding: 12px;
+      border-radius: var(--radius-sm);
+      font-size: 14px;
+      color: var(--text-dark);
+      line-height: 1.6;
+    }
+    
+    .bank-details strong {
+      display: inline-block;
+      width: 70px;
+      color: #555;
+    }
+    
+    .payment-amount-box {
+      background-color: var(--white);
+      padding: 20px;
+      border-radius: var(--radius-lg);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+      margin-bottom: 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .payment-label {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--text-dark);
+    }
+    
+    .payment-value {
+      font-size: 24px;
+      font-weight: 700;
+      color: var(--primary-orange);
+    }
+
+    /* 토스 위젯 컨테이너 */
+    #payment-method {
+      background-color: var(--white);
+      border-radius: var(--radius-lg);
+      padding: 10px; /* 위젯 내부 여백 고려 */
+      margin-bottom: 16px;
+    }
+    
+    #agreement {
+      padding: 0 10px;
+      margin-bottom: 24px;
+    }
+  </style>
+</head>
+<body>
+  <div class="screen-label">0211_Payment</div>
+  
+  <div class="container" style="padding-bottom: 80px;">
+    <!-- Header -->
+    <div class="section-header">
+      <button class="icon-btn back-btn" onclick="history.back()" style="position: static; margin-right: 16px;">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M15 18l-6-6 6-6"/>
+        </svg>
+      </button>
+      <h2 style="margin: 0;">주문/결제</h2>
+    </div>
+
+    <!-- 1. 무통장 입금 안내 (최상단) -->
+    <div class="bank-transfer-info">
+      <div class="bank-header">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M22 10v6M2 10v6"/>
+          <path d="M2 10l10-5 10 5"/>
+          <path d="M6 12v5"/>
+          <path d="M10 12v5"/>
+          <path d="M14 12v5"/>
+          <path d="M18 12v5"/>
+        </svg>
+        무통장 입금 안내
+      </div>
+      <div class="bank-details">
+        <div><strong>은행명</strong> 토스뱅크</div>
+        <div><strong>계좌번호</strong> 1000-0000-0000</div>
+        <div><strong>예금주</strong> (주)매장</div>
+        <div style="margin-top: 8px; font-size: 12px; color: #666;">
+          ※ 주문 후 24시간 이내 미입금 시 자동 취소됩니다.
+        </div>
+      </div>
+    </div>
+
+    <!-- 2. 결제 금액 정보 -->
+    <div class="payment-amount-box">
+      <span class="payment-label">총 결제금액</span>
+      <span class="payment-value" id="display-amount">$0</span>
+    </div>
+
+    <!-- 계약 안내 문구 (항상 표시) -->
+    <div style="padding: 20px; text-align: center; color: #666; background-color: #f8f9fa; border-radius: 12px; margin-bottom: 16px;">
+        <p style="font-weight: 600; font-size: 16px; margin-bottom: 8px;">토스페이먼츠 계약 체결 중입니다.</p>
+        <p>계좌이체로 부탁드려요 😭</p>
+    </div>
+
+    <!-- 3. 토스페이먼츠 결제 위젯 -->
+    <div id="payment-method"></div>
+    <div id="agreement"></div>
+
+    <!-- 결제하기 버튼 -->
+    <button id="payment-button" class="btn-primary" style="margin-top: 10px;">결제하기</button>
+  </div>
+
+  <script>
+    function generateRandomString() {
+      return window.btoa(Math.random()).slice(0, 20);
+    }
+
+    document.addEventListener("DOMContentLoaded", async function () {
+      // 1. 결제 금액 가져오기
+      let cartTotal = CartStorage.getTotal(); 
+      if (cartTotal <= 0) cartTotal = 1000; // 테스트용 최소 금액
+      
+      const amount = {
+        currency: "KRW",
+        value: cartTotal,
+      };
+
+      // 표시 포맷
+      document.getElementById('display-amount').textContent = amount.value.toLocaleString() + '원';
+
+      // 2. 토스페이먼츠 초기화 (V2 SDK)
+      // checkout.html에 있던 공식 문서용 테스트 키 사용
+      const clientKey = "test_gck_docs_Ovk5rk1EwkEbP0W43n07xlzm"; 
+      const customerKey = generateRandomString();
+      
+      try {
+        const tossPayments = TossPayments(clientKey);
+        // 회원 결제
+        const widgets = tossPayments.widgets({ customerKey });
+
+        // 3. 결제 금액 설정
+        await widgets.setAmount(amount);
+
+        // 4. 결제 위젯 렌더링
+        await widgets.renderPaymentMethods({
+          selector: "#payment-method",
+          variantKey: "DEFAULT",
+        });
+
+        // 5. 이용약관 렌더링
+        await widgets.renderAgreement({ selector: "#agreement", variantKey: "AGREEMENT" });
+
+        // 6. 결제하기 버튼 클릭 이벤트
+        const paymentBtn = document.getElementById("payment-button");
+        paymentBtn.addEventListener("click", async function () {
+          try {
+            await widgets.requestPayment({
+              orderId: generateRandomString(),
+              orderName: `장바구니 상품 ${cartTotal}원`,
+              // 성공/실패 페이지 경로 수정 (02_Customer 폴더 내)
+              successUrl: window.location.origin + "/02_Customer/payment_success.html",
+              failUrl: window.location.origin + "/02_Customer/payment_fail.html",
+              customerEmail: "customer@example.com",
+              customerName: "김토스",
+            });
+          } catch (error) {
+            console.error(error);
+            alert("결제 요청 중 오류가 발생했습니다: " + error.message);
+          }
+        });
+      } catch (error) {
+        console.error("토스페이먼츠 초기화 실패:", error);
+        document.querySelector("#payment-method").innerHTML = 
+          `<div style='padding:20px; text-align:center; color:red;'>
+            결제 위젯 초기화 실패<br>(${error.message})
+           </div>`;
+      }
+    });
+  </script>
+</body>
+</html>

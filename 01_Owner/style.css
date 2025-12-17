@@ -780,6 +780,148 @@ body {
    00_Food_Details, 00_My_Profile
    ========================================================================== */
 
+/* ===================================
+   Profile / Settings New Styles
+   =================================== */
+
+.settings-card {
+  background-color: var(--white);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  margin: 0 24px 16px; /* Bottom margin ensures spacing */
+  box-shadow: var(--shadow-sm);
+}
+
+.settings-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.settings-icon-circle {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background-color: #EEF2FF; /* Light Blue/Gray */
+  color: #4F46E5; /* Indigo */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.settings-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text-dark);
+}
+
+/* Operating Hours */
+.time-picker-row {
+  display: flex;
+  gap: 16px;
+}
+
+.time-input-group {
+  flex: 1;
+}
+
+.time-label {
+  font-size: 12px;
+  color: var(--text-gray);
+  margin-bottom: 8px;
+  display: block;
+}
+
+.time-input-box {
+  background-color: #F9FAFB;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  padding: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-dark);
+}
+
+/* Shop Status */
+.status-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.status-info h3 {
+  font-size: 16px;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.status-text {
+  font-size: 13px;
+  color: #EF4444; /* Red for closed */
+  font-weight: 500;
+}
+
+.status-text.open {
+  color: #10B981; /* Green for open */
+}
+
+.btn-status-toggle {
+  background-color: #EF4444; /* Red by default */
+  color: var(--white);
+  border: none;
+  padding: 10px 20px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  text-transform: uppercase;
+}
+
+.btn-status-toggle.active {
+  background-color: #10B981;
+}
+
+/* Simple List Item (Personal Info, Settings) */
+.simple-list-item {
+  background-color: var(--white);
+  margin: 0 24px 16px;
+  padding: 20px 24px;
+  border-radius: var(--radius-lg);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: var(--shadow-sm);
+  cursor: pointer;
+}
+
+.simple-item-left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.simple-icon-circle {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.bg-orange-light { background-color: #FFF7ED; color: #F97316; }
+.bg-gray-light { background-color: #F3F4F6; color: #4B5563; }
+
+.simple-item-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text-dark);
+}
+
 /* Add Item Page - Upload Grid */
 .upload-grid {
   display: flex;
