@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>01 Loading</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="screen-label">Loading</div>
+  
+  <div class="loading-screen">
+    <div class="logo">
+      F<span class="logo-o">ô</span><span class="logo-o">o</span>d
+    </div>
+  </div>
+  
+  <script>
+    // 3초 후 자동으로 로그인 페이지로 이동
+    setTimeout(function() {
+      window.location.href = '02_Login.html';
+    }, 3000);
+  </script>
+</body>
+</html>

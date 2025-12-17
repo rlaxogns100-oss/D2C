@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>01 Dashboard</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="screen-container">
+    <!-- Header -->
+    <header class="header">
+      <button class="icon-btn">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M3 12H21" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          <path d="M3 6H21" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          <path d="M3 18H21" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+      </button>
+      
+      <div class="location-wrapper">
+        <span class="location-label">LOCATION</span>
+        <div class="location-select">
+          Halal Lab office
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+            <path d="M2 4L6 8L10 4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+        </div>
+      </div>
+
+      <div class="profile-img"></div>
+    </header>
+
+    <!-- Stats Row -->
+    <div class="stats-row">
+      <div class="stat-card">
+        <div class="stat-value">20</div>
+        <div class="stat-label">RUNNING ORDERS</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value">05</div>
+        <div class="stat-label">ORDER REQUEST</div>
+      </div>
+    </div>
+
+    <!-- Total Revenue -->
+    <div class="section-card">
+      <div class="card-header">
+        <div class="card-title-group">
+          <h3>Total Revenue</h3>
+          <div class="revenue-value">$2,241</div>
+        </div>
+        <div class="action-group" style="text-align: right;">
+          <a href="#" class="see-details">See Details</a>
+          <div style="margin-top: 4px;">
+             <select class="period-select">
+               <option>Daily</option>
+               <option>Weekly</option>
+             </select>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Simple SVG Chart -->
+      <div class="chart-area">
+        <div class="chart-tooltip">$500</div>
+        <svg width="100%" height="100%" viewBox="0 0 300 100" preserveAspectRatio="none">
+          <path d="M0,80 Q30,60 50,70 T100,40 T150,60 T200,30 T250,50 T300,20" 
+                fill="none" stroke="#FF6B35" stroke-width="3" />
+          <defs>
+            <linearGradient id="chartGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+              <stop offset="0%" style="stop-color:#FF6B35;stop-opacity:0.2" />
+              <stop offset="100%" style="stop-color:#FF6B35;stop-opacity:0" />
+            </linearGradient>
+          </defs>
+          <path d="M0,80 Q30,60 50,70 T100,40 T150,60 T200,30 T250,50 T300,20 V100 H0 Z" 
+                fill="url(#chartGradient)" stroke="none" />
+          <circle cx="100" cy="40" r="4" fill="#FF6B35" stroke="white" stroke-width="2"/>
+        </svg>
+      </div>
+      <div class="time-labels">
+        <span>10AM</span>
+        <span>11AM</span>
+        <span>12PM</span>
+        <span>01PM</span>
+        <span>02PM</span>
+        <span>03PM</span>
+        <span>04PM</span>
+      </div>
+    </div>
+
+    <!-- Reviews -->
+    <div class="section-header">
+      <span class="section-title">Reviews</span>
+      <a href="#" class="see-details">See All Reviews</a>
+    </div>
+    <div class="review-card">
+      <svg class="rating-star" width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"/>
+      </svg>
+      <span class="rating-score">4.9</span>
+      <span class="rating-count">Total 20 Reviews</span>
+    </div>
+
+    <!-- Popular Items -->
+    <div class="section-header">
+      <span class="section-title">Popular Items This Weeks</span>
+      <a href="#" class="see-details">See All</a>
+    </div>
+    <div class="popular-scroll">
+      <div class="popular-item"></div>
+      <div class="popular-item"></div>
+      <div class="popular-item"></div>
+    </div>
+
+    <!-- Bottom Nav -->
+    <nav class="bottom-nav">
+      <div class="nav-item active">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="3" y="3" width="7" height="7" rx="1"/>
+          <rect x="14" y="3" width="7" height="7" rx="1"/>
+          <rect x="3" y="14" width="7" height="7" rx="1"/>
+          <rect x="14" y="14" width="7" height="7" rx="1"/>
+        </svg>
+      </div>
+      <div class="nav-item">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <div class="nav-fab">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M12 5v14M5 12h14" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <div class="nav-item">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
+          <path d="M13.73 21a2 2 0 0 1-3.46 0" />
+        </svg>
+      </div>
+      <div class="nav-item">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+          <circle cx="12" cy="7" r="4" />
+        </svg>
+      </div>
+    </nav>
+  </div>
+</body>
+</html>
