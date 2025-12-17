@@ -151,32 +151,36 @@
       }
       
       // 모든 검사 통과
-      try {
-        // API 명세에 따른 회원가입 요청
-        const response = await axios.post('/api/v1/users/signup', {
-          id: email,          // 명세서의 id (email)
-          password: password, // 명세서의 password
-          role: 'OWNER',      // 점주 역할 고정
-          name: name          // 이름
-        });
+      
+      const signupData = {
+        email: email,
+        password: password,
+        name: name,
+        role: 'OWNER'
+      };
 
-        if (response.status === 200 || response.status === 201) {
-          alert('회원가입 성공!');
-          location.href = '02_Login.html';
+      fetch('/api/v1/users/sign_in', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(signupData)
+      })
+      .then(response => {
+        if (response.ok) {
+          return response.json();
+        } else {
+          return response.json().then(err => { throw err; });
         }
-      } catch (error) {
+      })
+      .then(data => {
+        alert('회원가입 성공!');
+        location.href = '02_Login.html';
+      })
+      .catch(error => {
         console.error('Signup error:', error);
-        
-        // 서버가 없거나 응답이 없는 경우 (테스트용)
-        if (!error.response) {
-          alert('서버와 연결할 수 없습니다.\n(테스트 모드: 로그인 페이지로 이동합니다)');
-          // 실제 운영 시에는 아래 줄 삭제
-          location.href = '02_Login.html';
-          return false;
-        }
-        
-        alert('회원가입 실패: ' + (error.response?.data?.message || '오류가 발생했습니다.'));
-      }
+        alert('회원가입 실패: ' + (error.message || '오류가 발생했습니다.'));
+      });
 
       return false;
     }
