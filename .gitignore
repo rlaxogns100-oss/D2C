@@ -9,3 +9,5 @@ out/
 bin/
 *.class
 
+# Node
+node_modules/
