@@ -1,5 +1,6 @@
 package com.maejang.order.domain;
 
+import com.maejang.store.domain.Store;
 import com.maejang.user.domain.User;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -36,6 +37,10 @@ public class Order {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "store_id", nullable = false)
+    private Store store;
+
     @Column(name = "price", nullable = false)
     private int price;
 
@@ -50,8 +55,9 @@ public class Order {
     private LocalDateTime orderAt;
 
     @Builder
-    private Order(User user, int price, String request, OrderStatus condition, LocalDateTime orderAt) {
+    private Order(User user, Store store, int price, String request, OrderStatus condition, LocalDateTime orderAt) {
         this.user = user;
+        this.store = store;
         this.price = price;
         this.request = request;
         this.condition = condition;

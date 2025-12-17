@@ -10,6 +10,8 @@ import com.maejang.order.domain.OrderStatus;
 import com.maejang.order.dto.request.OrderCreateRequest;
 import com.maejang.order.repository.OrderMenuRepository;
 import com.maejang.order.repository.OrderRepository;
+import com.maejang.store.domain.Store;
+import com.maejang.store.repository.StoreRepository;
 import com.maejang.user.domain.User;
 import com.maejang.user.repository.UserRepository;
 import java.time.LocalDateTime;
@@ -26,14 +28,19 @@ public class OrderService {
     private final OrderMenuRepository orderMenuRepository;
     private final UserRepository userRepository;
     private final MenuRepository menuRepository;
+    private final StoreRepository storeRepository;
 
     @Transactional
     public Long create(Long userId, OrderCreateRequest req) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
+        Store store = storeRepository.findById(req.storeId())
+                .orElseThrow(() -> new CustomException(ErrorCode.STORE_NOT_FOUND));
+
         Order order = Order.builder()
                 .user(user)
+                .store(store)
                 .price(0)
                 .request(req.request())
                 .condition(OrderStatus.ORDERED)
@@ -93,6 +100,13 @@ public class OrderService {
     public void rejectByOwner(Long orderId) {
         Order order = read(orderId);
         order.setCondition(OrderStatus.REJECTED);
+    }
+
+    @Transactional(readOnly = true)
+    public List<Order> checkByOwner(Long ownerId) {
+        Store store = storeRepository.findFirstByOwnerId(ownerId)
+                .orElseThrow(() -> new CustomException(ErrorCode.STORE_NOT_FOUND));
+        return orderRepository.findByStoreId(store.getId());
     }
 }
 
