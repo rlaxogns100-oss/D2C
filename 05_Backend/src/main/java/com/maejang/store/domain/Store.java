@@ -1,5 +1,6 @@
 package com.maejang.store.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.maejang.user.domain.User;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -30,6 +31,7 @@ public class Store {
     /**
      * OWNER 유저
      */
+    @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User owner;
