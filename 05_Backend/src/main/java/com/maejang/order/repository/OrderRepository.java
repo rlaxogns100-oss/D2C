@@ -9,13 +9,13 @@ import org.springframework.data.repository.query.Param;
 
 public interface OrderRepository extends JpaRepository<Order, Long> {
     
-    @Query("SELECT o FROM Order o JOIN FETCH o.user WHERE o.user.id = :userId")
+    @Query("SELECT o FROM Order o JOIN FETCH o.user JOIN FETCH o.store WHERE o.user.id = :userId")
     List<Order> findByUserId(@Param("userId") Long userId);
 
-    @Query("SELECT o FROM Order o JOIN FETCH o.user WHERE o.id = :orderId")
+    @Query("SELECT o FROM Order o JOIN FETCH o.user JOIN FETCH o.store WHERE o.id = :orderId")
     Optional<Order> findById(@Param("orderId") Long orderId);
 
-    @Query("SELECT o FROM Order o JOIN FETCH o.user WHERE o.store.id = :storeId")
+    @Query("SELECT o FROM Order o JOIN FETCH o.user JOIN FETCH o.store WHERE o.store.id = :storeId")
     List<Order> findByStoreId(@Param("storeId") Long storeId);
 }
 
