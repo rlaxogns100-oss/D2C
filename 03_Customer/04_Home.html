@@ -7,7 +7,7 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <div class="screen-label">Home</div>
+  <div class="screen-label">홈</div>
   
   <div class="container">
     <!-- Restaurant Card -->
@@ -27,7 +27,7 @@
           <div class="dropdown-item" onclick="location.href='07_Cart.html'">장바구니</div>
           <div class="dropdown-item" onclick="location.href='08_My_Orders.html'">주문 내역</div>
           <div class="dropdown-item" onclick="location.href='09_Address.html'">주소 관리</div>
-          <div class="dropdown-item" onclick="alert('결제 수단 관리 기능은 준비중입니다')">결제 수단 관리</div>
+          <div class="dropdown-item" onclick="location.href='12_Payment_Edit.html'">결제 수단 관리</div>
         </div>
         
         <!-- Pagination Dots -->
@@ -56,7 +56,7 @@
             <circle cx="5.5" cy="18.5" r="2.5"/>
             <circle cx="18.5" cy="18.5" r="2.5"/>
           </svg>
-          <span>Free</span>
+          <span>2,500원</span>
         </div>
         
         <div class="info-item time">
@@ -64,7 +64,7 @@
             <circle cx="12" cy="12" r="10"/>
             <path d="M12 6v6l4 2"/>
           </svg>
-          <span>20 min</span>
+          <span>20분</span>
         </div>
       </div>
       
@@ -76,15 +76,15 @@
       
       <!-- Category Tabs -->
       <div class="category-tabs">
-        <button class="tab-btn active" onclick="selectCategory(this, 'burger')">Burger</button>
-        <button class="tab-btn" onclick="selectCategory(this, 'sandwich')">Sandwich</button>
-        <button class="tab-btn" onclick="selectCategory(this, 'pizza')">Pizza</button>
-        <button class="tab-btn" onclick="selectCategory(this, 'sanwi')">Sanwi</button>
+        <button class="tab-btn active" onclick="selectCategory(this, 'burger')">버거</button>
+        <button class="tab-btn" onclick="selectCategory(this, 'sandwich')">샌드위치</button>
+        <button class="tab-btn" onclick="selectCategory(this, 'pizza')">피자</button>
+        <button class="tab-btn" onclick="selectCategory(this, 'sanwi')">기타</button>
       </div>
       
       <!-- Products Section -->
       <div class="section-header">
-        <h3>Burger <span class="item-count">(10)</span></h3>
+        <h3>버거 <span class="item-count">(10)</span></h3>
       </div>
       
       <!-- Product Grid -->

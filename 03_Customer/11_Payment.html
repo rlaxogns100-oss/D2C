@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Payment</title>
+  <title>결제</title>
   <link rel="stylesheet" href="style.css">
   <script src="storage.js"></script>
   <!-- 토스페이먼츠 결제위젯 SDK v2 -->
@@ -81,7 +81,7 @@
   </style>
 </head>
 <body>
-  <div class="screen-label">0211_Payment</div>
+  <div class="screen-label">결제</div>
   
   <div class="container" style="padding-bottom: 80px;">
     <!-- Header -->
@@ -144,16 +144,21 @@
 
     document.addEventListener("DOMContentLoaded", async function () {
       // 1. 결제 금액 가져오기
-      let cartTotal = CartStorage.getTotal(); 
-      if (cartTotal <= 0) cartTotal = 1000; // 테스트용 최소 금액
+      let cartSubtotal = CartStorage.getTotal(); 
+      if (cartSubtotal <= 0) cartSubtotal = 1000; // 테스트용 최소 금액
+
+      // 배송비 추가
+      const deliveryFee = 2500;
+      const totalAmount = cartSubtotal + deliveryFee;
       
       const amount = {
         currency: "KRW",
-        value: cartTotal,
+        value: totalAmount,
       };
 
-      // 표시 포맷
-      document.getElementById('display-amount').textContent = amount.value.toLocaleString() + '원';
+      // 표시 포맷 (배송비 포함 안내 추가)
+      document.getElementById('display-amount').innerHTML = 
+        amount.value.toLocaleString() + '원 <span style="font-size:12px; font-weight:normal; color:#666;">(배송비 2,500원 포함)</span>';
 
       // 2. 토스페이먼츠 초기화 (V2 SDK)
       // checkout.html에 있던 공식 문서용 테스트 키 사용

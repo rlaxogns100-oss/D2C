@@ -9,7 +9,7 @@
   <script src="storage.js"></script>
 </head>
 <body>
-  <div class="screen-label">My_Order</div>
+  <div class="screen-label">주문 내역</div>
   
   <div class="container">
     <!-- Header -->
@@ -19,7 +19,7 @@
           <path d="M15 18l-6-6 6-6"/>
         </svg>
       </button>
-      <h2>My Orders</h2>
+      <h2>주문 내역</h2>
       <button class="icon-btn menu-btn" style="position: static;" onclick="location.href='04_Home.html'">
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <circle cx="12" cy="5" r="1.5" fill="currentColor"/>
@@ -31,14 +31,14 @@
     
     <!-- Tabs -->
     <div class="orders-tabs">
-      <button class="orders-tab active" onclick="switchTab('ongoing')">Ongoing</button>
-      <button class="orders-tab" onclick="switchTab('history')">History</button>
+      <button class="orders-tab active" onclick="switchTab('ongoing')">진행 중</button>
+      <button class="orders-tab" onclick="switchTab('history')">지난 주문</button>
     </div>
     
     <!-- Ongoing Tab Content -->
     <div id="ongoing-content" class="tab-content">
       <!-- Category Label -->
-      <p style="font-size: 14px; font-weight: 600; margin-bottom: 16px;">Food</p>
+      <p style="font-size: 14px; font-weight: 600; margin-bottom: 16px;">음식</p>
       
       <!-- Order Cards (Ongoing) -->
       <div class="order-card">
@@ -47,17 +47,17 @@
           <div class="order-info">
             <h4>Burger Bistro</h4>
             <p class="order-price">$64.00</p>
-            <p class="order-items">02 Items</p>
+            <p class="order-items">2개</p>
           </div>
         </div>
         <p class="order-id">#162435 | 배송 중</p>
         <div class="order-actions">
-          <button class="btn-primary" onclick="alert('주문 추적 기능은 준비중입니다')">Track Order</button>
-          <button class="btn-outline" onclick="if(confirm('주문을 취소하시겠습니까?')) alert('주문이 취소되었습니다')">Cancel</button>
+          <button class="btn-primary" onclick="alert('주문 추적 기능은 준비중입니다')">주문 추적</button>
+          <button class="btn-outline" onclick="if(confirm('주문을 취소하시겠습니까?')) alert('주문이 취소되었습니다')">취소</button>
         </div>
       </div>
       
-      <p style="font-size: 14px; font-weight: 600; margin-bottom: 16px;">Food</p>
+      <p style="font-size: 14px; font-weight: 600; margin-bottom: 16px;">음식</p>
       
       <div class="order-card">
         <div class="order-header">
@@ -65,13 +65,13 @@
           <div class="order-info">
             <h4>Pizza Hut</h4>
             <p class="order-price">$35.25</p>
-            <p class="order-items">03 Items</p>
+            <p class="order-items">3개</p>
           </div>
         </div>
         <p class="order-id">#162434 | 준비 중</p>
         <div class="order-actions">
-          <button class="btn-primary" onclick="alert('주문 추적 기능은 준비중입니다')">Track Order</button>
-          <button class="btn-outline" onclick="if(confirm('주문을 취소하시겠습니까?')) alert('주문이 취소되었습니다')">Cancel</button>
+          <button class="btn-primary" onclick="alert('주문 추적 기능은 준비중입니다')">주문 추적</button>
+          <button class="btn-outline" onclick="if(confirm('주문을 취소하시겠습니까?')) alert('주문이 취소되었습니다')">취소</button>
         </div>
       </div>
     </div>
@@ -79,7 +79,7 @@
     <!-- History Tab Content -->
     <div id="history-content" class="tab-content" style="display: none;">
       <!-- Category Label -->
-      <p style="font-size: 14px; font-weight: 600; margin-bottom: 16px;">Food</p>
+      <p style="font-size: 14px; font-weight: 600; margin-bottom: 16px;">음식</p>
       
       <!-- Order Cards (History) -->
       <div class="order-card">
@@ -88,17 +88,17 @@
           <div class="order-info">
             <h4>Spicy Restaurant</h4>
             <p class="order-price">$80.00</p>
-            <p class="order-items">04 Items</p>
+            <p class="order-items">4개</p>
           </div>
         </div>
         <p class="order-id">#162400 | 배송 완료 (12/10)</p>
         <div class="order-actions">
-          <button class="btn-primary" onclick="alert('다시 주문하기 기능은 준비중입니다')">Re-order</button>
-          <button class="btn-outline" onclick="alert('영수증 보기 기능은 준비중입니다')">Receipt</button>
+          <button class="btn-primary" onclick="alert('다시 주문하기 기능은 준비중입니다')">다시 주문</button>
+          <button class="btn-outline" onclick="alert('영수증 보기 기능은 준비중입니다')">영수증</button>
         </div>
       </div>
       
-      <p style="font-size: 14px; font-weight: 600; margin-bottom: 16px;">Food</p>
+      <p style="font-size: 14px; font-weight: 600; margin-bottom: 16px;">음식</p>
       
       <div class="order-card">
         <div class="order-header">
@@ -106,17 +106,17 @@
           <div class="order-info">
             <h4>Pizza Hut</h4>
             <p class="order-price">$35.25</p>
-            <p class="order-items">03 Items</p>
+            <p class="order-items">3개</p>
           </div>
         </div>
         <p class="order-id">#162380 | 배송 완료 (12/05)</p>
         <div class="order-actions">
-          <button class="btn-primary" onclick="alert('다시 주문하기 기능은 준비중입니다')">Re-order</button>
-          <button class="btn-outline" onclick="alert('영수증 보기 기능은 준비중입니다')">Receipt</button>
+          <button class="btn-primary" onclick="alert('다시 주문하기 기능은 준비중입니다')">다시 주문</button>
+          <button class="btn-outline" onclick="alert('영수증 보기 기능은 준비중입니다')">영수증</button>
         </div>
       </div>
       
-      <p style="font-size: 14px; font-weight: 600; margin-bottom: 16px;">Food</p>
+      <p style="font-size: 14px; font-weight: 600; margin-bottom: 16px;">음식</p>
       
       <div class="order-card">
         <div class="order-header">
@@ -124,13 +124,13 @@
           <div class="order-info">
             <h4>Burger Ferguson</h4>
             <p class="order-price">$40.00</p>
-            <p class="order-items">01 Item</p>
+            <p class="order-items">1개</p>
           </div>
         </div>
         <p class="order-id">#162350 | 배송 완료 (12/01)</p>
         <div class="order-actions">
-          <button class="btn-primary" onclick="alert('다시 주문하기 기능은 준비중입니다')">Re-order</button>
-          <button class="btn-outline" onclick="alert('영수증 보기 기능은 준비중입니다')">Receipt</button>
+          <button class="btn-primary" onclick="alert('다시 주문하기 기능은 준비중입니다')">다시 주문</button>
+          <button class="btn-outline" onclick="alert('영수증 보기 기능은 준비중입니다')">영수증</button>
         </div>
       </div>
     </div>
@@ -176,24 +176,24 @@
       const date = new Date(order.createdAt).toLocaleDateString('ko-KR');
       
       return `
-        <p style="font-size: 14px; font-weight: 600; margin-bottom: 16px;">Food</p>
+        <p style="font-size: 14px; font-weight: 600; margin-bottom: 16px;">음식</p>
         <div class="order-card">
           <div class="order-header">
             <div class="order-image"></div>
             <div class="order-info">
               <h4>${order.items && order.items[0] ? order.items[0].name : '주문 상품'}</h4>
               <p class="order-price">$${order.total}</p>
-              <p class="order-items">${order.items ? order.items.length : 0} Items</p>
+              <p class="order-items">${order.items ? order.items.length : 0}개</p>
             </div>
           </div>
           <p class="order-id">${order.id} | ${isOngoing ? order.status : '배송 완료 (' + date + ')'}</p>
           <div class="order-actions">
             ${isOngoing ? `
-              <button class="btn-primary" onclick="alert('주문 추적 기능은 준비중입니다')">Track Order</button>
-              <button class="btn-outline" onclick="cancelOrder('${order.id}')">Cancel</button>
+              <button class="btn-primary" onclick="alert('주문 추적 기능은 준비중입니다')">주문 추적</button>
+              <button class="btn-outline" onclick="cancelOrder('${order.id}')">취소</button>
             ` : `
-              <button class="btn-primary" onclick="alert('다시 주문하기 기능은 준비중입니다')">Re-order</button>
-              <button class="btn-outline" onclick="alert('영수증 보기 기능은 준비중입니다')">Receipt</button>
+              <button class="btn-primary" onclick="alert('다시 주문하기 기능은 준비중입니다')">다시 주문</button>
+              <button class="btn-outline" onclick="alert('영수증 보기 기능은 준비중입니다')">영수증</button>
             `}
           </div>
         </div>

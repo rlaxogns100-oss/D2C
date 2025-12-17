@@ -9,7 +9,7 @@
   <script src="storage.js"></script>
 </head>
 <body>
-  <div class="screen-label">Add_New_Address</div>
+  <div class="screen-label">새 주소 추가</div>
   
   <div class="container">
     <!-- Header -->
@@ -26,7 +26,7 @@
     <div class="map-container">
       <div class="map-marker"></div>
       <button style="position: absolute; top: 16px; right: 16px; padding: 8px 16px; background: #2D3E50; color: white; border: none; border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer;">
-        Move to edit location
+        위치 수정
       </button>
     </div>
     
@@ -42,7 +42,7 @@
     <!-- Form -->
     <form onsubmit="return validateAddress(event)">
       <div class="form-group">
-        <label class="form-label" for="street">STREET</label>
+        <label class="form-label" for="street">도로명 주소</label>
         <div class="form-row">
           <input 
             type="text" 
@@ -57,7 +57,7 @@
       
       <div class="form-row">
         <div class="form-group">
-          <label class="form-label" for="postcode">POST CODE</label>
+          <label class="form-label" for="postcode">우편번호</label>
           <input 
             type="text" 
             id="postcode" 
@@ -69,7 +69,7 @@
       </div>
       
       <div class="form-group">
-        <label class="form-label" for="apartment">APPARTMENT</label>
+        <label class="form-label" for="apartment">상세 주소</label>
         <input 
           type="text" 
           id="apartment" 
@@ -79,15 +79,15 @@
       </div>
       
       <div class="form-group">
-        <label class="form-label">LABEL AS</label>
+        <label class="form-label">주소 별칭</label>
         <div class="label-options">
-          <button type="button" class="label-btn active" onclick="selectLabel(this)">Home</button>
-          <button type="button" class="label-btn" onclick="selectLabel(this)">Work</button>
-          <button type="button" class="label-btn" onclick="selectLabel(this)">Other</button>
+          <button type="button" class="label-btn active" onclick="selectLabel(this)">집</button>
+          <button type="button" class="label-btn" onclick="selectLabel(this)">회사</button>
+          <button type="button" class="label-btn" onclick="selectLabel(this)">기타</button>
         </div>
       </div>
       
-      <button type="submit" class="btn-primary">SAVE LOCATION</button>
+      <button type="submit" class="btn-primary">주소 저장</button>
     </form>
   </div>
   
@@ -149,7 +149,7 @@
       
       // 선택된 라벨 가져오기
       const labelButton = document.querySelector('.label-btn.active');
-      const label = labelButton ? labelButton.textContent : 'Home';
+      const label = labelButton ? labelButton.textContent : '집';
       
       // 주소 객체 생성
       const address = {

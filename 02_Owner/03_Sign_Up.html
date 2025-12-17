@@ -7,7 +7,7 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <div class="screen-label">Sign_Up</div>
+  <div class="screen-label">회원가입</div>
   
   <div class="auth-container">
     <!-- Header -->
@@ -17,26 +17,26 @@
           <path d="M15 18l-6-6 6-6"/>
         </svg>
       </button>
-      <h1>Sign Up</h1>
-      <p>Please sign up to get started</p>
+      <h1>회원가입</h1>
+      <p>서비스 이용을 위해 가입해주세요</p>
     </div>
     
     <!-- Form -->
     <div class="auth-form">
       <form onsubmit="return validateSignUp(event)">
         <div class="form-group">
-          <label class="form-label" for="name">NAME</label>
+          <label class="form-label" for="name">이름</label>
           <input 
             type="text" 
             id="name" 
             class="form-input" 
-            placeholder="John doe"
+            placeholder="홍길동"
             required
           >
         </div>
         
         <div class="form-group">
-          <label class="form-label" for="email">EMAIL</label>
+          <label class="form-label" for="email">이메일</label>
           <input 
             type="email" 
             id="email" 
@@ -47,7 +47,7 @@
         </div>
         
         <div class="form-group">
-          <label class="form-label" for="password">PASSWORD</label>
+          <label class="form-label" for="password">비밀번호</label>
           <div class="password-input-wrapper">
             <input 
               type="password" 
@@ -66,7 +66,7 @@
         </div>
         
         <div class="form-group">
-          <label class="form-label" for="confirm-password">RE-TYPE PASSWORD</label>
+          <label class="form-label" for="confirm-password">비밀번호 확인</label>
           <div class="password-input-wrapper">
             <input 
               type="password" 
@@ -84,7 +84,7 @@
           </div>
         </div>
         
-        <button type="submit" class="btn-primary">SIGN UP</button>
+        <button type="submit" class="btn-primary">회원가입</button>
       </form>
     </div>
   </div>
