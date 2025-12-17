@@ -4,8 +4,8 @@ import com.maejang.address.domain.Address;
 
 public record AddressResponse(
         Long addressId,
-        String name, // 집, 회사 ,,
-        String address, // 주소
+        String name,
+        String address,
         boolean isDefault
 ) {
     public static AddressResponse from(Address a) {

@@ -43,7 +43,7 @@ public class Order {
     private String request;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "order_status", nullable = false, length = 30)
+    @Column(name = "condition", nullable = false, length = 30)
     private OrderStatus condition;
 
     @Column(name = "order_at", nullable = false)
