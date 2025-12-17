@@ -59,10 +59,10 @@ public class OrderController {
         return ResponseEntity.ok(JSONResponse.success(null));
     }
 
-    @Operation(summary = "사장 주문조회", description = "TODO: 사장 주문조회(가게 기준) 구현 전 임시")
+    @Operation(summary = "사장 주문조회", description = "사장의 가게에 들어온 주문 목록을 조회합니다.")
     @GetMapping("/check")
-    public ResponseEntity<JSONResponse<Void>> check() {
-        return ResponseEntity.ok(JSONResponse.success(null));
+    public ResponseEntity<JSONResponse<List<Order>>> check(@AuthenticationPrincipal CustomUserDetails principal) {
+        return ResponseEntity.ok(JSONResponse.success(orderService.checkByOwner(principal.getUserId())));
     }
 
     @Operation(summary = "주문수락", description = "사장이 주문을 수락합니다.")

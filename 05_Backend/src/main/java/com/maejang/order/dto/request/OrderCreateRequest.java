@@ -4,6 +4,9 @@ import jakarta.validation.constraints.NotNull;
 import java.util.List;
 
 public record OrderCreateRequest(
+        @NotNull(message = "storeId는 필수입니다.")
+        Long storeId,
+
         String request,
 
         @NotNull(message = "items는 필수입니다.")
