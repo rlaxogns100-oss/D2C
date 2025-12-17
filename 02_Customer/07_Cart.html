@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>07 Cart</title>
+  <link rel="stylesheet" href="style.css">
+  <!-- ⚠️ LocalStorage Service (DB 연동 시 이 줄 삭제) -->
+  <script src="storage.js"></script>
+</head>
+<body>
+  <div class="screen-label">My_Cart</div>
+  
+  <div class="cart-container">
+    <!-- Header -->
+    <div class="cart-header">
+      <button class="icon-btn back-btn" onclick="history.back()">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M15 18l-6-6 6-6"/>
+        </svg>
+      </button>
+      <h2>Cart</h2>
+      <span class="cart-done" onclick="location.href='04_Home.html'" style="cursor: pointer;">DONE</span>
+    </div>
+    
+    <!-- Cart Items (동적으로 로드됨) -->
+    <div class="cart-items" id="cartItems">
+      <!-- JavaScript로 자동 생성 -->
+    </div>
+    
+    <!-- Summary -->
+    <div class="cart-summary">
+      <div class="delivery-address">
+        <div>
+          <h4>DELIVERY ADDRESS</h4>
+          <p>2118 Thornridge Cir. Syracuse</p>
+        </div>
+        <a href="09_Address.html">EDIT</a>
+      </div>
+      
+      <div class="cart-total">
+        <div>
+          <h4>TOTAL:</h4>
+        </div>
+        <div style="text-align: right;">
+          <span class="cart-total-amount" id="totalPrice">$96</span>
+          <a href="#" style="display: block; margin-top: 4px;" onclick="alert('Subtotal: $96\n배송비: $0 (무료)\n합계: $96'); return false;">Breakdown ></a>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Place Order Button -->
+    <button class="btn-primary dark" onclick="placeOrder()">PLACE ORDER</button>
+  </div>
+  
+  <script>
+    /* ==========================================================================
+       🛒 장바구니 페이지 로직
+       
+       ⚠️ DB 연동 시 수정 필요:
+       - CartStorage.* 호출 → API fetch 호출로 변경
+       - loadCartItems(), updateTotalPrice() 등 함수는 유지 가능
+       ========================================================================== */
+    
+    // 페이지 로드 시 장바구니 불러오기
+    document.addEventListener('DOMContentLoaded', function() {
+      loadCartItems();
+    });
+    
+    // 장바구니 아이템 렌더링
+    function loadCartItems() {
+      const cartItems = CartStorage.getAll(); // ⚠️ DB: await fetch('/api/cart')
+      const container = document.getElementById('cartItems');
+      
+      if (cartItems.length === 0) {
+        container.innerHTML = '<p style="text-align: center; padding: 40px; color: #8B92A8;">장바구니가 비어있습니다</p>';
+        document.getElementById('totalPrice').textContent = '$0';
+        return;
+      }
+      
+      container.innerHTML = cartItems.map(item => `
+        <div class="cart-item" data-id="${item.id}">
+          <div class="cart-item-image"></div>
+          <div class="cart-item-info">
+            <h4>${item.name}</h4>
+            <p class="cart-item-size">${item.size}</p>
+            <p>${item.restaurant || 'Restaurant'}</p>
+            <div class="cart-item-footer">
+              <span class="cart-item-price">$${item.price * item.quantity}</span>
+              <div class="cart-counter">
+                <button class="cart-counter-btn" onclick="decreaseCartQuantity('${item.id}')">−</button>
+                <span class="cart-counter-value">${item.quantity}</span>
+                <button class="cart-counter-btn" onclick="increaseCartQuantity('${item.id}')">+</button>
+              </div>
+            </div>
+          </div>
+          <button class="cart-remove" onclick="removeCartItem('${item.id}')">×</button>
+        </div>
+      `).join('');
+      
+      updateTotalPrice();
+    }
+    
+    // 장바구니 아이템 수량 증가
+    function increaseCartQuantity(itemId) {
+      const cartItems = CartStorage.getAll(); // ⚠️ DB: await fetch('/api/cart')
+      const item = cartItems.find(i => i.id === itemId);
+      
+      if (item) {
+        item.quantity++;
+        CartStorage.save(cartItems); // ⚠️ DB: await fetch('/api/cart/'+itemId, {method:'PUT'})
+        loadCartItems();
+      }
+    }
+    
+    // 장바구니 아이템 수량 감소
+    function decreaseCartQuantity(itemId) {
+      const cartItems = CartStorage.getAll(); // ⚠️ DB: await fetch('/api/cart')
+      const item = cartItems.find(i => i.id === itemId);
+      
+      if (item && item.quantity > 1) {
+        item.quantity--;
+        CartStorage.save(cartItems); // ⚠️ DB: await fetch('/api/cart/'+itemId, {method:'PUT'})
+        loadCartItems();
+      }
+    }
+    
+    // 장바구니 아이템 삭제
+    function removeCartItem(itemId) {
+      if (confirm('이 상품을 장바구니에서 삭제하시겠습니까?')) {
+        CartStorage.removeItem(itemId); // ⚠️ DB: await fetch('/api/cart/'+itemId, {method:'DELETE'})
+        loadCartItems();
+      }
+    }
+    
+    // 전체 금액 업데이트
+    function updateTotalPrice() {
+      const total = CartStorage.getTotal(); // ⚠️ DB: 서버에서 계산된 값 사용
+      document.getElementById('totalPrice').textContent = '$' + total;
+    }
+    
+    // 주문하기
+    function placeOrder() {
+      const cartItems = CartStorage.getAll(); // ⚠️ DB: await fetch('/api/cart')
+      
+      if (cartItems.length === 0) {
+        alert('장바구니가 비어있습니다');
+        return;
+      }
+      
+      // 주문 생성
+      const order = OrderStorage.addOrder({ // ⚠️ DB: await fetch('/api/orders', {method:'POST'})
+        items: cartItems,
+        total: CartStorage.getTotal(),
+        address: '2118 Thornridge Cir. Syracuse'
+      });
+      
+      // 장바구니 비우기
+      CartStorage.clear(); // ⚠️ DB: await fetch('/api/cart', {method:'DELETE'})
+      
+      alert('주문이 완료되었습니다!\n주문번호: ' + order.id);
+      location.href = '08_My_Orders.html';
+    }
+  </script>
+</body>
+</html>

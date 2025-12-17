@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>07 Food Details</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="screen-container">
+    <!-- Header -->
+    <div class="page-header" style="position: absolute; top: 0; left: 0; right: 0; z-index: 10;">
+      <button class="icon-btn" onclick="history.back()">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M15 18l-6-6 6-6"/>
+        </svg>
+      </button>
+      <div class="page-title">Food Details</div>
+      <span class="see-details" style="color: #FF6B35; font-weight: 500; cursor: pointer;" onclick="location.href='09_Edit_Food.html'">수정</span>
+    </div>
+
+    <!-- Hero Image Section -->
+    <div class="food-hero-section">
+      <!-- Background Image Placeholder (Gray) -->
+      
+      <div class="hero-overlay-chips">
+        <span class="chip-white">Breakfast</span>
+        
+        <div class="hero-pagination">
+          <div class="hero-dot"></div>
+          <div class="hero-dot active"></div>
+          <div class="hero-dot"></div>
+          <div class="hero-dot"></div>
+        </div>
+        
+        <span class="chip-white">Delivery</span>
+      </div>
+    </div>
+
+    <!-- Content -->
+    <div style="padding: 0 24px;">
+      <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
+        <h2 style="font-size: 20px; font-weight: 700; color: var(--text-dark);">Chicken Thai Biriyani</h2>
+        <span style="font-size: 20px; font-weight: 700; color: var(--text-dark);">$60</span>
+      </div>
+      
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+        <div style="display: flex; align-items: center; gap: 4px; color: var(--text-gray); font-size: 13px;">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/>
+            <circle cx="12" cy="10" r="3"/>
+          </svg>
+          Kentucky 39495
+        </div>
+        
+        <div class="food-rating">
+          <span style="color: #FF6B35;">★</span> 4.9 <span style="font-weight: 400; color: var(--text-gray);">(10 Reviews)</span>
+        </div>
+      </div>
+      
+      <div style="margin-bottom: 24px;">
+        <h3 style="font-size: 14px; font-weight: 600; color: var(--text-dark); margin-bottom: 8px; text-transform: uppercase;">Description</h3>
+        <p style="font-size: 14px; color: var(--text-gray); line-height: 1.6;">
+          Lorem ipsum dolor sit amet, consetdur Maton adipiscing elit. Bibendum in vel, mattis et amet dui mauris turpis.
+        </p>
+      </div>
+    </div>
+
+    <!-- Bottom Navigation -->
+    <div class="bottom-nav">
+      <div class="nav-item" onclick="location.href='04_Orders.html'">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M4 6h16M4 12h16M4 18h16" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <div class="nav-item active" onclick="location.href='05_Foods.html'">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>
+          <polyline points="9 22 9 12 15 12 15 22"/>
+        </svg>
+      </div>
+      <div class="nav-item" onclick="location.href='06_Profile.html'">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/>
+          <circle cx="12" cy="7" r="4"/>
+        </svg>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
+
+
