@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>매장직결 광고 캠페인</title>
+  <link rel="stylesheet" href="style.css">
+  <!-- Use a nice font if available, otherwise fallbacks are in CSS -->
+</head>
+<body>
+
+  <!-- Background Decoration -->
+  <div class="float-element float-1"></div>
+  <div class="float-element float-2"></div>
+
+  <!-- Header Logo -->
+  <header class="ad-header">
+    <div class="logo-container">
+      <div class="logo-icon">🍔</div>
+      <div class="logo-text">매장직결</div>
+    </div>
+  </header>
+
+  <!-- Main Copy -->
+  <section class="hero-text">
+    <h1 class="hero-title">
+      내 매장 사이트로<br>
+      수수료 없이<br>
+      직접 주문받기
+    </h1>
+    <button class="cta-button">사전신청하기</button>
+  </section>
+
+  <!-- Phone Mockup -->
+  <div class="phone-mockup">
+    <!-- Commission Badge Floating -->
+    <div class="commission-badge">수수료 0원</div>
+
+    <!-- Phone Status Bar -->
+    <div class="phone-header">
+      <div class="status-bar">
+        <span>9:41</span>
+        <span>📶 🔋</span>
+      </div>
+
+      <!-- Dashboard Stats -->
+      <div class="dashboard-stats">
+        <div class="stat-card">
+          <div class="stat-label">오늘의 매출</div>
+          <div class="stat-value">$500.00</div>
+        </div>
+        <div class="stat-card" style="background: linear-gradient(135deg, #FF8C42 0%, #FFA06D 100%);">
+          <div class="stat-label">오늘 주문 건수</div>
+          <div class="stat-value">15건</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Phone Content Area -->
+    <div class="phone-content">
+      <h3 class="section-title">내 가게 메뉴</h3>
+      
+      <!-- Background Food List (Blurred) -->
+      <div class="food-list">
+        <!-- Item 1 -->
+        <div class="food-item">
+          <div class="food-img-placeholder" style="background-color: #FFECB3;"></div>
+          <div class="food-info">
+            <div class="food-name">치킨 타이 비리야니</div>
+            <div class="food-price">18,000원</div>
+          </div>
+        </div>
+        <!-- Item 2 -->
+        <div class="food-item">
+          <div class="food-img-placeholder" style="background-color: #FFCCBC;"></div>
+          <div class="food-info">
+            <div class="food-name">치킨 부나</div>
+            <div class="food-price">15,000원</div>
+          </div>
+        </div>
+        <!-- Item 3 -->
+        <div class="food-item">
+          <div class="food-img-placeholder" style="background-color: #CFD8DC;"></div>
+          <div class="food-info">
+            <div class="food-name">매운 소고기 볶음</div>
+            <div class="food-price">22,000원</div>
+          </div>
+        </div>
+        <!-- Item 4 -->
+        <div class="food-item">
+          <div class="food-img-placeholder" style="background-color: #C8E6C9;"></div>
+          <div class="food-info">
+            <div class="food-name">신선한 샐러드</div>
+            <div class="food-price">12,000원</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- New Order Notification Overlay -->
+      <div class="alert-overlay">
+        <div class="alert-card">
+          <div class="alert-icon">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+              <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+            </svg>
+          </div>
+          
+          <h2 class="alert-title">새로운 주문이 있습니다!</h2>
+          <div class="alert-subtitle">방금 전 • 주문번호 #32054</div>
+
+          <div class="order-summary">
+            <div class="summary-row">
+              <span class="summary-icon">👤</span>
+              <strong>김철수 고객님</strong>
+            </div>
+            <div class="summary-row">
+              <span class="summary-icon">🍲</span>
+              <div>
+                <strong>치킨 타이 비리야니</strong> 외 2개<br>
+                <span style="color:#666; font-size:12px;">73,000원 (결제완료)</span>
+              </div>
+            </div>
+            <div class="summary-row">
+              <span class="summary-icon">📍</span>
+              <span>서울시 강남구 테헤란로 123</span>
+            </div>
+          </div>
+
+          <div class="btn-group">
+            <button class="btn btn-reject">거절</button>
+            <button class="btn btn-accept">접수하기</button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</body>
+</html>
+

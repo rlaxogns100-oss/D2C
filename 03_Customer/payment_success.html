@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>결제 성공</title>
+    <link rel="stylesheet" type="text/css" href="billing-style.css" />
+  </head>
+
+  <body>
+    <div class="wrapper">
+      <div class="box_section">
+        <img width="100px" src="https://static.toss.im/illusts/check-blue-spot-ending-frame.png" />
+        <h2>결제를 완료했어요</h2>
+
+        <div class="p-grid typography--p" style="margin-top: 50px">
+          <div class="p-grid-col text--left"><b>결제금액</b></div>
+          <div class="p-grid-col text--right" id="amount"></div>
+        </div>
+        <div class="p-grid typography--p" style="margin-top: 10px">
+          <div class="p-grid-col text--left"><b>주문번호</b></div>
+          <div class="p-grid-col text--right" id="orderId"></div>
+        </div>
+        <div class="p-grid typography--p" style="margin-top: 10px">
+          <div class="p-grid-col text--left"><b>paymentKey</b></div>
+          <div class="p-grid-col text--right" id="paymentKey" style="word-break: break-all;"></div>
+        </div>
+        
+        <div style="margin-top: 30px; padding: 15px; background-color: #f0f0f0; border-radius: 8px; font-size: 14px; color: #666;">
+          <p>⚠️ 현재는 프론트엔드 테스트 모드입니다.</p>
+          <p>실제 서버가 연결되어 있지 않아 승인 API(/confirm) 호출은 생략되었습니다.</p>
+        </div>
+
+        <button class="button" onclick="location.href='04_Home.html'" style="margin-top: 30px;">홈으로 돌아가기</button>
+      </div>
+    </div>
+
+    <script>
+      const urlParams = new URLSearchParams(window.location.search);
+      
+      document.getElementById("orderId").textContent = urlParams.get("orderId");
+      document.getElementById("amount").textContent = urlParams.get("amount") + "원";
+      document.getElementById("paymentKey").textContent = urlParams.get("paymentKey");
+      
+      // 장바구니 비우기 (결제 성공했으므로)
+      // storage.js가 필요하지만, 여기선 간단히 로컬스토리지 직접 접근
+      try {
+        localStorage.removeItem('dfood_cart');
+      } catch (e) {
+        console.error(e);
+      }
+    </script>
+  </body>
+</html>
+

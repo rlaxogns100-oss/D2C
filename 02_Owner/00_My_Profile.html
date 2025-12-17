@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>00 My Profile</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="screen-container" style="background-color: var(--bg-gray); padding-top: 24px;">
+    
+    <!-- Operating Hours Card -->
+    <div class="settings-card">
+      <div class="settings-header">
+        <div class="settings-icon-circle" style="background-color: #E0E7FF; color: #4338CA;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"/>
+            <polyline points="12 6 12 12 16 14"/>
+          </svg>
+        </div>
+        <div class="settings-title">Operating Hours</div>
+      </div>
+      
+      <div class="time-picker-row">
+        <div class="time-input-group">
+          <span class="time-label">Open</span>
+          <div class="time-input-box">
+            <span>오전 09:00</span>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9CA3AF" stroke-width="2">
+              <circle cx="12" cy="12" r="10"/>
+              <polyline points="12 6 12 12 16 14"/>
+            </svg>
+          </div>
+        </div>
+        
+        <div class="time-input-group">
+          <span class="time-label">Close</span>
+          <div class="time-input-box">
+            <span>오후 09:00</span>
+             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9CA3AF" stroke-width="2">
+              <circle cx="12" cy="12" r="10"/>
+              <polyline points="12 6 12 12 16 14"/>
+            </svg>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Shop Status Card -->
+    <!-- Added margin-bottom explicitly to ensure spacing from next element -->
+    <div class="settings-card" style="margin-bottom: 24px;">
+      <div class="status-row">
+        <div style="display: flex; gap: 12px; align-items: center;">
+          <div class="settings-icon-circle" style="background-color: #FEE2E2; color: #EF4444;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M18.36 6.64a9 9 0 1 1-12.73 0"/>
+              <line x1="12" y1="2" x2="12" y2="12"/>
+            </svg>
+          </div>
+          <div class="status-info">
+            <h3>Shop Status</h3>
+            <div class="status-text">Currently Closed</div>
+          </div>
+        </div>
+        
+        <button class="btn-status-toggle">
+          OPEN SHOP
+        </button>
+      </div>
+    </div>
+
+    <!-- Personal Info Card -->
+    <div class="simple-list-item">
+      <div class="simple-item-left">
+        <div class="simple-icon-circle bg-orange-light">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/>
+            <circle cx="12" cy="7" r="4"/>
+          </svg>
+        </div>
+        <div class="simple-item-title">Personal Info</div>
+      </div>
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#9CA3AF" stroke-width="2">
+        <path d="M9 18l6-6-6-6"/>
+      </svg>
+    </div>
+
+    <!-- Settings Card -->
+    <div class="simple-list-item">
+      <div class="simple-item-left">
+        <div class="simple-icon-circle bg-orange-light">
+           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="3"/>
+            <path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z"/>
+          </svg>
+        </div>
+        <div class="simple-item-title">Settings</div>
+      </div>
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#9CA3AF" stroke-width="2">
+        <path d="M9 18l6-6-6-6"/>
+      </svg>
+    </div>
+
+  </div>
+</body>
+</html>
+
+
+

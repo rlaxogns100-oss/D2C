@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>04 Orders</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="screen-container">
+    <!-- Header -->
+    <div class="header" style="justify-content: center;">
+       <div class="location-wrapper" style="width: 100%; align-items: center;">
+         <span class="location-select" style="font-size: 16px;">진행 중인 주문</span>
+       </div>
+    </div>
+
+    <div class="orders-list-title">진행 중인 주문 20건</div>
+
+    <!-- Order Item 1 -->
+    <div class="order-card" onclick="location.href='10_Order_Details.html'">
+      <div class="order-img"></div>
+      <div class="order-info">
+        <div class="order-tag">#아침</div>
+        <div class="order-name">Chicken Thai Biriyani</div>
+        <div class="order-id">주문번호: 32053</div>
+        
+        <div style="display: flex; align-items: center; justify-content: space-between;">
+          <div class="order-price">$60</div>
+          <div style="display: flex; gap: 8px;">
+            <button class="btn-done" style="width: 60px; padding: 6px;">완료</button>
+            <button class="btn-cancel" style="width: 60px; padding: 6px;">취소</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Order Item 2 -->
+    <div class="order-card" onclick="location.href='10_Order_Details.html'">
+      <div class="order-img"></div>
+      <div class="order-info">
+        <div class="order-tag">#아침</div>
+        <div class="order-name">Chicken Bhuna</div>
+        <div class="order-id">주문번호: 15253</div>
+        
+        <div style="display: flex; align-items: center; justify-content: space-between;">
+          <div class="order-price">$30</div>
+          <div style="display: flex; gap: 8px;">
+            <button class="btn-done" style="width: 60px; padding: 6px;">완료</button>
+            <button class="btn-cancel" style="width: 60px; padding: 6px;">취소</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Order Item 3 -->
+    <div class="order-card" onclick="location.href='10_Order_Details.html'">
+      <div class="order-img"></div>
+      <div class="order-info">
+        <div class="order-tag">#아침</div>
+        <div class="order-name">Vegetarian Poutine</div>
+        <div class="order-id">주문번호: 21200</div>
+        
+        <div style="display: flex; align-items: center; justify-content: space-between;">
+          <div class="order-price">$35</div>
+          <div style="display: flex; gap: 8px;">
+            <button class="btn-done" style="width: 60px; padding: 6px;">완료</button>
+            <button class="btn-cancel" style="width: 60px; padding: 6px;">취소</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Order Item 4 -->
+    <div class="order-card" onclick="location.href='10_Order_Details.html'">
+      <div class="order-img"></div>
+      <div class="order-info">
+        <div class="order-tag">#아침</div>
+        <div class="order-name">Turkey Bacon Strips</div>
+        <div class="order-id">주문번호: 53241</div>
+        
+        <div style="display: flex; align-items: center; justify-content: space-between;">
+          <div class="order-price">$45</div>
+          <div style="display: flex; gap: 8px;">
+            <button class="btn-done" style="width: 60px; padding: 6px;">완료</button>
+            <button class="btn-cancel" style="width: 60px; padding: 6px;">취소</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Order Item 5 -->
+    <div class="order-card" onclick="location.href='10_Order_Details.html'">
+      <div class="order-img"></div>
+      <div class="order-info">
+        <div class="order-tag">#아침</div>
+        <div class="order-name">Veggie Burrito</div>
+        <div class="order-id">주문번호: 58464</div>
+        
+        <div style="display: flex; align-items: center; justify-content: space-between;">
+          <div class="order-price">$55</div>
+          <div style="display: flex; gap: 8px;">
+            <button class="btn-done" style="width: 60px; padding: 6px;">완료</button>
+            <button class="btn-cancel" style="width: 60px; padding: 6px;">취소</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bottom Navigation -->
+    <div class="bottom-nav">
+      <div class="nav-item active" onclick="location.href='04_Orders.html'">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M4 6h16M4 12h16M4 18h16" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <div class="nav-item" onclick="location.href='05_Foods.html'">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>
+          <polyline points="9 22 9 12 15 12 15 22"/>
+        </svg>
+      </div>
+      <div class="nav-item" onclick="location.href='06_Profile.html'">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/>
+          <circle cx="12" cy="7" r="4"/>
+        </svg>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
+
+

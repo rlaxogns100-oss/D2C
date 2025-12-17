@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>결제 수단 관리</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="storage.js"></script>
+  <!-- 토스페이먼츠 SDK v2 -->
+  <script src="https://js.tosspayments.com/v2/standard"></script>
+</head>
+<body>
+  <div class="screen-label">결제 수단 관리</div>
+  
+  <div class="container">
+    <!-- Header -->
+    <div class="section-header">
+      <button class="icon-btn back-btn" onclick="history.back()" style="position: static; margin-right: 16px;">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M15 18l-6-6 6-6"/>
+        </svg>
+      </button>
+      <h2 style="margin: 0; flex: 1;">결제 수단 관리</h2>
+    </div>
+
+    <!-- 계약 안내 문구 (항상 표시) -->
+    <div style="padding: 20px; text-align: center; color: #666; background-color: #f8f9fa; border-radius: 12px; margin-bottom: 16px;">
+        <p style="font-weight: 600; font-size: 16px; margin-bottom: 8px;">토스페이먼츠 계약 체결 중입니다.</p>
+        <p>계좌이체로 부탁드려요 😭</p>
+    </div>
+
+    <!-- Registered Cards List -->
+    <div class="card-list">
+      <!-- Card Item 1 -->
+      <div class="address-card">
+        <div class="address-header">
+          <div class="address-icon" style="background-color: #3B5998; color: white;">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect>
+              <line x1="1" y1="10" x2="23" y2="10"></line>
+            </svg>
+          </div>
+          <span class="address-label">신한카드 Deep Dream</span>
+          <div class="address-actions">
+            <button class="icon-action-btn delete" onclick="confirm('정말 삭제하시겠습니까?')">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="3 6 5 6 21 6"></polyline>
+                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+              </svg>
+            </button>
+          </div>
+        </div>
+        <div class="address-text">
+          <p style="font-size: 16px; font-weight: 600; color: var(--text-dark);">**** **** **** 1234</p>
+          <p>만료일: 12/25</p>
+        </div>
+      </div>
+
+      <!-- Card Item 2 -->
+      <div class="address-card">
+        <div class="address-header">
+          <div class="address-icon" style="background-color: #FFC107; color: white;">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect>
+              <line x1="1" y1="10" x2="23" y2="10"></line>
+            </svg>
+          </div>
+          <span class="address-label">국민카드 My WE:SH</span>
+          <div class="address-actions">
+            <button class="icon-action-btn delete" onclick="confirm('정말 삭제하시겠습니까?')">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="3 6 5 6 21 6"></polyline>
+                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+              </svg>
+            </button>
+          </div>
+        </div>
+        <div class="address-text">
+          <p style="font-size: 16px; font-weight: 600; color: var(--text-dark);">**** **** **** 5678</p>
+          <p>만료일: 08/26</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Add New Card Button -->
+    <button id="billing-button" class="btn-primary" style="display: flex; align-items: center; justify-content: center; gap: 8px;">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <line x1="12" y1="5" x2="12" y2="19"></line>
+        <line x1="5" y1="12" x2="19" y2="12"></line>
+      </svg>
+      새 카드 등록
+    </button>
+  </div>
+
+  <script>
+    function generateRandomString() {
+      return window.btoa(Math.random()).slice(0, 20);
+    }
+
+    document.addEventListener("DOMContentLoaded", async function () {
+      const button = document.getElementById("billing-button");
+
+      // ------ 자동결제(빌링) 결제창 초기화 ------
+      // 1. 사용자가 가져온 파일(billing.html)에 있던 원래 키를 사용해봅니다.
+      // (일반 결제용 키와 빌링용 키가 다를 수 있습니다.)
+      const clientKey = "test_ck_vZnjEJeQVxePJdEMyexZrPmOoBN0"; 
+      const customerKey = generateRandomString();
+      
+      try {
+        const tossPayments = TossPayments(clientKey);
+        const payment = tossPayments.payment({ customerKey });
+
+        // '카드 등록하기' 버튼 클릭 시 자동결제(빌링) 카드 등록창 호출
+        button.addEventListener("click", async function () {
+          console.log("카드 등록 버튼 클릭됨");
+          try {
+            await payment.requestBillingAuth({
+              method: "CARD",
+              successUrl: window.location.origin + "/02_Customer/billing_success.html",
+              failUrl: window.location.origin + "/02_Customer/billing_fail.html",
+            });
+          } catch (error) {
+            console.error("카드 등록 에러:", error);
+            // 에러 내용을 사용자에게 알림
+            alert(`카드 등록 실패\n에러 코드: ${error.code}\n메시지: ${error.message}`);
+          }
+        });
+      } catch (error) {
+        console.error("토스페이먼츠 초기화 오류:", error);
+        alert("토스페이먼츠 초기화 실패: " + error.message);
+      }
+    });
+  </script>
+</body>
+</html>

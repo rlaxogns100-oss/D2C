@@ -1,0 +1,13 @@
+.DS_Store
+payments 복사본/
+*.log
+
+# Java/Gradle
+.gradle/
+build/
+out/
+bin/
+*.class
+
+# Node
+node_modules/

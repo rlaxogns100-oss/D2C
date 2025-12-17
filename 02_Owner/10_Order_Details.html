@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>10 Order Details</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    /* Order Detail Specific Styles */
+    .detail-container {
+      padding: 0 24px 24px;
+    }
+
+    /* Order Status Header */
+    .order-status-card {
+      text-align: center;
+      margin-bottom: 24px;
+    }
+    
+    .status-badge {
+      display: inline-block;
+      padding: 6px 16px;
+      background-color: var(--primary-orange-light);
+      color: var(--primary-orange);
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .order-number {
+      font-size: 24px;
+      font-weight: 700;
+      color: var(--text-dark);
+      margin-bottom: 4px;
+    }
+
+    .order-time {
+      font-size: 13px;
+      color: var(--text-gray);
+    }
+
+    /* Section Styles */
+    .detail-section {
+      background-color: var(--white);
+      border-radius: var(--radius-lg);
+      padding: 20px;
+      margin-bottom: 16px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .section-label {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-gray);
+      text-transform: uppercase;
+      margin-bottom: 12px;
+      letter-spacing: 0.5px;
+    }
+
+    /* Customer Info */
+    .customer-info {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .customer-profile {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .customer-avatar {
+      width: 48px;
+      height: 48px;
+      background-color: #E5E7EB;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-gray);
+    }
+
+    .customer-details h4 {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text-dark);
+      margin-bottom: 2px;
+    }
+
+    .customer-details p {
+      font-size: 13px;
+      color: var(--text-gray);
+    }
+
+    .call-btn {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background-color: #DEF7EC;
+      color: #0E9F6E;
+      border: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+    }
+
+    /* Address */
+    .address-row {
+      display: flex;
+      gap: 12px;
+    }
+
+    .address-icon {
+      color: var(--primary-orange);
+      margin-top: 2px;
+    }
+
+    .address-text {
+      font-size: 14px;
+      color: var(--text-dark);
+      line-height: 1.5;
+    }
+
+    /* Order Items */
+    .item-row {
+      display: flex;
+      gap: 12px;
+      padding-bottom: 16px;
+      margin-bottom: 16px;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .item-row:last-child {
+      border-bottom: none;
+      padding-bottom: 0;
+      margin-bottom: 0;
+    }
+
+    .item-qty {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--primary-orange);
+      width: 24px;
+    }
+
+    .item-content {
+      flex: 1;
+    }
+
+    .item-name {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-dark);
+      margin-bottom: 4px;
+    }
+
+    .item-opt {
+      font-size: 12px;
+      color: var(--text-gray);
+    }
+
+    .item-price {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-dark);
+    }
+
+    /* Special Request */
+    .note-box {
+      background-color: #FFF8F1;
+      padding: 12px;
+      border-radius: 8px;
+      border-left: 3px solid var(--primary-orange);
+      font-size: 13px;
+      color: #7c2d12;
+      line-height: 1.5;
+    }
+
+    /* Bill Summary */
+    .bill-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 13px;
+      color: var(--text-gray);
+      margin-bottom: 8px;
+    }
+
+    .bill-row.total {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--text-dark);
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 1px dashed var(--border-color);
+      margin-bottom: 0;
+    }
+
+    /* Action Footer */
+    .action-footer {
+      position: fixed;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 100%;
+      max-width: 375px;
+      background-color: var(--white);
+      padding: 16px 24px 32px;
+      box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.05);
+      display: flex;
+      gap: 12px;
+      z-index: 100;
+      border-radius: 20px 20px 0 0;
+    }
+
+    .btn-action {
+      flex: 1;
+      padding: 14px;
+      border-radius: 12px;
+      font-size: 14px;
+      font-weight: 700;
+      border: none;
+      cursor: pointer;
+    }
+
+    .btn-secondary {
+      background-color: var(--bg-gray);
+      color: var(--text-dark);
+    }
+
+    .btn-primary {
+      background-color: var(--primary-orange);
+      color: var(--white);
+      box-shadow: 0 4px 12px rgba(255, 107, 53, 0.3);
+    }
+  </style>
+</head>
+<body>
+  <div class="screen-container" style="padding-bottom: 100px;">
+    <!-- Page Header -->
+    <div class="page-header">
+      <button class="icon-btn" onclick="history.back()">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M15 18l-6-6 6-6"/>
+        </svg>
+      </button>
+      <div class="page-title">주문 상세</div>
+      <div style="width: 40px;"></div>
+    </div>
+
+    <div class="detail-container">
+      <!-- Status -->
+      <div class="order-status-card">
+        <div class="status-badge">조리 중</div>
+        <div class="order-number">주문번호 #32053</div>
+        <div class="order-time">오늘 오후 12:45</div>
+      </div>
+
+      <!-- Customer -->
+      <div class="detail-section">
+        <div class="section-label">주문자</div>
+        <div class="customer-info">
+          <div class="customer-profile">
+            <div class="customer-avatar">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                <circle cx="12" cy="7" r="4"/>
+              </svg>
+            </div>
+            <div class="customer-details">
+              <h4>John Smith</h4>
+              <p>10번째 주문</p>
+            </div>
+          </div>
+          <button class="call-btn">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Address -->
+      <div class="detail-section">
+        <div class="section-label">배달 주소</div>
+        <div class="address-row">
+          <div class="address-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+              <circle cx="12" cy="10" r="3"/>
+            </svg>
+          </div>
+          <div class="address-text">
+            2118 Thornridge Cir. Syracuse,<br>
+            Connecticut 35624
+          </div>
+        </div>
+      </div>
+
+      <!-- Order Items -->
+      <div class="detail-section">
+        <div class="section-label">주문 내역 (3)</div>
+        
+        <div class="item-row">
+          <div class="item-qty">2개</div>
+          <div class="item-content">
+            <div class="item-name">Chicken Thai Biriyani</div>
+            <div class="item-opt">아주 맵게, 양파 빼고</div>
+          </div>
+          <div class="item-price">$60.00</div>
+        </div>
+
+        <div class="item-row">
+          <div class="item-qty">1개</div>
+          <div class="item-content">
+            <div class="item-name">Coca Cola (L)</div>
+            <div class="item-opt">얼음</div>
+          </div>
+          <div class="item-price">$2.50</div>
+        </div>
+      </div>
+
+      <!-- Special Request -->
+      <div class="detail-section">
+        <div class="section-label">요청 사항</div>
+        <div class="note-box">
+          문 앞에 두고 벨 눌러주세요.
+        </div>
+      </div>
+
+      <!-- Bill -->
+      <div class="detail-section">
+        <div class="bill-row">
+          <span>주문 금액</span>
+          <span>$62.50</span>
+        </div>
+        <div class="bill-row">
+          <span>배달팁</span>
+          <span>$5.00</span>
+        </div>
+        <div class="bill-row">
+          <span>부가세</span>
+          <span>$6.25</span>
+        </div>
+        <div class="bill-row total">
+          <span>총 결제 금액</span>
+          <span>$73.75</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Actions -->
+    <div class="action-footer">
+      <button class="btn-action btn-secondary">거절</button>
+      <button class="btn-action btn-primary">수락</button>
+    </div>
+  </div>
+</body>
+</html>

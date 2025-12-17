@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>배달 권역 설정</title>
+  <link rel="stylesheet" href="style.css">
+  <!-- Leaflet CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+     integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+     crossorigin=""/>
+  
+  <style>
+    /* 지도 컨테이너 */
+    #map {
+      width: 100%;
+      height: 60vh; /* 화면의 60% */
+      z-index: 1;
+    }
+
+    /* 하단 컨트롤 패널 */
+    .control-panel {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 40vh;
+      background-color: var(--white);
+      border-radius: 24px 24px 0 0;
+      box-shadow: 0 -4px 20px rgba(0,0,0,0.1);
+      z-index: 100;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      overflow-y: auto;
+    }
+
+    .panel-header {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 24px;
+    }
+
+    .drag-handle {
+      width: 40px;
+      height: 4px;
+      background-color: #E5E7EB;
+      border-radius: 2px;
+    }
+
+    .setting-group {
+      margin-bottom: 24px;
+    }
+
+    .label-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    .setting-label {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--text-dark);
+    }
+
+    .setting-value {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--primary-orange);
+    }
+
+    /* 커스텀 슬라이더 */
+    input[type=range] {
+      width: 100%;
+      margin: 8px 0;
+      background-color: transparent;
+      -webkit-appearance: none;
+    }
+
+    input[type=range]:focus {
+      outline: none;
+    }
+
+    input[type=range]::-webkit-slider-runnable-track {
+      background: #E5E7EB;
+      border: 0;
+      border-radius: 25px;
+      width: 100%;
+      height: 6px;
+      cursor: pointer;
+    }
+
+    input[type=range]::-webkit-slider-thumb {
+      margin-top: -7px;
+      width: 20px;
+      height: 20px;
+      background: var(--primary-orange);
+      border: 2px solid #fff;
+      border-radius: 50%;
+      cursor: pointer;
+      -webkit-appearance: none;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+    }
+
+    .input-row {
+      display: flex;
+      gap: 12px;
+    }
+
+    .money-input-wrapper {
+      position: relative;
+      flex: 1;
+    }
+
+    .money-input {
+      width: 100%;
+      padding: 12px 12px 12px 32px;
+      border: 1px solid #E5E7EB;
+      border-radius: 12px;
+      font-size: 16px;
+      font-weight: 600;
+      outline: none;
+    }
+
+    .money-input:focus {
+      border-color: var(--primary-orange);
+    }
+
+    .currency-symbol {
+      position: absolute;
+      left: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-gray);
+      font-weight: 600;
+    }
+
+    /* 플로팅 뒤로가기 버튼 */
+    .floating-back-btn {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      width: 40px;
+      height: 40px;
+      background-color: white;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+      z-index: 50;
+      border: none;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  
+  <!-- 지도 영역 -->
+  <div id="map"></div>
+
+  <!-- 뒤로가기 버튼 -->
+  <button class="floating-back-btn" onclick="history.back()">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M15 18l-6-6 6-6"/>
+    </svg>
+  </button>
+
+  <!-- 컨트롤 패널 -->
+  <div class="control-panel">
+    <div class="panel-header">
+      <div class="drag-handle"></div>
+    </div>
+
+    <!-- 1. 배달 반경 설정 -->
+    <div class="setting-group">
+      <div class="label-row">
+        <span class="setting-label">배달 반경</span>
+        <span class="setting-value" id="radiusValue">1.5 km</span>
+      </div>
+      <input type="range" id="radiusSlider" min="0.5" max="5.0" step="0.1" value="1.5">
+      <div style="display: flex; justify-content: space-between; margin-top: 4px; font-size: 12px; color: #9CA3AF;">
+        <span>0.5km</span>
+        <span>5km</span>
+      </div>
+    </div>
+
+    <!-- 2. 배달팁 설정 -->
+    <div class="setting-group">
+      <div class="label-row">
+        <span class="setting-label">기본 배달팁</span>
+      </div>
+      <div class="input-row">
+        <div class="money-input-wrapper">
+          <span class="currency-symbol">₩</span>
+          <input type="number" class="money-input" value="3000" placeholder="0">
+        </div>
+      </div>
+    </div>
+
+    <!-- 저장 버튼 -->
+    <button class="btn-primary" onclick="saveSettings()">설정 저장하기</button>
+  </div>
+
+  <!-- Leaflet JS -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+     integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+     crossorigin=""></script>
+
+  <script>
+    // 1. 지도 초기화 (서울 강남역 좌표 기준)
+    // 실제로는 사용자의 매장 위치 좌표를 받아와야 함
+    const shopLat = 37.4979;
+    const shopLng = 127.0276;
+    const map = L.map('map', {
+        zoomControl: false, // 줌 컨트롤 숨김 (모바일 최적화)
+        attributionControl: false // 하단 로고 숨김
+    }).setView([shopLat, shopLng], 14);
+
+    // 2. 타일 레이어 추가 (OpenStreetMap)
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+    }).addTo(map);
+
+    // 3. 매장 마커 추가
+    // 커스텀 마커 아이콘
+    const shopIcon = L.divIcon({
+        className: 'custom-div-icon',
+        html: `<div style="background-color: #FF6B35; width: 24px; height: 24px; border-radius: 50%; border: 3px solid white; box-shadow: 0 2px 5px rgba(0,0,0,0.3);"></div>`,
+        iconSize: [30, 30],
+        iconAnchor: [15, 15]
+    });
+
+    L.marker([shopLat, shopLng], { icon: shopIcon }).addTo(map);
+
+    // 4. 배달 반경 원(Circle) 그리기
+    let circle = L.circle([shopLat, shopLng], {
+        color: '#FF6B35',       // 테두리 색상
+        fillColor: '#FF6B35',   // 채우기 색상
+        fillOpacity: 0.1,       // 투명도
+        radius: 1500            // 초기 반경 (미터 단위)
+    }).addTo(map);
+
+    // 5. 슬라이더 이벤트 연결
+    const radiusSlider = document.getElementById('radiusSlider');
+    const radiusValue = document.getElementById('radiusValue');
+
+    radiusSlider.addEventListener('input', function(e) {
+        const km = parseFloat(e.target.value);
+        const meters = km * 1000;
+        
+        // 텍스트 업데이트
+        radiusValue.textContent = km + ' km';
+        
+        // 지도 원 크기 업데이트
+        circle.setRadius(meters);
+        
+        // 지도가 원을 모두 포함하도록 줌 레벨 조정 (선택 사항)
+        // map.fitBounds(circle.getBounds());
+    });
+
+    // 6. 저장 함수
+    function saveSettings() {
+        const radius = radiusSlider.value;
+        const fee = document.querySelector('.money-input').value;
+        
+        // 로컬 스토리지 저장 시뮬레이션
+        localStorage.setItem('delivery_radius', radius);
+        localStorage.setItem('delivery_fee', fee);
+        
+        alert(`배달 권역이 ${radius}km로 설정되었습니다.\n기본 배달팁: ${Number(fee).toLocaleString()}원`);
+        
+        // 이전 페이지로 이동
+        // history.back();
+    }
+
+    // 초기 로딩 시 저장된 값이 있다면 불러오기
+    window.onload = function() {
+        const savedRadius = localStorage.getItem('delivery_radius');
+        const savedFee = localStorage.getItem('delivery_fee');
+
+        if(savedRadius) {
+            radiusSlider.value = savedRadius;
+            radiusValue.textContent = savedRadius + ' km';
+            circle.setRadius(savedRadius * 1000);
+        }
+        
+        if(savedFee) {
+            document.querySelector('.money-input').value = savedFee;
+        }
+    }
+  </script>
+</body>
+</html>
+

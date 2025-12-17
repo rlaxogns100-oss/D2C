@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>카드 등록 성공</title>
+    <link rel="stylesheet" type="text/css" href="billing-style.css" />
+  </head>
+
+  <body>
+    <div class="wrapper">
+      <div class="box_section">
+        <img width="100px" src="https://static.toss.im/illusts/check-blue-spot-ending-frame.png" />
+        <h2>카드 등록이 완료되었습니다</h2>
+
+        <div class="p-grid typography--p" style="margin-top: 50px">
+          <div class="p-grid-col text--left"><b>authKey</b></div>
+          <div class="p-grid-col text--right" id="authKey" style="word-break: break-all;"></div>
+        </div>
+        <div class="p-grid typography--p" style="margin-top: 10px">
+          <div class="p-grid-col text--left"><b>customerKey</b></div>
+          <div class="p-grid-col text--right" id="customerKey" style="word-break: break-all;"></div>
+        </div>
+
+        <div style="margin-top: 30px; padding: 15px; background-color: #f0f0f0; border-radius: 8px; font-size: 14px; color: #666;">
+          <p>⚠️ 빌링키 발급 준비 완료</p>
+          <p>실제 서버라면 위 authKey로 빌링키 발급 API를 호출해야 합니다.</p>
+        </div>
+
+        <button class="button" onclick="location.href='12_Payment_Edit.html'" style="margin-top: 30px;">목록으로 돌아가기</button>
+      </div>
+    </div>
+
+    <script>
+      const urlParams = new URLSearchParams(window.location.search);
+      document.getElementById("authKey").textContent = urlParams.get("authKey");
+      document.getElementById("customerKey").textContent = urlParams.get("customerKey");
+    </script>
+  </body>
+</html>
+

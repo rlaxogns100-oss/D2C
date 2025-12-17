@@ -1,0 +1,1132 @@
+/* ==========================================================================
+   Owner App Design System
+   Target Width: 375px (Mobile)
+   ========================================================================== */
+
+:root {
+  --primary-orange: #FF6B35;
+  --primary-orange-light: #FFF2EB;
+  --text-dark: #1A1D26;
+  --text-gray: #9CA3AF;
+  --bg-gray: #F8F9FB;
+  --white: #FFFFFF;
+  --border-color: #F3F4F6;
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.04);
+  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.08);
+  --radius-lg: 20px;
+  --radius-md: 16px;
+  --radius-sm: 12px;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+body {
+  background-color: var(--bg-gray);
+  color: var(--text-dark);
+  display: flex;
+  justify-content: center;
+  min-height: 100vh;
+}
+
+.screen-container {
+  width: 100%;
+  max-width: 375px;
+  background-color: var(--bg-gray);
+  min-height: 100vh;
+  position: relative;
+  padding-bottom: 90px; /* Bottom Nav Space */
+  overflow-x: hidden;
+}
+
+/* ==========================================================================
+   Header Components
+   ========================================================================== */
+.header {
+  padding: 20px 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: transparent;
+}
+
+.location-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.location-label {
+  font-size: 10px;
+  color: var(--primary-orange);
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  margin-bottom: 2px;
+}
+
+.location-select {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-dark);
+}
+
+.icon-btn {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background-color: var(--white);
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--shadow-sm);
+  cursor: pointer;
+  color: var(--text-dark);
+}
+
+.profile-img {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background-color: #9CA3AF; /* Placeholder color */
+  overflow: hidden;
+}
+
+.page-header {
+  padding: 20px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.page-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--text-dark);
+}
+
+/* ==========================================================================
+   Dashboard Components
+   ========================================================================== */
+.stats-row {
+  display: flex;
+  gap: 16px;
+  padding: 0 24px;
+  margin-bottom: 24px;
+}
+
+.stat-card {
+  flex: 1;
+  background-color: var(--white);
+  border-radius: var(--radius-lg);
+  padding: 20px;
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.stat-value {
+  font-size: 32px;
+  font-weight: 700;
+  color: var(--text-dark);
+  margin-bottom: 4px;
+}
+
+.stat-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-gray);
+  text-transform: uppercase;
+}
+
+.section-card {
+  background-color: var(--white);
+  border-radius: var(--radius-lg);
+  padding: 20px;
+  margin: 0 24px 24px;
+  box-shadow: var(--shadow-sm);
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 20px;
+}
+
+.card-title-group h3 {
+  font-size: 14px;
+  color: var(--text-gray);
+  font-weight: 500;
+  margin-bottom: 4px;
+}
+
+.revenue-value {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--text-dark);
+}
+
+.period-select {
+  padding: 6px 12px;
+  border: 1px solid var(--border-color);
+  border-radius: 20px;
+  font-size: 12px;
+  color: var(--text-dark);
+  background: transparent;
+}
+
+.see-details {
+  font-size: 12px;
+  color: var(--primary-orange);
+  text-decoration: none;
+  font-weight: 600;
+}
+
+/* Chart Placeholder */
+.chart-area {
+  width: 100%;
+  height: 120px;
+  position: relative;
+  margin-bottom: 10px;
+}
+
+.chart-tooltip {
+  position: absolute;
+  top: 10%;
+  left: 40%;
+  background-color: var(--text-dark);
+  color: var(--white);
+  padding: 6px 10px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.chart-tooltip::after {
+  content: '';
+  position: absolute;
+  bottom: -4px;
+  left: 50%;
+  transform: translateX(-50%);
+  border-left: 4px solid transparent;
+  border-right: 4px solid transparent;
+  border-top: 4px solid var(--text-dark);
+}
+
+.time-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 10px;
+  color: var(--text-gray);
+  margin-top: 10px;
+}
+
+/* Reviews Section */
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 24px;
+  margin-bottom: 12px;
+}
+
+.section-title {
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.review-card {
+  margin: 0 24px 24px;
+  padding: 16px;
+  background-color: var(--white);
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: var(--shadow-sm);
+}
+
+.rating-star {
+  color: var(--primary-orange);
+}
+
+.rating-score {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text-dark);
+}
+
+.rating-count {
+  font-size: 13px;
+  color: var(--text-gray);
+}
+
+/* Popular Items */
+.popular-scroll {
+  display: flex;
+  gap: 16px;
+  padding: 0 24px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.popular-item {
+  min-width: 140px;
+  height: 140px;
+  background-color: #9CA3AF;
+  border-radius: var(--radius-md);
+}
+
+/* ===================================
+   Running Orders Components
+   =================================== */
+.orders-list-title {
+  padding: 0 24px;
+  margin-bottom: 16px;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.order-card {
+  background-color: var(--white);
+  margin: 0 24px 16px;
+  padding: 16px;
+  border-radius: var(--radius-lg);
+  display: flex;
+  gap: 16px;
+  box-shadow: var(--shadow-sm);
+}
+
+.order-img {
+  width: 80px;
+  height: 80px;
+  background-color: #9CA3AF; /* Placeholder */
+  border-radius: var(--radius-sm);
+  flex-shrink: 0;
+}
+
+.order-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.order-tag {
+  font-size: 12px;
+  color: var(--primary-orange);
+  margin-bottom: 4px;
+}
+
+.order-name {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-dark);
+  margin-bottom: 2px;
+}
+
+.order-id {
+  font-size: 12px;
+  color: var(--text-gray);
+  margin-bottom: 8px;
+}
+
+.order-price {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text-dark);
+  margin-bottom: 12px;
+}
+
+.order-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.btn-done {
+  flex: 1;
+  padding: 8px;
+  background-color: var(--primary-orange);
+  color: var(--white);
+  border: none;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.btn-cancel {
+  flex: 1;
+  padding: 8px;
+  background-color: var(--white);
+  color: var(--primary-orange);
+  border: 1px solid var(--primary-orange);
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+/* ===================================
+   My Food Components
+   =================================== */
+.tabs-scroll {
+  display: flex;
+  gap: 24px;
+  padding: 0 24px;
+  margin-bottom: 20px;
+  overflow-x: auto;
+  border-bottom: 1px solid transparent;
+}
+
+.tab-item {
+  padding-bottom: 12px;
+  font-size: 14px;
+  color: var(--text-gray);
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.tab-item.active {
+  color: var(--primary-orange);
+  font-weight: 600;
+  border-bottom: 2px solid var(--primary-orange);
+}
+
+.total-count {
+  padding: 0 24px;
+  font-size: 13px;
+  color: var(--text-gray);
+  margin-bottom: 16px;
+}
+
+.food-item {
+  background-color: var(--white);
+  margin: 0 24px 16px;
+  padding: 16px;
+  border-radius: var(--radius-lg);
+  display: flex;
+  gap: 16px;
+  box-shadow: var(--shadow-sm);
+}
+
+.food-info-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 4px;
+}
+
+.menu-dots {
+  color: var(--text-dark);
+  cursor: pointer;
+}
+
+.food-tag-pill {
+  display: inline-block;
+  background-color: var(--primary-orange-light);
+  color: var(--primary-orange);
+  font-size: 11px;
+  padding: 4px 8px;
+  border-radius: 6px;
+  margin-bottom: 8px;
+}
+
+.food-rating {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  color: var(--text-dark);
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.food-rating span {
+  color: var(--text-gray);
+  font-weight: 400;
+}
+
+.food-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: auto;
+}
+
+.food-status {
+  font-size: 12px;
+  color: var(--text-gray);
+}
+
+/* ===================================
+   Bottom Navigation
+   =================================== */
+.bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
+  max-width: 375px;
+  background-color: var(--white);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 24px 20px;
+  border-radius: 30px 30px 0 0;
+  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.05);
+  z-index: 100;
+}
+
+.nav-item {
+  color: var(--text-gray);
+  cursor: pointer;
+}
+
+.nav-item.active {
+  color: var(--primary-orange);
+}
+
+.nav-fab {
+  width: 56px;
+  height: 56px;
+  background-color: var(--primary-orange);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--white);
+  box-shadow: 0 4px 12px rgba(255, 107, 53, 0.3);
+  margin-top: -30px;
+  cursor: pointer;
+}
+
+/* ============================================================================
+   IMPORTED CUSTOMER STYLES (For Login, Signup, Loading)
+   ============================================================================ */
+
+/* ===================================
+   🎬 Loading & Splash Screen
+   =================================== */
+
+.loading-screen {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  background-color: var(--bg-gray);
+}
+
+.logo {
+  font-size: 64px;
+  font-weight: 700;
+  color: var(--text-dark);
+}
+
+.logo .logo-o {
+  color: var(--primary-orange);
+  position: relative;
+  display: inline-block;
+}
+
+.logo .logo-o::after {
+  content: '';
+  position: absolute;
+  top: -8px;
+  right: -4px;
+  width: 24px;
+  height: 24px;
+  background-color: var(--primary-orange);
+  border-radius: 50%;
+  box-shadow: 0 0 0 4px var(--primary-orange);
+}
+
+/* ===================================
+   🔐 Auth Screens (Login/Signup)
+   =================================== */
+
+.auth-container {
+  max-width: 375px;
+  margin: 0 auto;
+  min-height: 100vh;
+  background-color: var(--bg-gray);
+}
+
+.auth-header {
+  background: linear-gradient(135deg, #2D3E50 0%, #1A252F 100%);
+  padding: 60px 24px 40px;
+  border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+  position: relative;
+  text-align: center;
+  color: var(--white);
+  background-image: 
+    repeating-linear-gradient(
+      45deg,
+      transparent,
+      transparent 10px,
+      rgba(255, 255, 255, 0.03) 10px,
+      rgba(255, 255, 255, 0.03) 20px
+    );
+}
+
+.auth-header .back-btn {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  background-color: var(--white);
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: var(--text-dark);
+}
+
+.auth-header h1 {
+  font-size: 32px;
+  margin-bottom: 12px;
+  color: var(--white);
+}
+
+.auth-header p {
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.auth-form {
+  padding: 24px;
+  background-color: var(--white);
+  margin: -20px 24px 0;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+}
+
+.form-group {
+  margin-bottom: 24px;
+}
+
+.form-label {
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-dark);
+  text-transform: uppercase;
+  margin-bottom: 8px;
+  letter-spacing: 0.5px;
+}
+
+.form-input {
+  width: 100%;
+  padding: 16px;
+  border: none;
+  border-radius: var(--radius-md);
+  background-color: #F8F9FA;
+  font-size: 14px;
+  transition: all 0.3s ease;
+  font-family: inherit;
+  color: var(--text-dark);
+}
+
+.form-input:focus {
+  outline: none;
+  background-color: #EEF0F2;
+  box-shadow: 0 0 0 2px rgba(255, 107, 53, 0.2);
+}
+
+.form-input::placeholder {
+  color: #B8BEC4;
+}
+
+.password-input-wrapper {
+  position: relative;
+}
+
+.password-toggle {
+  position: absolute;
+  right: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--text-gray);
+  padding: 4px;
+}
+
+.form-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  font-size: 13px;
+}
+
+.checkbox-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.checkbox-group input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+  accent-color: var(--primary-orange);
+}
+
+.forgot-password {
+  color: var(--primary-orange);
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.btn-primary {
+  width: 100%;
+  padding: 18px;
+  background-color: var(--primary-orange);
+  color: var(--white);
+  border: none;
+  border-radius: var(--radius-md);
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  box-shadow: 0 4px 12px rgba(255, 107, 53, 0.3);
+}
+
+.btn-primary:hover {
+  background-color: #FF5722; /* Slightly darker orange */
+  transform: translateY(-2px);
+}
+
+.auth-footer {
+  text-align: center;
+  margin-top: 24px;
+  font-size: 14px;
+  color: var(--text-gray);
+}
+
+.auth-footer a {
+  color: var(--primary-orange);
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.social-divider {
+  text-align: center;
+  margin: 24px 0;
+  color: var(--text-gray);
+  font-size: 13px;
+}
+
+.social-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+}
+
+.social-btn {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  color: var(--white);
+  font-size: 24px;
+  box-shadow: var(--shadow-sm);
+}
+
+.social-btn.facebook {
+  background-color: #3B5998;
+}
+
+.social-btn.twitter {
+  background-color: #1DA1F2;
+}
+
+.social-btn.apple {
+  background-color: #000000;
+}
+
+.social-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+
+/* ==========================================================================
+   00_ SERIES NEW STYLES
+   For pages: 00_Running_Orders, 00_My_Food_List, 00_Add_New_Items, 
+   00_Food_Details, 00_My_Profile
+   ========================================================================== */
+
+/* ===================================
+   Profile / Settings New Styles
+   =================================== */
+
+.settings-card {
+  background-color: var(--white);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  margin: 0 24px 16px; /* Bottom margin ensures spacing */
+  box-shadow: var(--shadow-sm);
+}
+
+.settings-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.settings-icon-circle {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background-color: #EEF2FF; /* Light Blue/Gray */
+  color: #4F46E5; /* Indigo */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.settings-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text-dark);
+}
+
+/* Operating Hours */
+.time-picker-row {
+  display: flex;
+  gap: 16px;
+}
+
+.time-input-group {
+  flex: 1;
+}
+
+.time-label {
+  font-size: 12px;
+  color: var(--text-gray);
+  margin-bottom: 8px;
+  display: block;
+}
+
+.time-input-box {
+  background-color: #F9FAFB;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  padding: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-dark);
+}
+
+/* Shop Status */
+.status-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.status-info h3 {
+  font-size: 16px;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.status-text {
+  font-size: 13px;
+  color: #EF4444; /* Red for closed */
+  font-weight: 500;
+}
+
+.status-text.open {
+  color: #10B981; /* Green for open */
+}
+
+.btn-status-toggle {
+  background-color: #EF4444; /* Red by default */
+  color: var(--white);
+  border: none;
+  padding: 10px 20px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  text-transform: uppercase;
+}
+
+.btn-status-toggle.active {
+  background-color: #10B981;
+}
+
+/* Simple List Item (Personal Info, Settings) */
+.simple-list-item {
+  background-color: var(--white);
+  margin: 0 24px 16px;
+  padding: 20px 24px;
+  border-radius: var(--radius-lg);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: var(--shadow-sm);
+  cursor: pointer;
+}
+
+.simple-item-left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.simple-icon-circle {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.bg-orange-light { background-color: #FFF7ED; color: #F97316; }
+.bg-gray-light { background-color: #F3F4F6; color: #4B5563; }
+
+.simple-item-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text-dark);
+}
+
+/* Add Item Page - Upload Grid */
+.upload-grid {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.upload-box-large {
+  width: 100px;
+  height: 100px;
+  background-color: #9CA3AF;
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.upload-box-small {
+  width: 100px;
+  height: 100px;
+  border: 2px dashed #D1D5DB;
+  border-radius: var(--radius-md);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: var(--primary-orange);
+  font-size: 12px;
+  font-weight: 600;
+  background-color: var(--white);
+  cursor: pointer;
+}
+
+.upload-icon {
+  width: 24px;
+  height: 24px;
+  margin-bottom: 4px;
+  color: var(--primary-orange);
+}
+
+.details-textarea {
+  min-height: 120px;
+  resize: none;
+}
+
+/* My Profile - Orange Card Header */
+.profile-orange-card {
+  background-color: var(--primary-orange);
+  color: var(--white);
+  padding: 24px;
+  border-radius: 0 0 30px 30px;
+  margin-bottom: 24px;
+  min-height: 280px;
+  display: flex;
+  flex-direction: column;
+}
+
+.profile-nav {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 40px;
+}
+
+.profile-nav-btn {
+  width: 40px;
+  height: 40px;
+  background-color: var(--white);
+  border-radius: 50%;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--primary-orange);
+  cursor: pointer;
+}
+
+.sales-display {
+  text-align: center;
+  margin-top: auto;
+  margin-bottom: auto;
+}
+
+.sales-label {
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.9);
+  margin-bottom: 8px;
+}
+
+.sales-amount {
+  font-size: 40px;
+  font-weight: 700;
+  color: var(--white);
+}
+
+/* Profile Menu List */
+.profile-menu-list {
+  padding: 0 24px;
+}
+
+.profile-menu-item {
+  background-color: var(--white);
+  border-radius: var(--radius-md);
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+  box-shadow: var(--shadow-sm);
+  cursor: pointer;
+}
+
+.menu-item-left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-dark);
+}
+
+.menu-icon-circle {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background-color: var(--primary-orange-light);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--primary-orange);
+}
+
+.logout-btn-wrapper {
+  padding: 0 24px;
+  margin-top: 40px;
+}
+
+.logout-item {
+  background-color: var(--white);
+  border-radius: var(--radius-md);
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: var(--shadow-sm);
+  cursor: pointer;
+}
+
+.logout-text {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-dark);
+}
+
+.logout-icon {
+  color: #FF4B4B; /* Red for logout */
+}
+
+/* Food Details Hero */
+.food-hero-section {
+  position: relative;
+  height: 320px;
+  background-color: #9CA3AF;
+  border-radius: 0 0 30px 30px;
+  margin-bottom: 24px;
+  overflow: hidden;
+}
+
+.hero-overlay-chips {
+  position: absolute;
+  bottom: 20px;
+  left: 0;
+  right: 0;
+  padding: 0 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.hero-pagination {
+  display: flex;
+  gap: 6px;
+}
+
+.hero-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: rgba(255, 255, 255, 0.5);
+}
+
+.hero-dot.active {
+  background-color: var(--white);
+  width: 20px;
+  border-radius: 4px;
+}
+
+.chip-white {
+  background-color: var(--white);
+  color: var(--text-dark);
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+}
