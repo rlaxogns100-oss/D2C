@@ -20,8 +20,9 @@ public class CustomUserDetails implements UserDetails {
         this.userId = user.getId();
         this.email = user.getEmail();
         this.password = user.getPassword();
-        this.role = user.getRole(); // 값 할당
-        this.authorities = List.of(new SimpleGrantedAuthority("ROLE_" + user.getRole().name()));
+        // Role이 null이면 CUSTOMER로 기본 설정 (NPE 방지)
+        this.role = user.getRole() != null ? user.getRole() : UserRole.CUSTOMER;
+        this.authorities = List.of(new SimpleGrantedAuthority("ROLE_" + this.role.name()));
     }
 
     public CustomUserDetails(Long userId, String email, String password, UserRole role) {
