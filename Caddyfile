@@ -21,7 +21,11 @@ pizzaschool.maejang.com {
     handle_path /admin/* {
         root * /home/ubuntu/D2C/02_Owner
         file_server
-        # 관리자 페이지는 기본적으로 로그인 페이지로 가거나 Loading으로
+        
+        # 루트(/)나 index.html 요청 시 강제로 01_Loading.html로 변경
+        rewrite / /01_Loading.html
+        rewrite /index.html /01_Loading.html
+        
         try_files {path} {path}/ /01_Loading.html
     }
 
@@ -29,7 +33,10 @@ pizzaschool.maejang.com {
     handle {
         root * /home/ubuntu/D2C/03_Customer
         file_server
-        # 루트(/) 접속 시 index.html이 없으므로 01_Loading.html로 강제 연결
+        
+        # 🔥 핵심 수정: 루트(/) 접속 시 무조건 01_Loading.html로 내부 변경
+        rewrite / /01_Loading.html
+        
         try_files {path} {path}/ /01_Loading.html
     }
 
