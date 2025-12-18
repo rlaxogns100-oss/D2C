@@ -1,12 +1,10 @@
 # 1. 메인 랜딩 페이지 (maejang.com)
 maejang.com {
-    # 정적 파일 루트 설정
-    root * 01_Homepage
+    # 절대 경로 사용 (/home/ubuntu/D2C/...)
+    root * /home/ubuntu/D2C/01_Homepage
     
-    # 파일 서버 활성화
     file_server
 
-    # 로그 설정
     log {
         output file /var/log/caddy/maejang.access.log
     }
@@ -14,30 +12,25 @@ maejang.com {
 
 # 2. 고객용 페이지 (pizzaschool.maejang.com)
 pizzaschool.maejang.com {
-    # 기본 루트는 03_Customer 폴더
-    root * 03_Customer
+    # 절대 경로 사용
+    root * /home/ubuntu/D2C/03_Customer
 
-    # 기본적으로 파일 서버 활성화
     file_server
 
-    # 루트(/) 접속 시 01_Loading.html 보여주기
-    # (SPA처럼 동작하지 않고 정적 파일 서빙이므로 try_files 사용)
     try_files {path} {path}/ /01_Loading.html
 
     # 3. 사장님용 페이지 (/admin 경로)
     handle_path /admin/* {
-        root * 02_Owner
+        root * /home/ubuntu/D2C/02_Owner
         file_server
         try_files {path} {path}/ /01_Loading.html
     }
 
-    # 4. 백엔드 API 프록시 (로그인 등 API 요청용)
-    # 프론트엔드에서 fetch('/api/...')로 요청하면 여기로 옴
+    # 4. 백엔드 API 프록시
     handle /api/* {
         reverse_proxy localhost:8080
     }
 
-    # 로그 설정
     log {
         output file /var/log/caddy/pizzaschool.access.log
     }
