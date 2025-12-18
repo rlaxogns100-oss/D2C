@@ -1,30 +1,44 @@
-# 도메인 주소 (Caddy가 자동으로 HTTPS 인증서 발급)
-# 예: example.com
-# 로컬 테스트 시: :80 또는 localhost
-
-:80 {
-    # 1. 정적 파일 (프론트엔드)
-    # 현재 프로젝트 구조에 맞춰 root 설정
-    # 주의: Caddy 실행 위치에 따라 root 경로는 달라질 수 있음. 
-    # 보통 /var/www/html 또는 프로젝트 루트를 가리킴.
+# 1. 메인 랜딩 페이지 (maejang.com)
+maejang.com {
+    # 정적 파일 루트 설정
+    root * 01_Homepage
     
-    root * .
-    
-    # 기본 파일 서빙
+    # 파일 서버 활성화
     file_server
 
-    # SPA 라우팅 (필요 시)
-    # try_files {path} {path}/ /01_Homepage/index.html
-
-    # 2. 백엔드 API 프록시
-    # /api/ 로 시작하는 모든 요청을 로컬 8080 포트로 전달
-    handle /api/* {
-        reverse_proxy localhost:8080
-    }
-    
-    # 로그 설정 (선택 사항)
+    # 로그 설정
     log {
-        output file access.log
+        output file /var/log/caddy/maejang.access.log
     }
 }
 
+# 2. 고객용 페이지 (pizzaschool.maejang.com)
+pizzaschool.maejang.com {
+    # 기본 루트는 03_Customer 폴더
+    root * 03_Customer
+
+    # 기본적으로 파일 서버 활성화
+    file_server
+
+    # 루트(/) 접속 시 01_Loading.html 보여주기
+    # (SPA처럼 동작하지 않고 정적 파일 서빙이므로 try_files 사용)
+    try_files {path} {path}/ /01_Loading.html
+
+    # 3. 사장님용 페이지 (/admin 경로)
+    handle_path /admin/* {
+        root * 02_Owner
+        file_server
+        try_files {path} {path}/ /01_Loading.html
+    }
+
+    # 4. 백엔드 API 프록시 (로그인 등 API 요청용)
+    # 프론트엔드에서 fetch('/api/...')로 요청하면 여기로 옴
+    handle /api/* {
+        reverse_proxy localhost:8080
+    }
+
+    # 로그 설정
+    log {
+        output file /var/log/caddy/pizzaschool.access.log
+    }
+}
