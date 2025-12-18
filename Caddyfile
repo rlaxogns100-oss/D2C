@@ -18,6 +18,10 @@ pizzaschool.maejang.com {
     }
 
     # [우선순위 2] 관리자 페이지
+    
+    # /admin (슬래시 없음) 접속 시 /admin/ 으로 강제 리다이렉트 (브라우저 경로 문제 해결)
+    redir /admin /admin/
+
     handle_path /admin/* {
         root * /home/ubuntu/D2C/02_Owner
         file_server
