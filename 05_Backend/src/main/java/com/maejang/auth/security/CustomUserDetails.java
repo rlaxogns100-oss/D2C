@@ -13,12 +13,14 @@ public class CustomUserDetails implements UserDetails {
     private final Long userId;
     private final String email;
     private final String password;
+    private final UserRole role; // 필드 추가
     private final List<GrantedAuthority> authorities;
 
     public CustomUserDetails(User user) {
         this.userId = user.getId();
         this.email = user.getEmail();
         this.password = user.getPassword();
+        this.role = user.getRole(); // 값 할당
         this.authorities = List.of(new SimpleGrantedAuthority("ROLE_" + user.getRole().name()));
     }
 
@@ -26,11 +28,17 @@ public class CustomUserDetails implements UserDetails {
         this.userId = userId;
         this.email = email;
         this.password = password;
+        this.role = role;
         this.authorities = List.of(new SimpleGrantedAuthority("ROLE_" + role.name()));
     }
 
     public Long getUserId() {
         return userId;
+    }
+
+    // Getter 추가
+    public UserRole getRole() {
+        return role;
     }
 
     @Override
@@ -53,5 +61,3 @@ public class CustomUserDetails implements UserDetails {
     @Override public boolean isCredentialsNonExpired() { return true; }
     @Override public boolean isEnabled() { return true; }
 }
-
-

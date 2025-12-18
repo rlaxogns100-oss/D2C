@@ -27,7 +27,7 @@ public class AuthController {
     @Operation(summary = "내 정보", description = "JWT 쿠키 기반 인증이 정상인지 확인용")
     @PostMapping("/me")
     public ResponseEntity<JSONResponse<AuthMeResponse>> me(@AuthenticationPrincipal CustomUserDetails principal) {
-        return ResponseEntity.ok(JSONResponse.success(new AuthMeResponse(principal.getUserId(), principal.getUsername())));
+        return ResponseEntity.ok(JSONResponse.success(new AuthMeResponse(principal.getUserId(), principal.getUsername(), principal.getRole())));
     }
 
     @Operation(summary = "로그인", description = "응답 헤더 Authorization: Bearer <token> 으로 토큰을 내려줍니다. (Swagger에서 복사해서 Authorize에 붙여넣어 사용)")
