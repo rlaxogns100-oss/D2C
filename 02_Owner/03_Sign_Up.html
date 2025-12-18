@@ -159,7 +159,10 @@
         role: 'OWNER'
       };
 
-      fetch('/api/v1/users/sign_in', {
+      const isFileProtocol = window.location.protocol === 'file:';
+      const baseUrl = isFileProtocol ? 'http://localhost:8080' : '';
+
+      fetch(`${baseUrl}/api/v1/users/sign_in`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
