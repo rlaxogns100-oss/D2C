@@ -188,10 +188,10 @@
           try {
             await widgets.requestPayment({
               orderId: generateRandomString(),
-              orderName: `장바구니 상품 ${cartTotal}원`,
-              // 성공/실패 페이지 경로 수정 (02_Customer 폴더 내)
-              successUrl: window.location.origin + "/02_Customer/payment_success.html",
-              failUrl: window.location.origin + "/02_Customer/payment_fail.html",
+              orderName: "D2C 장바구니 결제",
+              // 성공/실패 페이지 경로 수정 (03_Customer 폴더 내)
+              successUrl: window.location.origin + "/payment_success.html",
+              failUrl: window.location.origin + "/payment_fail.html",
               customerEmail: "customer@example.com",
               customerName: "김토스",
             });
