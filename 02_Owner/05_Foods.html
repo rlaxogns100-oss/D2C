@@ -128,38 +128,44 @@
         return;
       }
 
-      menuList.innerHTML = menus.map(menu => `
-        <div class="food-item" onclick="viewMenuDetail(${menu.menuId})" style="position: relative;">
-          <div class="order-img" style="${menu.picture ? `background-image: url('${menu.picture}'); background-size: cover; background-position: center;` : ''}"></div>
-          <div class="order-info">
-            <div style="display: flex; justify-content: space-between; align-items: flex-start;">
-              <div class="order-name">${menu.menuName}</div>
-              <div class="menu-dots" onclick="toggleMenuDropdown(event, ${menu.menuId})" style="cursor: pointer; padding: 8px; position: relative;">•••</div>
-            </div>
-            
-            <div style="margin: 8px 0;">
-              <div style="font-size: 12px; color: var(--text-gray); line-height: 1.4;">
-                ${menu.description || '설명 없음'}
+      menuList.innerHTML = menus.map(menu => {
+        const imgStyle = menu.picture 
+          ? `background-image: url('${menu.picture}'); background-size: cover; background-position: center;` 
+          : '';
+        
+        return `
+          <div class="food-item" onclick="viewMenuDetail(${menu.menuId})" style="position: relative;">
+            <div class="order-img" style="${imgStyle}"></div>
+            <div class="order-info">
+              <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                <div class="order-name">${menu.menuName}</div>
+                <div class="menu-dots" onclick="toggleMenuDropdown(event, ${menu.menuId})" style="cursor: pointer; padding: 8px; position: relative;">•••</div>
+              </div>
+              
+              <div style="margin: 8px 0;">
+                <div style="font-size: 12px; color: var(--text-gray); line-height: 1.4;">
+                  ${menu.description || '설명 없음'}
+                </div>
+              </div>
+              
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-top: auto;">
+                <div style="font-size: 12px; color: var(--text-gray);">
+                  ${menu.option || '옵션 없음'}
+                </div>
+                <div style="text-align: right;">
+                  <div class="order-price" style="margin-bottom: 0;">${menu.price.toLocaleString()}원</div>
+                </div>
               </div>
             </div>
             
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: auto;">
-              <div style="font-size: 12px; color: var(--text-gray);">
-                ${menu.option || '옵션 없음'}
-              </div>
-              <div style="text-align: right;">
-                <div class="order-price" style="margin-bottom: 0;">${menu.price.toLocaleString()}원</div>
-              </div>
+            <!-- 드롭다운 메뉴 -->
+            <div id="dropdown-${menu.menuId}" class="menu-dropdown" style="display: none; position: absolute; top: 60px; right: 16px; background: white; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.15); z-index: 100; min-width: 120px;">
+              <div onclick="editMenu(event, ${menu.menuId})" style="padding: 12px 16px; cursor: pointer; font-size: 14px; border-bottom: 1px solid #E5E7EB;">수정</div>
+              <div onclick="deleteMenuConfirm(event, ${menu.menuId})" style="padding: 12px 16px; cursor: pointer; font-size: 14px; color: #EF4444;">삭제</div>
             </div>
           </div>
-          
-          <!-- 드롭다운 메뉴 -->
-          <div id="dropdown-${menu.menuId}" class="menu-dropdown" style="display: none; position: absolute; top: 60px; right: 16px; background: white; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.15); z-index: 100; min-width: 120px;">
-            <div onclick="editMenu(event, ${menu.menuId})" style="padding: 12px 16px; cursor: pointer; font-size: 14px; border-bottom: 1px solid #E5E7EB;">수정</div>
-            <div onclick="deleteMenuConfirm(event, ${menu.menuId})" style="padding: 12px 16px; cursor: pointer; font-size: 14px; color: #EF4444;">삭제</div>
-          </div>
-        </div>
-      `).join('');
+        `;
+      }).join('');
     }
 
     // 메뉴 디테일 보기
