@@ -80,7 +80,7 @@
       console.log('[Add Menu] Form submitted');
 
       // JWT 토큰 확인
-      const token = localStorage.getItem('jwt');
+      const token = localStorage.getItem('accessToken');
       if (!token) {
         alert('로그인이 필요합니다.');
         location.href = '02_Login.html';

@@ -86,7 +86,7 @@
       console.log('[Edit Menu] Menu ID:', currentMenuId);
 
       // JWT 토큰 확인
-      const token = localStorage.getItem('jwt');
+      const token = localStorage.getItem('accessToken');
       if (!token) {
         alert('로그인이 필요합니다.');
         location.href = '02_Login.html';
@@ -152,7 +152,7 @@
       e.preventDefault();
       console.log('[Edit Menu] Form submitted');
 
-      const token = localStorage.getItem('jwt');
+      const token = localStorage.getItem('accessToken');
       if (!token) {
         alert('로그인이 필요합니다.');
         location.href = '02_Login.html';
@@ -215,7 +215,7 @@
 
       console.log('[Edit Menu] Delete menu:', currentMenuId);
 
-      const token = localStorage.getItem('jwt');
+      const token = localStorage.getItem('accessToken');
       if (!token) {
         alert('로그인이 필요합니다.');
         location.href = '02_Login.html';
