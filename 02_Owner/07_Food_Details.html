@@ -40,7 +40,7 @@
 
       <div style="margin-bottom: 24px;">
         <h3 style="font-size: 14px; font-weight: 600; color: var(--text-dark); margin-bottom: 8px; text-transform: uppercase;">옵션</h3>
-        <div id="menuOption" style="font-size: 14px; color: var(--text-gray); padding: 12px; background-color: #F3F4F6; border-radius: 8px;">
+        <div id="menuOption" style="font-size: 14px; color: var(--text-gray);">
           -
         </div>
       </div>
@@ -157,13 +157,19 @@
       document.getElementById('menuPrice').textContent = menu.price.toLocaleString() + '원';
       document.getElementById('menuDescription').textContent = menu.description || '설명이 없습니다.';
       
-      // 옵션 표시 (첫 번째 옵션만, 변경 불가)
-      if (menu.option) {
-        const options = menu.option.split(',');
-        const firstOption = options[0] || '기본';
-        document.getElementById('menuOption').textContent = firstOption.trim();
+      // 옵션 표시 (모든 옵션을 리스트로)
+      const optionContainer = document.getElementById('menuOption');
+      if (menu.option && menu.option.trim()) {
+        const options = menu.option.split(',').map(opt => opt.trim()).filter(opt => opt);
+        if (options.length > 0) {
+          optionContainer.innerHTML = options.map(opt => 
+            `<div style="padding: 10px 12px; background-color: #F3F4F6; border-radius: 8px; margin-bottom: 8px;">${opt}</div>`
+          ).join('');
+        } else {
+          optionContainer.innerHTML = '<div style="padding: 12px; background-color: #F3F4F6; border-radius: 8px;">옵션 없음</div>';
+        }
       } else {
-        document.getElementById('menuOption').textContent = '옵션 없음';
+        optionContainer.innerHTML = '<div style="padding: 12px; background-color: #F3F4F6; border-radius: 8px;">옵션 없음</div>';
       }
 
       // 이미지 설정

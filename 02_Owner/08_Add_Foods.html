@@ -50,10 +50,8 @@
       <!-- OPTIONS -->
       <div class="form-group">
         <label class="form-label" style="color: var(--text-gray);">옵션 (선택)</label>
-        <input type="text" id="option" class="form-input" placeholder="예: 맵기 조절+0,치즈 추가+2000" style="background-color: var(--white); border: 1px solid #E5E7EB;">
-        <div style="font-size: 11px; color: var(--text-gray); margin-top: 4px;">
-          * 쉼표(,)로 구분하여 입력하세요
-        </div>
+        <div id="optionList"></div>
+        <button type="button" onclick="addOptionField()" style="width: 100%; padding: 10px; border: 1px dashed #FF6B35; background: white; color: #FF6B35; border-radius: 8px; cursor: pointer; font-size: 14px; margin-top: 8px;">+ 옵션 추가</button>
       </div>
 
       <!-- SAVE BUTTON -->
@@ -67,10 +65,36 @@
       ? 'https://pizzaschool.maejang.com'
       : '';
 
+    let optionCount = 0;
+
+    // 옵션 필드 추가
+    function addOptionField() {
+      optionCount++;
+      const optionList = document.getElementById('optionList');
+      const optionItem = document.createElement('div');
+      optionItem.id = `option-${optionCount}`;
+      optionItem.style.cssText = 'display: flex; gap: 8px; margin-bottom: 8px;';
+      optionItem.innerHTML = `
+        <input type="text" class="option-input form-input" placeholder="예: 한마리, 두마리+5000" style="flex: 1; background-color: var(--white); border: 1px solid #E5E7EB;">
+        <button type="button" onclick="removeOptionField(${optionCount})" style="padding: 10px 16px; background: #EF4444; color: white; border: none; border-radius: 8px; cursor: pointer;">삭제</button>
+      `;
+      optionList.appendChild(optionItem);
+    }
+
+    // 옵션 필드 제거
+    function removeOptionField(id) {
+      const element = document.getElementById(`option-${id}`);
+      if (element) {
+        element.remove();
+      }
+    }
+
     // 폼 초기화
     function resetForm() {
       if (confirm('입력한 내용을 모두 초기화하시겠습니까?')) {
         document.getElementById('addMenuForm').reset();
+        document.getElementById('optionList').innerHTML = '';
+        optionCount = 0;
       }
     }
 
@@ -87,13 +111,20 @@
         return;
       }
 
+      // 옵션 수집
+      const optionInputs = document.querySelectorAll('.option-input');
+      const options = Array.from(optionInputs)
+        .map(input => input.value.trim())
+        .filter(val => val)
+        .join(',');
+
       // 폼 데이터 수집
       const menuData = {
         menuName: document.getElementById('menuName').value.trim(),
         picture: document.getElementById('picture').value.trim() || null,
         price: parseInt(document.getElementById('price').value),
         description: document.getElementById('description').value.trim() || null,
-        option: document.getElementById('option').value.trim() || null
+        option: options || null
       };
 
       console.log('[Add Menu] Menu data:', menuData);

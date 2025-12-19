@@ -50,10 +50,8 @@
       <!-- OPTIONS -->
       <div class="form-group">
         <label class="form-label" style="color: var(--text-gray);">옵션 (선택)</label>
-        <input type="text" id="option" class="form-input" placeholder="예: 맵기 조절+0,치즈 추가+2000" style="background-color: var(--white); border: 1px solid #E5E7EB;">
-        <div style="font-size: 11px; color: var(--text-gray); margin-top: 4px;">
-          * 쉼표(,)로 구분하여 입력하세요
-        </div>
+        <div id="optionList"></div>
+        <button type="button" onclick="addOptionField()" style="width: 100%; padding: 10px; border: 1px dashed #FF6B35; background: white; color: #FF6B35; border-radius: 8px; cursor: pointer; font-size: 14px; margin-top: 8px;">+ 옵션 추가</button>
       </div>
 
       <!-- SAVE BUTTON -->
@@ -68,6 +66,29 @@
       : '';
 
     let currentMenuId = null;
+    let optionCount = 0;
+
+    // 옵션 필드 추가
+    function addOptionField(value = '') {
+      optionCount++;
+      const optionList = document.getElementById('optionList');
+      const optionItem = document.createElement('div');
+      optionItem.id = `option-${optionCount}`;
+      optionItem.style.cssText = 'display: flex; gap: 8px; margin-bottom: 8px;';
+      optionItem.innerHTML = `
+        <input type="text" class="option-input form-input" value="${value}" placeholder="예: 한마리, 두마리+5000" style="flex: 1; background-color: var(--white); border: 1px solid #E5E7EB;">
+        <button type="button" onclick="removeOptionField(${optionCount})" style="padding: 10px 16px; background: #EF4444; color: white; border: none; border-radius: 8px; cursor: pointer;">삭제</button>
+      `;
+      optionList.appendChild(optionItem);
+    }
+
+    // 옵션 필드 제거
+    function removeOptionField(id) {
+      const element = document.getElementById(`option-${id}`);
+      if (element) {
+        element.remove();
+      }
+    }
 
     // 페이지 로드 시 메뉴 정보 불러오기
     document.addEventListener('DOMContentLoaded', async () => {
@@ -139,7 +160,12 @@
         document.getElementById('picture').value = menu.picture || '';
         document.getElementById('price').value = menu.price || 0;
         document.getElementById('description').value = menu.description || '';
-        document.getElementById('option').value = menu.option || '';
+        
+        // 옵션 로드
+        if (menu.option && menu.option.trim()) {
+          const options = menu.option.split(',').map(opt => opt.trim()).filter(opt => opt);
+          options.forEach(opt => addOptionField(opt));
+        }
 
       } catch (error) {
         console.error('[Edit Menu] Load error:', error);
@@ -160,13 +186,20 @@
         return;
       }
 
+      // 옵션 수집
+      const optionInputs = document.querySelectorAll('.option-input');
+      const options = Array.from(optionInputs)
+        .map(input => input.value.trim())
+        .filter(val => val)
+        .join(',');
+
       // 폼 데이터 수집 (PATCH이므로 부분 수정)
       const menuData = {
         menuName: document.getElementById('menuName').value.trim() || null,
         picture: document.getElementById('picture').value.trim() || null,
         price: parseInt(document.getElementById('price').value) || null,
         description: document.getElementById('description').value.trim() || null,
-        option: document.getElementById('option').value.trim() || null
+        option: options || null
       };
 
       console.log('[Edit Menu] Update data:', menuData);
