@@ -86,7 +86,7 @@
         <div class="price" id="price">$32</div>
         <div class="counter">
           <button class="counter-btn" onclick="decreaseQuantity()">−</button>
-          <span class="counter-value" id="quantity">2</span>
+          <span class="counter-value" id="quantity">1</span>
           <button class="counter-btn" onclick="increaseQuantity()">+</button>
         </div>
       </div>
@@ -105,7 +105,7 @@
        ========================================================================== */
     
     // 초기 값 (실제로는 서버에서 가져와야 함)
-    let quantity = 2;
+    let quantity = 1;
     let basePrice = 32;
     let currentPrice = basePrice;
     const productId = 'PROD001'; // ⚠️ DB: URL 파라미터나 서버에서 가져오기
