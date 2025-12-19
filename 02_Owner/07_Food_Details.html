@@ -32,6 +32,13 @@
       </div>
       
       <div style="margin-bottom: 24px;">
+        <h3 style="font-size: 14px; font-weight: 600; color: var(--text-dark); margin-bottom: 8px; text-transform: uppercase;">카테고리</h3>
+        <div style="display: inline-block; padding: 6px 12px; background-color: #FF6B35; color: white; border-radius: 16px; font-size: 13px;" id="menuCategory">
+          -
+        </div>
+      </div>
+
+      <div style="margin-bottom: 24px;">
         <h3 style="font-size: 14px; font-weight: 600; color: var(--text-dark); margin-bottom: 8px; text-transform: uppercase;">메뉴 설명</h3>
         <p id="menuDescription" style="font-size: 14px; color: var(--text-gray); line-height: 1.6;">
           -
@@ -155,6 +162,7 @@
     function displayMenu(menu) {
       document.getElementById('menuName').textContent = menu.menuName;
       document.getElementById('menuPrice').textContent = menu.price.toLocaleString() + '원';
+      document.getElementById('menuCategory').textContent = menu.category || '전체';
       document.getElementById('menuDescription').textContent = menu.description || '설명이 없습니다.';
       
       // 옵션 표시 (모든 옵션을 리스트로)

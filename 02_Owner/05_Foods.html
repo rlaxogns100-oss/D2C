@@ -16,10 +16,10 @@
 
     <!-- Category Tabs -->
     <div class="tabs-scroll">
-      <div class="tab-item active">전체</div>
-      <div class="tab-item">아침</div>
-      <div class="tab-item">점심</div>
-      <div class="tab-item">저녁</div>
+      <div class="tab-item active" onclick="filterByCategory('전체')">전체</div>
+      <div class="tab-item" onclick="filterByCategory('아침')">아침</div>
+      <div class="tab-item" onclick="filterByCategory('점심')">점심</div>
+      <div class="tab-item" onclick="filterByCategory('저녁')">저녁</div>
     </div>
 
     <div class="total-count" id="totalCount">총 0개</div>
@@ -54,6 +54,9 @@
     const baseUrl = window.location.protocol === 'file:' 
       ? 'https://pizzaschool.maejang.com'
       : '';
+
+    let allMenus = [];  // 전체 메뉴 저장
+    let currentCategory = '전체';
 
     // 페이지 로드 시 메뉴 목록 불러오기
     document.addEventListener('DOMContentLoaded', async () => {
@@ -102,7 +105,8 @@
         console.log('[Menu List] Menus:', menuData);
 
         if (menuData.success && menuData.data) {
-          renderMenuList(menuData.data);
+          allMenus = menuData.data;  // 전체 메뉴 저장
+          filterByCategory(currentCategory);  // 현재 카테고리로 필터링
         }
 
       } catch (error) {
@@ -110,6 +114,26 @@
         alert('메뉴 목록을 불러오는데 실패했습니다: ' + error.message);
       }
     });
+
+    // 카테고리별 필터링
+    function filterByCategory(category) {
+      currentCategory = category;
+      
+      // 탭 active 상태 변경
+      document.querySelectorAll('.tab-item').forEach(tab => {
+        tab.classList.remove('active');
+        if (tab.textContent.trim() === category) {
+          tab.classList.add('active');
+        }
+      });
+      
+      // 필터링
+      const filtered = category === '전체' 
+        ? allMenus 
+        : allMenus.filter(menu => menu.category === category);
+      
+      renderMenuList(filtered);
+    }
 
     // 메뉴 리스트 렌더링
     function renderMenuList(menus) {

@@ -6,7 +6,8 @@ public record MenuUpdateRequest(
         String picture,
         Integer price,
         String description,
-        String option
+        String option,
+        String category
 ) {
 }
 

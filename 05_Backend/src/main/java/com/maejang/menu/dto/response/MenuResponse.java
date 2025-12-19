@@ -9,7 +9,8 @@ public record MenuResponse(
         String picture,
         int price,
         String description,
-        String option
+        String option,
+        String category
 ) {
     public static MenuResponse from(Menu m) {
         return new MenuResponse(
@@ -19,7 +20,8 @@ public record MenuResponse(
                 m.getPicture(),
                 m.getPrice(),
                 m.getDescription(),
-                m.getOption()
+                m.getOption(),
+                m.getCategory()
         );
     }
 }

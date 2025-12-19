@@ -41,6 +41,17 @@
         <input type="number" id="price" class="form-input" placeholder="15000" required min="0" style="background-color: var(--white); border: 1px solid #E5E7EB; width: 200px;">
       </div>
 
+      <!-- CATEGORY -->
+      <div class="form-group">
+        <label class="form-label" style="color: var(--text-gray);">카테고리 *</label>
+        <select id="category" class="form-input" required style="background-color: var(--white); border: 1px solid #E5E7EB;">
+          <option value="전체">전체</option>
+          <option value="아침">아침</option>
+          <option value="점심">점심</option>
+          <option value="저녁">저녁</option>
+        </select>
+      </div>
+
       <!-- DETAILS -->
       <div class="form-group">
         <label class="form-label" style="color: var(--text-gray);">상세 설명</label>
@@ -124,7 +135,8 @@
         picture: document.getElementById('picture').value.trim() || null,
         price: parseInt(document.getElementById('price').value),
         description: document.getElementById('description').value.trim() || null,
-        option: options || null
+        option: options || null,
+        category: document.getElementById('category').value
       };
 
       console.log('[Add Menu] Menu data:', menuData);

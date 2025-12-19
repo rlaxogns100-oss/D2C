@@ -53,29 +53,35 @@ public class Menu {
     @Column(name = "menu_option", length = 1000)
     private String option;
 
+    @Column(name = "category", length = 50)
+    private String category;
+
     @Builder
-    private Menu(User owner, String menuName, String picture, int price, String description, String option) {
+    private Menu(User owner, String menuName, String picture, int price, String description, String option, String category) {
         this.owner = owner;
         this.menuName = menuName;
         this.picture = picture;
         this.price = price;
         this.description = description;
         this.option = option;
+        this.category = category;
     }
 
-    public void update(String menuName, String picture, int price, String description, String option) {
+    public void update(String menuName, String picture, int price, String description, String option, String category) {
         this.menuName = menuName;
         this.picture = picture;
         this.price = price;
         this.description = description;
         this.option = option;
+        this.category = category;
     }
 
-    public void updatePartial(String menuName, String picture, Integer price, String description, String option) {
+    public void updatePartial(String menuName, String picture, Integer price, String description, String option, String category) {
         if (menuName != null) this.menuName = menuName;
         if (picture != null) this.picture = picture;
         if (price != null) this.price = price;
         if (description != null) this.description = description;
         if (option != null) this.option = option;
+        if (category != null) this.category = category;
     }
 }

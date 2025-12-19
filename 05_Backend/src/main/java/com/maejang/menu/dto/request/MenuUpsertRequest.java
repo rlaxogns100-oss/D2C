@@ -13,7 +13,8 @@ public record MenuUpsertRequest(
         int price,
 
         String description,
-        String option
+        String option,
+        String category
 ) {
 }
 

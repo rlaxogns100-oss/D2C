@@ -32,6 +32,7 @@ public class MenuService {
                 .price(req.price())
                 .description(req.description())
                 .option(req.option())
+                .category(req.category())
                 .build();
         return menuRepository.save(menu).getMenuId();
     }
@@ -54,7 +55,7 @@ public class MenuService {
             throw new CustomException(ErrorCode.FORBIDDEN);
         }
 
-        menu.updatePartial(req.menuName(), req.picture(), req.price(), req.description(), req.option());
+        menu.updatePartial(req.menuName(), req.picture(), req.price(), req.description(), req.option(), req.category());
     }
 
     @Transactional
