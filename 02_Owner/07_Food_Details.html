@@ -16,53 +16,33 @@
         </svg>
       </button>
       <div class="page-title">메뉴 상세</div>
-      <span class="see-details" style="color: #FF6B35; font-weight: 500; cursor: pointer;" onclick="location.href='09_Edit_Food.html'">수정</span>
+      <span class="see-details" style="color: #FF6B35; font-weight: 500; cursor: pointer;" id="editButton">수정</span>
     </div>
 
     <!-- Hero Image Section -->
-    <div class="food-hero-section">
-      <!-- Background Image Placeholder (Gray) -->
-      
-      <div class="hero-overlay-chips">
-        <span class="chip-white">아침</span>
-        
-        <div class="hero-pagination">
-          <div class="hero-dot"></div>
-          <div class="hero-dot active"></div>
-          <div class="hero-dot"></div>
-          <div class="hero-dot"></div>
-        </div>
-        
-        <span class="chip-white">배달</span>
-      </div>
+    <div class="food-hero-section" id="heroImage">
+      <!-- 이미지가 동적으로 설정됨 -->
     </div>
 
     <!-- Content -->
     <div style="padding: 0 24px;">
       <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
-        <h2 style="font-size: 20px; font-weight: 700; color: var(--text-dark);">Chicken Thai Biriyani</h2>
-        <span style="font-size: 20px; font-weight: 700; color: var(--text-dark);">$60</span>
-      </div>
-      
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
-        <div style="display: flex; align-items: center; gap: 4px; color: var(--text-gray); font-size: 13px;">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/>
-            <circle cx="12" cy="10" r="3"/>
-          </svg>
-          Kentucky 39495
-        </div>
-        
-        <div class="food-rating">
-          <span style="color: #FF6B35;">★</span> 4.9 <span style="font-weight: 400; color: var(--text-gray);">(리뷰 10개)</span>
-        </div>
+        <h2 id="menuName" style="font-size: 20px; font-weight: 700; color: var(--text-dark);">로딩 중...</h2>
+        <span id="menuPrice" style="font-size: 20px; font-weight: 700; color: var(--text-dark);">-</span>
       </div>
       
       <div style="margin-bottom: 24px;">
         <h3 style="font-size: 14px; font-weight: 600; color: var(--text-dark); margin-bottom: 8px; text-transform: uppercase;">메뉴 설명</h3>
-        <p style="font-size: 14px; color: var(--text-gray); line-height: 1.6;">
-          Lorem ipsum dolor sit amet, consetdur Maton adipiscing elit. Bibendum in vel, mattis et amet dui mauris turpis.
+        <p id="menuDescription" style="font-size: 14px; color: var(--text-gray); line-height: 1.6;">
+          -
         </p>
+      </div>
+
+      <div style="margin-bottom: 24px;">
+        <h3 style="font-size: 14px; font-weight: 600; color: var(--text-dark); margin-bottom: 8px; text-transform: uppercase;">옵션</h3>
+        <div id="menuOption" style="font-size: 14px; color: var(--text-gray); padding: 12px; background-color: #F3F4F6; border-radius: 8px;">
+          -
+        </div>
       </div>
     </div>
 
@@ -87,7 +67,115 @@
       </div>
     </div>
   </div>
+
+  <script>
+    // baseUrl 처리
+    const baseUrl = window.location.protocol === 'file:' 
+      ? 'https://pizzaschool.maejang.com'
+      : '';
+
+    let currentMenuId = null;
+
+    // 페이지 로드 시 메뉴 정보 불러오기
+    document.addEventListener('DOMContentLoaded', async () => {
+      console.log('[Menu Detail] Page loaded');
+
+      // URL에서 menuId 추출
+      const urlParams = new URLSearchParams(window.location.search);
+      currentMenuId = urlParams.get('menuId');
+
+      if (!currentMenuId) {
+        alert('메뉴 ID가 없습니다.');
+        history.back();
+        return;
+      }
+
+      // 수정 버튼 이벤트
+      document.getElementById('editButton').onclick = () => {
+        location.href = `09_Edit_Food.html?menuId=${currentMenuId}`;
+      };
+
+      // JWT 토큰 확인
+      const token = localStorage.getItem('accessToken');
+      if (!token) {
+        alert('로그인이 필요합니다.');
+        location.href = '02_Login.html';
+        return;
+      }
+
+      try {
+        // 내 정보 가져오기 (ownerId 필요)
+        const meResponse = await fetch(`${baseUrl}/api/v1/auth/me`, {
+          method: 'POST',
+          credentials: 'include',
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+
+        if (!meResponse.ok) {
+          throw new Error('사용자 정보를 가져올 수 없습니다.');
+        }
+
+        const meData = await meResponse.json();
+        const ownerId = meData.data.userId;
+
+        // 메뉴 목록에서 해당 메뉴 찾기
+        const menuResponse = await fetch(`${baseUrl}/api/v1/menu/read?ownerId=${ownerId}`, {
+          credentials: 'include',
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+
+        if (!menuResponse.ok) {
+          throw new Error('메뉴를 불러올 수 없습니다.');
+        }
+
+        const menuData = await menuResponse.json();
+        const menu = menuData.data.find(m => m.menuId === parseInt(currentMenuId));
+        
+        if (!menu) {
+          throw new Error('메뉴를 찾을 수 없습니다.');
+        }
+
+        console.log('[Menu Detail] Found menu:', menu);
+
+        // 화면에 표시
+        displayMenu(menu);
+
+      } catch (error) {
+        console.error('[Menu Detail] Load error:', error);
+        alert('메뉴 정보를 불러오는데 실패했습니다: ' + error.message);
+        history.back();
+      }
+    });
+
+    // 메뉴 정보 표시
+    function displayMenu(menu) {
+      document.getElementById('menuName').textContent = menu.menuName;
+      document.getElementById('menuPrice').textContent = menu.price.toLocaleString() + '원';
+      document.getElementById('menuDescription').textContent = menu.description || '설명이 없습니다.';
+      
+      // 옵션 표시 (첫 번째 옵션만, 변경 불가)
+      if (menu.option) {
+        const options = menu.option.split(',');
+        const firstOption = options[0] || '기본';
+        document.getElementById('menuOption').textContent = firstOption.trim();
+      } else {
+        document.getElementById('menuOption').textContent = '옵션 없음';
+      }
+
+      // 이미지 설정
+      const heroImage = document.getElementById('heroImage');
+      if (menu.picture) {
+        heroImage.style.backgroundImage = `url('${menu.picture}')`;
+        heroImage.style.backgroundSize = 'cover';
+        heroImage.style.backgroundPosition = 'center';
+      } else {
+        heroImage.style.backgroundColor = '#E5E7EB';
+      }
+    }
+  </script>
 </body>
 </html>
-
-

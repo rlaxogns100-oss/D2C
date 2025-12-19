@@ -129,12 +129,12 @@
       }
 
       menuList.innerHTML = menus.map(menu => `
-        <div class="food-item" onclick="location.href='09_Edit_Food.html?menuId=${menu.menuId}'">
+        <div class="food-item" onclick="viewMenuDetail(${menu.menuId})" style="position: relative;">
           <div class="order-img" style="${menu.picture ? `background-image: url('${menu.picture}'); background-size: cover; background-position: center;` : ''}"></div>
           <div class="order-info">
             <div style="display: flex; justify-content: space-between; align-items: flex-start;">
               <div class="order-name">${menu.menuName}</div>
-              <div class="menu-dots">•••</div>
+              <div class="menu-dots" onclick="toggleMenuDropdown(event, ${menu.menuId})" style="cursor: pointer; padding: 8px; position: relative;">•••</div>
             </div>
             
             <div style="margin: 8px 0;">
@@ -152,8 +152,87 @@
               </div>
             </div>
           </div>
+          
+          <!-- 드롭다운 메뉴 -->
+          <div id="dropdown-${menu.menuId}" class="menu-dropdown" style="display: none; position: absolute; top: 60px; right: 16px; background: white; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.15); z-index: 100; min-width: 120px;">
+            <div onclick="editMenu(event, ${menu.menuId})" style="padding: 12px 16px; cursor: pointer; font-size: 14px; border-bottom: 1px solid #E5E7EB;">수정</div>
+            <div onclick="deleteMenuConfirm(event, ${menu.menuId})" style="padding: 12px 16px; cursor: pointer; font-size: 14px; color: #EF4444;">삭제</div>
+          </div>
         </div>
       `).join('');
+    }
+
+    // 메뉴 디테일 보기
+    function viewMenuDetail(menuId) {
+      location.href = `07_Food_Details.html?menuId=${menuId}`;
+    }
+
+    // 드롭다운 토글
+    function toggleMenuDropdown(event, menuId) {
+      event.stopPropagation();
+      
+      // 다른 모든 드롭다운 닫기
+      document.querySelectorAll('.menu-dropdown').forEach(dropdown => {
+        if (dropdown.id !== `dropdown-${menuId}`) {
+          dropdown.style.display = 'none';
+        }
+      });
+      
+      // 현재 드롭다운 토글
+      const dropdown = document.getElementById(`dropdown-${menuId}`);
+      dropdown.style.display = dropdown.style.display === 'none' ? 'block' : 'none';
+    }
+
+    // 수정 페이지로 이동
+    function editMenu(event, menuId) {
+      event.stopPropagation();
+      location.href = `09_Edit_Food.html?menuId=${menuId}`;
+    }
+
+    // 삭제 확인
+    async function deleteMenuConfirm(event, menuId) {
+      event.stopPropagation();
+      
+      if (!confirm('정말로 이 메뉴를 삭제하시겠습니까?\n삭제된 메뉴는 복구할 수 없습니다.')) {
+        return;
+      }
+
+      const token = localStorage.getItem('accessToken');
+      if (!token) {
+        alert('로그인이 필요합니다.');
+        location.href = '02_Login.html';
+        return;
+      }
+
+      try {
+        const response = await fetch(`${baseUrl}/api/v1/menu/delete/${menuId}`, {
+          method: 'DELETE',
+          credentials: 'include',
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+
+        const result = await response.json();
+
+        if (response.ok && result.success) {
+          alert('메뉴가 삭제되었습니다.');
+          location.reload();
+        } else {
+          throw new Error(result.message || '메뉴 삭제에 실패했습니다.');
+        }
+      } catch (error) {
+        console.error('[Menu Delete] Error:', error);
+        alert('메뉴 삭제 실패: ' + error.message);
+      }
+    }
+
+    // 드롭다운 외부 클릭 시 닫기
+    document.addEventListener('click', () => {
+      document.querySelectorAll('.menu-dropdown').forEach(dropdown => {
+        dropdown.style.display = 'none';
+      });
+    });
     }
   </script>
 </body>
