@@ -22,82 +22,10 @@
       <div class="tab-item">저녁</div>
     </div>
 
-    <div class="total-count">총 3개</div>
+    <div class="total-count" id="totalCount">총 0개</div>
 
-    <!-- Food Item 1 -->
-    <div class="food-item" onclick="location.href='07_Food_Details.html'">
-      <div class="order-img"></div> <!-- Reuse order-img for thumbnail -->
-      <div class="order-info">
-        <div style="display: flex; justify-content: space-between; align-items: flex-start;">
-          <div class="order-name">Chicken Thai Biriyani</div>
-          <div class="menu-dots">•••</div>
-        </div>
-        
-        <div>
-          <span class="food-tag-pill">아침</span>
-        </div>
-        
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: auto;">
-          <div class="food-rating">
-            <span style="color: #FF6B35;">★</span> 4.9 <span>(리뷰 10개)</span>
-          </div>
-          <div style="text-align: right;">
-            <div class="order-price" style="margin-bottom: 0;">$60</div>
-            <div style="font-size: 10px; color: var(--text-gray);">픽업</div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Food Item 2 -->
-    <div class="food-item" onclick="location.href='07_Food_Details.html'">
-      <div class="order-img"></div>
-      <div class="order-info">
-        <div style="display: flex; justify-content: space-between; align-items: flex-start;">
-          <div class="order-name">Chicken Bhuna</div>
-          <div class="menu-dots">•••</div>
-        </div>
-        
-        <div>
-          <span class="food-tag-pill">아침</span>
-        </div>
-        
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: auto;">
-          <div class="food-rating">
-            <span style="color: #FF6B35;">★</span> 4.9 <span>(리뷰 10개)</span>
-          </div>
-          <div style="text-align: right;">
-            <div class="order-price" style="margin-bottom: 0;">$30</div>
-            <div style="font-size: 10px; color: var(--text-gray);">픽업</div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Food Item 3 -->
-    <div class="food-item" onclick="location.href='07_Food_Details.html'">
-      <div class="order-img"></div>
-      <div class="order-info">
-        <div style="display: flex; justify-content: space-between; align-items: flex-start;">
-          <div class="order-name">Mazalichiken Halim</div>
-          <div class="menu-dots">•••</div>
-        </div>
-        
-        <div>
-          <span class="food-tag-pill">아침</span>
-        </div>
-        
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: auto;">
-          <div class="food-rating">
-            <span style="color: #FF6B35;">★</span> 4.9 <span>(리뷰 10개)</span>
-          </div>
-          <div style="text-align: right;">
-            <div class="order-price" style="margin-bottom: 0;">$25</div>
-            <div style="font-size: 10px; color: var(--text-gray);">픽업</div>
-          </div>
-        </div>
-      </div>
-    </div>
+    <!-- 메뉴 리스트 (동적으로 채워짐) -->
+    <div id="menuList"></div>
 
     <!-- Bottom Navigation -->
     <div class="bottom-nav">
@@ -120,6 +48,113 @@
       </div>
     </div>
   </div>
+
+  <script>
+    // baseUrl 처리 (로컬 파일 테스트용)
+    const baseUrl = window.location.protocol === 'file:' 
+      ? 'https://pizzaschool.maejang.com'
+      : '';
+
+    // 페이지 로드 시 메뉴 목록 불러오기
+    document.addEventListener('DOMContentLoaded', async () => {
+      console.log('[Menu List] Page loaded, fetching menus...');
+      
+      // JWT 토큰 확인
+      const token = localStorage.getItem('jwt');
+      if (!token) {
+        alert('로그인이 필요합니다.');
+        location.href = '02_Login.html';
+        return;
+      }
+
+      try {
+        // 1. 내 정보 가져오기 (ownerId 필요)
+        const meResponse = await fetch(`${baseUrl}/api/v1/auth/me`, {
+          credentials: 'include',
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+
+        if (!meResponse.ok) {
+          throw new Error('사용자 정보를 가져올 수 없습니다.');
+        }
+
+        const meData = await meResponse.json();
+        console.log('[Menu List] User info:', meData);
+
+        const ownerId = meData.data.userId;
+
+        // 2. 메뉴 목록 가져오기
+        const menuResponse = await fetch(`${baseUrl}/api/v1/menu/read?ownerId=${ownerId}`, {
+          credentials: 'include',
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+
+        if (!menuResponse.ok) {
+          throw new Error('메뉴 목록을 가져올 수 없습니다.');
+        }
+
+        const menuData = await menuResponse.json();
+        console.log('[Menu List] Menus:', menuData);
+
+        if (menuData.success && menuData.data) {
+          renderMenuList(menuData.data);
+        }
+
+      } catch (error) {
+        console.error('[Menu List] Error:', error);
+        alert('메뉴 목록을 불러오는데 실패했습니다: ' + error.message);
+      }
+    });
+
+    // 메뉴 리스트 렌더링
+    function renderMenuList(menus) {
+      const menuList = document.getElementById('menuList');
+      const totalCount = document.getElementById('totalCount');
+
+      totalCount.textContent = `총 ${menus.length}개`;
+
+      if (menus.length === 0) {
+        menuList.innerHTML = `
+          <div style="text-align: center; padding: 60px 24px; color: var(--text-gray);">
+            <p style="font-size: 16px; margin-bottom: 12px;">등록된 메뉴가 없습니다</p>
+            <p style="font-size: 14px;">상단의 "추가" 버튼을 눌러 메뉴를 등록하세요</p>
+          </div>
+        `;
+        return;
+      }
+
+      menuList.innerHTML = menus.map(menu => `
+        <div class="food-item" onclick="location.href='09_Edit_Food.html?menuId=${menu.menuId}'">
+          <div class="order-img" style="${menu.picture ? `background-image: url('${menu.picture}'); background-size: cover; background-position: center;` : ''}"></div>
+          <div class="order-info">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+              <div class="order-name">${menu.menuName}</div>
+              <div class="menu-dots">•••</div>
+            </div>
+            
+            <div style="margin: 8px 0;">
+              <div style="font-size: 12px; color: var(--text-gray); line-height: 1.4;">
+                ${menu.description || '설명 없음'}
+              </div>
+            </div>
+            
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: auto;">
+              <div style="font-size: 12px; color: var(--text-gray);">
+                ${menu.option || '옵션 없음'}
+              </div>
+              <div style="text-align: right;">
+                <div class="order-price" style="margin-bottom: 0;">${menu.price.toLocaleString()}원</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      `).join('');
+    }
+  </script>
 </body>
 </html>
 

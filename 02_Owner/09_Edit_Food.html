@@ -16,72 +16,237 @@
         </svg>
       </button>
       <div class="page-title">메뉴 수정</div>
-      <span class="see-details" style="color: #FF6B35; font-weight: 500;">삭제</span>
+      <span class="see-details" style="color: #FF6B35; font-weight: 500; cursor: pointer;" onclick="deleteMenu()">삭제</span>
     </div>
 
-    <div style="padding: 0 24px;">
+    <form id="editMenuForm" style="padding: 0 24px;">
       <!-- ITEM NAME -->
       <div class="form-group">
-        <label class="form-label" style="color: var(--text-gray);">메뉴명</label>
-        <input type="text" class="form-input" placeholder="Mazalichiken Halim" style="background-color: var(--white); border: 1px solid #E5E7EB;">
+        <label class="form-label" style="color: var(--text-gray);">메뉴명 *</label>
+        <input type="text" id="menuName" class="form-input" placeholder="메뉴명을 입력하세요" required style="background-color: var(--white); border: 1px solid #E5E7EB;">
       </div>
 
       <!-- UPLOAD PHOTO/VIDEO -->
       <div class="form-group">
-        <label class="form-label" style="color: var(--text-gray);">사진/동영상 업로드</label>
-        <div class="upload-grid">
-          <div class="upload-box-large"></div>
-          <div class="upload-box-small">
-            <div style="background-color: var(--primary-orange-light); border-radius: 50%; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; margin-bottom: 4px;">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--primary-orange)" stroke-width="2">
-                <path d="M12 5v14M5 12h14"/>
-              </svg>
-            </div>
-            <span style="color: var(--text-gray); font-weight: 400; font-size: 10px;">추가</span>
-          </div>
-          <div class="upload-box-small">
-             <div style="background-color: var(--primary-orange-light); border-radius: 50%; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; margin-bottom: 4px;">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--primary-orange)" stroke-width="2">
-                <path d="M12 5v14M5 12h14"/>
-              </svg>
-            </div>
-            <span style="color: var(--text-gray); font-weight: 400; font-size: 10px;">추가</span>
-          </div>
+        <label class="form-label" style="color: var(--text-gray);">사진 URL (선택)</label>
+        <input type="text" id="picture" class="form-input" placeholder="https://example.com/image.jpg" style="background-color: var(--white); border: 1px solid #E5E7EB;">
+        <div style="font-size: 11px; color: var(--text-gray); margin-top: 4px;">
+          * 이미지 URL을 입력하세요. 향후 파일 업로드 기능이 추가될 예정입니다.
         </div>
       </div>
 
-      <!-- PRICE & DELIVERY TYPE -->
+      <!-- PRICE -->
       <div class="form-group">
-        <label class="form-label" style="color: var(--text-gray);">가격</label>
-        <div style="display: flex; gap: 16px; align-items: center;">
-          <input type="text" class="form-input" placeholder="$50" style="background-color: var(--white); border: 1px solid #E5E7EB; width: 80px;">
-          
-          <div class="checkbox-group">
-             <div style="width: 18px; height: 18px; background-color: var(--primary-orange); border-radius: 4px; display: flex; align-items: center; justify-content: center;">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3">
-                  <path d="M20 6L9 17l-5-5"/>
-                </svg>
-             </div>
-             <span style="font-size: 13px; color: var(--primary-orange);">픽업</span>
-          </div>
-          
-          <div class="checkbox-group">
-             <div style="width: 18px; height: 18px; border: 1px solid #D1D5DB; border-radius: 4px;"></div>
-             <span style="font-size: 13px; color: var(--text-gray);">배달</span>
-          </div>
-        </div>
+        <label class="form-label" style="color: var(--text-gray);">가격 (원) *</label>
+        <input type="number" id="price" class="form-input" placeholder="15000" required min="0" style="background-color: var(--white); border: 1px solid #E5E7EB; width: 200px;">
       </div>
 
       <!-- DETAILS -->
       <div class="form-group">
         <label class="form-label" style="color: var(--text-gray);">상세 설명</label>
-        <textarea class="form-input details-textarea" placeholder="메뉴에 대한 설명을 입력하세요." style="background-color: var(--white); border: 1px solid #E5E7EB;"></textarea>
+        <textarea id="description" class="form-input details-textarea" placeholder="메뉴에 대한 설명을 입력하세요." style="background-color: var(--white); border: 1px solid #E5E7EB;"></textarea>
+      </div>
+
+      <!-- OPTIONS -->
+      <div class="form-group">
+        <label class="form-label" style="color: var(--text-gray);">옵션 (선택)</label>
+        <input type="text" id="option" class="form-input" placeholder="예: 맵기 조절+0,치즈 추가+2000" style="background-color: var(--white); border: 1px solid #E5E7EB;">
+        <div style="font-size: 11px; color: var(--text-gray); margin-top: 4px;">
+          * 쉼표(,)로 구분하여 입력하세요
+        </div>
       </div>
 
       <!-- SAVE BUTTON -->
-      <button class="btn-primary" style="margin-top: 24px;">수정사항 저장</button>
-    </div>
+      <button type="submit" class="btn-primary" style="margin-top: 24px;">수정사항 저장</button>
+    </form>
   </div>
+
+  <script>
+    // baseUrl 처리 (로컬 파일 테스트용)
+    const baseUrl = window.location.protocol === 'file:' 
+      ? 'https://pizzaschool.maejang.com'
+      : '';
+
+    let currentMenuId = null;
+
+    // 페이지 로드 시 메뉴 정보 불러오기
+    document.addEventListener('DOMContentLoaded', async () => {
+      console.log('[Edit Menu] Page loaded');
+
+      // URL에서 menuId 추출
+      const urlParams = new URLSearchParams(window.location.search);
+      currentMenuId = urlParams.get('menuId');
+
+      if (!currentMenuId) {
+        alert('메뉴 ID가 없습니다.');
+        location.href = '05_Foods.html';
+        return;
+      }
+
+      console.log('[Edit Menu] Menu ID:', currentMenuId);
+
+      // JWT 토큰 확인
+      const token = localStorage.getItem('jwt');
+      if (!token) {
+        alert('로그인이 필요합니다.');
+        location.href = '02_Login.html';
+        return;
+      }
+
+      try {
+        // 1. 내 정보 가져오기
+        const meResponse = await fetch(`${baseUrl}/api/v1/auth/me`, {
+          credentials: 'include',
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+
+        if (!meResponse.ok) {
+          throw new Error('사용자 정보를 가져올 수 없습니다.');
+        }
+
+        const meData = await meResponse.json();
+        const ownerId = meData.data.userId;
+
+        // 2. 전체 메뉴 목록에서 해당 메뉴 찾기
+        const menuResponse = await fetch(`${baseUrl}/api/v1/menu/read?ownerId=${ownerId}`, {
+          credentials: 'include',
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+
+        if (!menuResponse.ok) {
+          throw new Error('메뉴를 불러올 수 없습니다.');
+        }
+
+        const menuData = await menuResponse.json();
+        console.log('[Edit Menu] All menus:', menuData);
+
+        // 해당 menuId 찾기
+        const menu = menuData.data.find(m => m.menuId === parseInt(currentMenuId));
+        
+        if (!menu) {
+          throw new Error('메뉴를 찾을 수 없습니다.');
+        }
+
+        console.log('[Edit Menu] Found menu:', menu);
+
+        // 폼에 데이터 채우기
+        document.getElementById('menuName').value = menu.menuName || '';
+        document.getElementById('picture').value = menu.picture || '';
+        document.getElementById('price').value = menu.price || 0;
+        document.getElementById('description').value = menu.description || '';
+        document.getElementById('option').value = menu.option || '';
+
+      } catch (error) {
+        console.error('[Edit Menu] Load error:', error);
+        alert('메뉴 정보를 불러오는데 실패했습니다: ' + error.message);
+        history.back();
+      }
+    });
+
+    // 폼 제출 처리 (수정)
+    document.getElementById('editMenuForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      console.log('[Edit Menu] Form submitted');
+
+      const token = localStorage.getItem('jwt');
+      if (!token) {
+        alert('로그인이 필요합니다.');
+        location.href = '02_Login.html';
+        return;
+      }
+
+      // 폼 데이터 수집 (PATCH이므로 부분 수정)
+      const menuData = {
+        menuName: document.getElementById('menuName').value.trim() || null,
+        picture: document.getElementById('picture').value.trim() || null,
+        price: parseInt(document.getElementById('price').value) || null,
+        description: document.getElementById('description').value.trim() || null,
+        option: document.getElementById('option').value.trim() || null
+      };
+
+      console.log('[Edit Menu] Update data:', menuData);
+
+      try {
+        // 버튼 비활성화
+        const submitBtn = document.querySelector('button[type="submit"]');
+        submitBtn.disabled = true;
+        submitBtn.textContent = '저장 중...';
+
+        const response = await fetch(`${baseUrl}/api/v1/menu/update/${currentMenuId}`, {
+          method: 'PATCH',
+          credentials: 'include',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify(menuData)
+        });
+
+        const result = await response.json();
+        console.log('[Edit Menu] Response:', result);
+
+        if (response.ok && result.success) {
+          alert('메뉴가 성공적으로 수정되었습니다!');
+          location.href = '05_Foods.html';
+        } else {
+          throw new Error(result.message || '메뉴 수정에 실패했습니다.');
+        }
+
+      } catch (error) {
+        console.error('[Edit Menu] Update error:', error);
+        alert('메뉴 수정 실패: ' + error.message);
+        
+        // 버튼 복구
+        const submitBtn = document.querySelector('button[type="submit"]');
+        submitBtn.disabled = false;
+        submitBtn.textContent = '수정사항 저장';
+      }
+    });
+
+    // 메뉴 삭제
+    async function deleteMenu() {
+      if (!confirm('정말로 이 메뉴를 삭제하시겠습니까?\n삭제된 메뉴는 복구할 수 없습니다.')) {
+        return;
+      }
+
+      console.log('[Edit Menu] Delete menu:', currentMenuId);
+
+      const token = localStorage.getItem('jwt');
+      if (!token) {
+        alert('로그인이 필요합니다.');
+        location.href = '02_Login.html';
+        return;
+      }
+
+      try {
+        const response = await fetch(`${baseUrl}/api/v1/menu/delete/${currentMenuId}`, {
+          method: 'DELETE',
+          credentials: 'include',
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+
+        const result = await response.json();
+        console.log('[Edit Menu] Delete response:', result);
+
+        if (response.ok && result.success) {
+          alert('메뉴가 삭제되었습니다.');
+          location.href = '05_Foods.html';
+        } else {
+          throw new Error(result.message || '메뉴 삭제에 실패했습니다.');
+        }
+
+      } catch (error) {
+        console.error('[Edit Menu] Delete error:', error);
+        alert('메뉴 삭제 실패: ' + error.message);
+      }
+    }
+  </script>
 </body>
 </html>
 
