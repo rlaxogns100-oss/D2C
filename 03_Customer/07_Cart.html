@@ -28,15 +28,24 @@
     <!-- Summary -->
     <div class="cart-summary">
       <div class="delivery-address">
-        <div style="display: flex; align-items: center; gap: 8px; flex: 1;">
-          <button class="address-dropdown-btn" onclick="toggleAddressDropdown()" style="background: none; border: none; padding: 0; cursor: pointer; color: #FF6B35;">
+        <div style="display: flex; align-items: flex-start; gap: 12px; flex: 1;">
+          <button class="address-dropdown-btn" onclick="toggleAddressDropdown()" style="background: none; border: none; padding: 0; cursor: pointer; color: #FF6B35; margin-top: 4px;">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M6 9l6 6 6-6"/>
             </svg>
           </button>
           <div style="flex: 1;">
-            <h4>배달 주소</h4>
-            <p id="selectedAddress">주소를 선택해주세요</p>
+            <h4 style="margin-bottom: 8px; font-size: 14px; color: #8B92A8;">배달 주소</h4>
+            <div id="selectedAddressContainer" style="display: flex; align-items: center; gap: 8px;">
+              <svg id="addressIcon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#FF6B35" stroke-width="2" style="flex-shrink: 0;">
+                <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+                <polyline points="9 22 9 12 15 12 15 22"/>
+              </svg>
+              <div style="flex: 1;">
+                <div id="selectedAddressName" style="font-size: 16px; font-weight: 600; color: #FFFFFF; margin-bottom: 4px;">주소를 선택해주세요</div>
+                <div id="selectedAddressDetail" style="font-size: 13px; color: #8B92A8; display: none;"></div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -198,7 +207,9 @@
       
       // 로그인 안 한 경우 스킵
       if (!token) {
-        document.getElementById('selectedAddress').textContent = '로그인 후 주소를 선택해주세요';
+        document.getElementById('selectedAddressName').textContent = '로그인 후 주소를 선택해주세요';
+        document.getElementById('selectedAddressDetail').style.display = 'none';
+        document.getElementById('addressIcon').style.display = 'none';
         return;
       }
       
@@ -223,7 +234,9 @@
           
           if (addressList.length === 0) {
             // 등록된 주소가 없는 경우
-            document.getElementById('selectedAddress').textContent = '등록된 주소가 없습니다';
+            document.getElementById('selectedAddressName').textContent = '등록된 주소가 없습니다';
+            document.getElementById('selectedAddressDetail').style.display = 'none';
+            document.getElementById('addressIcon').style.display = 'none';
             
             // 우측에 "주소 등록하기" 버튼 추가
             const addressSection = document.querySelector('.delivery-address');
@@ -274,14 +287,31 @@
         }
       } catch (error) {
         console.error('[Address] Error:', error);
-        document.getElementById('selectedAddress').textContent = '주소 불러오기 실패';
+        document.getElementById('selectedAddressName').textContent = '주소 불러오기 실패';
+        document.getElementById('selectedAddressDetail').style.display = 'none';
+        document.getElementById('addressIcon').style.display = 'none';
       }
     }
     
     // 주소 선택
     function selectAddress(address) {
       selectedAddressId = address.addressId;
-      document.getElementById('selectedAddress').textContent = address.address || '주소 정보 없음';
+      
+      // 주소명 표시
+      const nameEl = document.getElementById('selectedAddressName');
+      const detailEl = document.getElementById('selectedAddressDetail');
+      const iconEl = document.getElementById('addressIcon');
+      
+      if (address.name && address.address) {
+        nameEl.textContent = address.name;
+        detailEl.textContent = address.address;
+        detailEl.style.display = 'block';
+        iconEl.style.display = 'block';
+      } else {
+        nameEl.textContent = address.address || '주소 정보 없음';
+        detailEl.style.display = 'none';
+        iconEl.style.display = address.address ? 'block' : 'none';
+      }
       
       // 드롭다운 닫기
       document.getElementById('addressDropdown').style.display = 'none';
@@ -319,7 +349,7 @@
       
       dropdown.innerHTML = addressList.map(address => `
         <div 
-          onclick="selectAddress({addressId: ${address.addressId}, address: '${address.address?.replace(/'/g, "\\'")}'})" 
+          onclick="selectAddress({addressId: ${address.addressId}, name: '${address.name?.replace(/'/g, "\\'")}', address: '${address.address?.replace(/'/g, "\\'")}'})" 
           style="padding: 12px; cursor: pointer; border-radius: 8px; margin-bottom: 4px; ${selectedAddressId === address.addressId ? 'background: #3D4E60;' : ''}"
           onmouseover="this.style.background='#3D4E60'" 
           onmouseout="this.style.background='${selectedAddressId === address.addressId ? '#3D4E60' : 'transparent'}'"
