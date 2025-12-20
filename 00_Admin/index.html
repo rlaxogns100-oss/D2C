@@ -37,10 +37,41 @@
             <main class="content-area">
                 <div class="action-bar">
                     <div class="search-box">
-                        <input type="text" placeholder="매장명 또는 점주명 검색">
-                        <button>검색</button>
+                        <input type="text" id="searchInput" placeholder="매장명 또는 점주명 검색" onkeyup="filterStores()">
+                        <button onclick="filterStores()">검색</button>
                     </div>
                     <button class="btn-primary">신규 매장 승인</button>
+                </div>
+
+                <!-- 필터 영역 -->
+                <div class="filter-bar">
+                    <div class="filter-group">
+                        <label>카테고리:</label>
+                        <select id="categoryFilter" onchange="filterStores()">
+                            <option value="">전체</option>
+                            <option value="한식">한식</option>
+                            <option value="중식">중식</option>
+                            <option value="일식">일식</option>
+                            <option value="양식">양식</option>
+                            <option value="분식">분식</option>
+                            <option value="치킨">치킨</option>
+                            <option value="피자">피자</option>
+                            <option value="카페/디저트">카페/디저트</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label>상태:</label>
+                        <select id="statusFilter" onchange="filterStores()">
+                            <option value="">전체</option>
+                            <option value="영업중">영업중</option>
+                            <option value="승인 대기">승인 대기</option>
+                            <option value="영업 정지">영업 정지</option>
+                            <option value="휴업">휴업</option>
+                        </select>
+                    </div>
+                    <div class="filter-stats">
+                        <span id="totalCount">전체: 0개</span>
+                    </div>
                 </div>
 
                 <div class="table-container">
@@ -57,69 +88,118 @@
                                 <th>관리</th>
                             </tr>
                         </thead>
-                        <tbody>
-                            <!-- 더미 데이터 -->
-                            <tr>
-                                <td>101</td>
-                                <td>맛있는 떡볶이</td>
-                                <td>분식</td>
-                                <td>김철수</td>
-                                <td>010-1234-5678</td>
-                                <td><span class="badge active">영업중</span></td>
-                                <td>2023-10-15</td>
-                                <td>
-                                    <button class="btn-sm" onclick="location.href='store_detail.html?id=101'">상세</button>
-                                    <button class="btn-sm btn-danger">정지</button>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>102</td>
-                                <td>강남 피자</td>
-                                <td>양식</td>
-                                <td>이영희</td>
-                                <td>010-9876-5432</td>
-                                <td><span class="badge active">영업중</span></td>
-                                <td>2023-10-20</td>
-                                <td>
-                                    <button class="btn-sm" onclick="location.href='store_detail.html?id=102'">상세</button>
-                                    <button class="btn-sm btn-danger">정지</button>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>103</td>
-                                <td>서울 초밥</td>
-                                <td>일식</td>
-                                <td>박지성</td>
-                                <td>010-5555-4444</td>
-                                <td><span class="badge pending">승인 대기</span></td>
-                                <td>2023-12-01</td>
-                                <td>
-                                    <button class="btn-sm btn-approve">승인</button>
-                                    <button class="btn-sm btn-danger">거절</button>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>104</td>
-                                <td>할매 순대국</td>
-                                <td>한식</td>
-                                <td>최민수</td>
-                                <td>010-1111-2222</td>
-                                <td><span class="badge stopped">영업 정지</span></td>
-                                <td>2023-09-05</td>
-                                <td>
-                                    <button class="btn-sm" onclick="location.href='store_detail.html?id=104'">상세</button>
-                                    <button class="btn-sm">해제</button>
-                                </td>
-                            </tr>
+                        <tbody id="storeTableBody">
+                            <!-- JavaScript로 동적 생성 -->
                         </tbody>
                     </table>
                 </div>
             </main>
         </div>
     </div>
+
+    <script>
+        // 매장 더미 데이터
+        const storesData = [
+            { id: 101, name: '맛있는 떡볶이', category: '분식', owner: '김철수', phone: '010-1234-5678', status: '영업중', date: '2023-10-15' },
+            { id: 102, name: '강남 피자', category: '피자', owner: '이영희', phone: '010-9876-5432', status: '영업중', date: '2023-10-20' },
+            { id: 103, name: '서울 초밥', category: '일식', owner: '박지성', phone: '010-5555-4444', status: '승인 대기', date: '2023-12-01' },
+            { id: 104, name: '할매 순대국', category: '한식', owner: '최민수', phone: '010-1111-2222', status: '영업 정지', date: '2023-09-05' },
+            { id: 105, name: '진짜 맛있는 치킨', category: '치킨', owner: '정대한', phone: '010-2222-3333', status: '영업중', date: '2023-11-10' },
+            { id: 106, name: '역삼동 짜장면', category: '중식', owner: '왕리웨이', phone: '010-3333-4444', status: '영업중', date: '2023-08-22' },
+            { id: 107, name: '엄마손 김밥', category: '분식', owner: '김영자', phone: '010-4444-5555', status: '영업중', date: '2023-09-30' },
+            { id: 108, name: '스타벅스 강남점', category: '카페/디저트', owner: '이민호', phone: '010-5555-6666', status: '영업중', date: '2023-07-15' },
+            { id: 109, name: '이태리 파스타', category: '양식', owner: '안토니오', phone: '010-6666-7777', status: '영업중', date: '2023-11-25' },
+            { id: 110, name: '전주 비빔밥', category: '한식', owner: '박순례', phone: '010-7777-8888', status: '휴업', date: '2023-06-18' },
+            { id: 111, name: '도쿄 라멘', category: '일식', owner: '다나카', phone: '010-8888-9999', status: '영업중', date: '2023-10-05' },
+            { id: 112, name: '황금 치킨', category: '치킨', owner: '이광수', phone: '010-9999-0000', status: '승인 대기', date: '2023-12-10' },
+            { id: 113, name: '홍콩반점', category: '중식', owner: '황치밍', phone: '010-1010-2020', status: '영업중', date: '2023-09-20' },
+            { id: 114, name: '부산 어묵', category: '분식', owner: '김부산', phone: '010-2020-3030', status: '영업중', date: '2023-11-01' },
+            { id: 115, name: '나폴리 피자', category: '피자', owner: '조셉', phone: '010-3030-4040', status: '영업중', date: '2023-08-10' },
+            { id: 116, name: '서울 갈비집', category: '한식', owner: '강동원', phone: '010-4040-5050', status: '영업중', date: '2023-07-28' },
+            { id: 117, name: '교토 돈까스', category: '일식', owner: '사토시', phone: '010-5050-6060', status: '영업 정지', date: '2023-05-15' },
+            { id: 118, name: '달콤 카페', category: '카페/디저트', owner: '김달콤', phone: '010-6060-7070', status: '영업중', date: '2023-10-12' },
+            { id: 119, name: '프렌치 레스토랑', category: '양식', owner: '피에르', phone: '010-7070-8080', status: '승인 대기', date: '2023-12-05' },
+            { id: 120, name: '참숯 불고기', category: '한식', owner: '이참숯', phone: '010-8080-9090', status: '영업중', date: '2023-09-15' }
+        ];
+
+        // 페이지 로드 시 데이터 표시
+        window.addEventListener('DOMContentLoaded', () => {
+            renderStores(storesData);
+        });
+
+        // 매장 목록 렌더링
+        function renderStores(stores) {
+            const tbody = document.getElementById('storeTableBody');
+            tbody.innerHTML = '';
+
+            stores.forEach(store => {
+                const row = document.createElement('tr');
+                
+                // 상태에 따른 배지 클래스
+                let badgeClass = 'active';
+                if (store.status === '승인 대기') badgeClass = 'pending';
+                else if (store.status === '영업 정지') badgeClass = 'stopped';
+                else if (store.status === '휴업') badgeClass = '休업';
+
+                // 상태에 따른 버튼
+                let actionButtons = '';
+                if (store.status === '승인 대기') {
+                    actionButtons = `
+                        <button class="btn-sm btn-approve">승인</button>
+                        <button class="btn-sm btn-danger">거절</button>
+                    `;
+                } else if (store.status === '영업 정지') {
+                    actionButtons = `
+                        <button class="btn-sm" onclick="location.href='store_detail.html?id=${store.id}'">상세</button>
+                        <button class="btn-sm">해제</button>
+                    `;
+                } else {
+                    actionButtons = `
+                        <button class="btn-sm" onclick="location.href='store_detail.html?id=${store.id}'">상세</button>
+                        <button class="btn-sm btn-danger">정지</button>
+                    `;
+                }
+
+                row.innerHTML = `
+                    <td>${store.id}</td>
+                    <td>${store.name}</td>
+                    <td>${store.category}</td>
+                    <td>${store.owner}</td>
+                    <td>${store.phone}</td>
+                    <td><span class="badge ${badgeClass}">${store.status}</span></td>
+                    <td>${store.date}</td>
+                    <td>${actionButtons}</td>
+                `;
+
+                tbody.appendChild(row);
+            });
+
+            // 총 개수 업데이트
+            document.getElementById('totalCount').textContent = `전체: ${stores.length}개`;
+        }
+
+        // 필터링 함수
+        function filterStores() {
+            const searchInput = document.getElementById('searchInput').value.toLowerCase();
+            const categoryFilter = document.getElementById('categoryFilter').value;
+            const statusFilter = document.getElementById('statusFilter').value;
+
+            const filtered = storesData.filter(store => {
+                // 검색어 필터
+                const matchSearch = store.name.toLowerCase().includes(searchInput) || 
+                                   store.owner.toLowerCase().includes(searchInput);
+                
+                // 카테고리 필터
+                const matchCategory = !categoryFilter || store.category === categoryFilter;
+                
+                // 상태 필터
+                const matchStatus = !statusFilter || store.status === statusFilter;
+
+                return matchSearch && matchCategory && matchStatus;
+            });
+
+            renderStores(filtered);
+        }
+    </script>
 </body>
 </html>
-
-
-
-

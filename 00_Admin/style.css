@@ -118,7 +118,47 @@ ul { list-style: none; }
 .action-bar {
     display: flex;
     justify-content: space-between;
+    margin-bottom: 15px;
+}
+
+/* Filter Bar */
+.filter-bar {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    padding: 15px 20px;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
     margin-bottom: 20px;
+}
+
+.filter-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.filter-group label {
+    font-size: 13px;
+    font-weight: 500;
+    color: #555;
+}
+
+.filter-group select {
+    padding: 6px 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 13px;
+    cursor: pointer;
+    background-color: #fff;
+}
+
+.filter-stats {
+    margin-left: auto;
+    font-size: 13px;
+    color: #7f8c8d;
+    font-weight: 500;
 }
 
 .search-box {
@@ -198,6 +238,7 @@ ul { list-style: none; }
 .badge.active { background-color: #e8f8f5; color: #27ae60; }
 .badge.pending { background-color: #fef9e7; color: #f1c40f; }
 .badge.stopped { background-color: #fdedec; color: #e74c3c; }
+.badge.휴업 { background-color: #eaf2f8; color: #3498db; }
 
 /* Buttons in Table */
 .btn-sm {
