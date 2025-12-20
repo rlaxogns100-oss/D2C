@@ -119,7 +119,12 @@
     let map;
     let storeMarker; // 가게 위치 마커 (빨강)
     let customerMarker; // 고객 주소 마커 (파랑)
-    const STORE_LOCATION = { lat: 37.5012743, lng: 127.0396597 }; // user_id=11 가게 위치 (나중에 DB에서 가져오기)
+    const STORE_ID = 11; // user_id=11의 store_id
+    let storeInfo = {
+      lat: 37.5012743,
+      lng: 127.0396597,
+      deliveryRadius: null
+    };
 
     // 🔐 로그인 만료 체크 및 자동 리다이렉트
     function checkAuthError(response) {
@@ -130,6 +135,37 @@
         return true;
       }
       return false;
+    }
+
+    // 가게 정보 불러오기
+    async function loadStoreInfo() {
+      try {
+        const response = await fetch(`${baseUrl}/api/v1/store/${STORE_ID}`);
+        const result = await response.json();
+        
+        if (response.ok && result.success && result.data) {
+          const store = result.data;
+          if (store.latitude && store.longitude) {
+            storeInfo.lat = store.latitude;
+            storeInfo.lng = store.longitude;
+            storeInfo.deliveryRadius = store.deliveryRadius;
+          }
+        }
+      } catch (error) {
+        console.error('가게 정보 로드 실패:', error);
+      }
+    }
+
+    // 두 좌표 간 거리 계산 (Haversine formula, km 단위)
+    function calculateDistance(lat1, lon1, lat2, lon2) {
+      const R = 6371; // 지구 반경 (km)
+      const dLat = (lat2 - lat1) * Math.PI / 180;
+      const dLon = (lon2 - lon1) * Math.PI / 180;
+      const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+                Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+                Math.sin(dLon/2) * Math.sin(dLon/2);
+      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+      return R * c;
     }
 
     // 페이지 로드 시 로그인 확인 및 지도 초기화
@@ -157,7 +193,7 @@
       
       // 가게 위치 마커 추가 (빨강)
       storeMarker = new kakao.maps.Marker({
-        position: new kakao.maps.LatLng(STORE_LOCATION.lat, STORE_LOCATION.lng),
+        position: new kakao.maps.LatLng(storeInfo.lat, storeInfo.lng),
         map: map
       });
 
@@ -212,9 +248,21 @@
               
               // 두 마커가 모두 보이도록 지도 범위 조정
               const bounds = new kakao.maps.LatLngBounds();
-              bounds.extend(new kakao.maps.LatLng(STORE_LOCATION.lat, STORE_LOCATION.lng));
+              bounds.extend(new kakao.maps.LatLng(storeInfo.lat, storeInfo.lng));
               bounds.extend(coords);
               map.setBounds(bounds);
+
+              // 배달 권역 체크
+              if (storeInfo.deliveryRadius) {
+                const distance = calculateDistance(
+                  storeInfo.lat, storeInfo.lng,
+                  parseFloat(result[0].y), parseFloat(result[0].x)
+                );
+                
+                if (distance > storeInfo.deliveryRadius) {
+                  alert(`⚠️ 배달 권역 밖의 주소입니다.\n\n가게와의 거리: ${distance.toFixed(2)}km\n배달 가능 반경: ${storeInfo.deliveryRadius}km\n\n주소는 저장할 수 있지만, 주문이 거부될 수 있습니다.`);
+                }
+              }
             }
           });
         }
@@ -330,6 +378,12 @@
       
       return false;
     }
+
+    // 페이지 로드 시 가게 정보 불러오기
+    window.onload = async function() {
+      await loadStoreInfo();
+      initMap();
+    };
   </script>
 </body>
 </html>

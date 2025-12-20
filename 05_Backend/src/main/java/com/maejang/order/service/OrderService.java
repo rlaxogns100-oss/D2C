@@ -1,7 +1,10 @@
 package com.maejang.order.service;
 
+import com.maejang.address.domain.Address;
+import com.maejang.address.repository.AddressRepository;
 import com.maejang.global.exception.CustomException;
 import com.maejang.global.exception.ErrorCode;
+import com.maejang.global.util.DistanceCalculator;
 import com.maejang.menu.domain.Menu;
 import com.maejang.menu.repository.MenuRepository;
 import com.maejang.order.domain.Order;
@@ -29,6 +32,7 @@ public class OrderService {
     private final UserRepository userRepository;
     private final MenuRepository menuRepository;
     private final StoreRepository storeRepository;
+    private final AddressRepository addressRepository;
 
     @Transactional
     public Long create(Long userId, OrderCreateRequest req) {
@@ -37,6 +41,31 @@ public class OrderService {
 
         Store store = storeRepository.findById(req.storeId())
                 .orElseThrow(() -> new CustomException(ErrorCode.STORE_NOT_FOUND));
+
+        // 배달 주소 조회
+        Address address = addressRepository.findById(req.addressId())
+                .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND));
+
+        // 주소 소유자 확인
+        if (!address.getUser().getId().equals(userId)) {
+            throw new CustomException(ErrorCode.FORBIDDEN);
+        }
+
+        // 배달 권역 체크
+        if (store.getLatitude() != null && store.getLongitude() != null 
+                && store.getDeliveryRadius() != null 
+                && address.getLatitude() != null && address.getLongitude() != null) {
+            
+            boolean isWithinRange = DistanceCalculator.isWithinDeliveryRange(
+                    store.getLatitude(), store.getLongitude(),
+                    address.getLatitude(), address.getLongitude(),
+                    store.getDeliveryRadius()
+            );
+
+            if (!isWithinRange) {
+                throw new CustomException(ErrorCode.OUT_OF_DELIVERY_RANGE);
+            }
+        }
 
         Order order = Order.builder()
                 .user(user)

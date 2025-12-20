@@ -12,7 +12,10 @@ public record StoreResponse(
         String picture,
         LocalTime openTime,
         LocalTime closeTime,
-        boolean isOpen
+        boolean isOpen,
+        Double latitude,
+        Double longitude,
+        Double deliveryRadius
 ) {
     public static StoreResponse from(Store s) {
         return new StoreResponse(
@@ -24,7 +27,10 @@ public record StoreResponse(
                 s.getPicture(),
                 s.getOpenTime(),
                 s.getCloseTime(),
-                s.isOpen()
+                s.isOpen(),
+                s.getLatitude(),
+                s.getLongitude(),
+                s.getDeliveryRadius()
         );
     }
 }

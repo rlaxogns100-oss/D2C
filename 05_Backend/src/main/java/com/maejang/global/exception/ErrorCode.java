@@ -32,6 +32,7 @@ public enum ErrorCode {
     STORE_NOT_FOUND(HttpStatus.NOT_FOUND, "가게를 찾을 수 없습니다."),
     DUPLICATE_STORE(HttpStatus.BAD_REQUEST, "이미 가게가 존재합니다."),
     STORE_CLOSED(HttpStatus.BAD_REQUEST, "가게가 영업중이 아닙니다."),
+    OUT_OF_DELIVERY_RANGE(HttpStatus.BAD_REQUEST, "배달 가능한 지역이 아닙니다."),
 
     // IMAGE
     EMPTY_FILE(HttpStatus.BAD_REQUEST, "파일이 비어있습니다."),

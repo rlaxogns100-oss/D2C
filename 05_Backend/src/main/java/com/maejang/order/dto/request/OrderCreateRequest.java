@@ -7,6 +7,9 @@ public record OrderCreateRequest(
         @NotNull(message = "storeId는 필수입니다.")
         Long storeId,
 
+        @NotNull(message = "addressId는 필수입니다.")
+        Long addressId,
+
         String request,
 
         @NotNull(message = "items는 필수입니다.")

@@ -57,9 +57,18 @@ public class Store {
     @Column(name = "is_open", nullable = false)
     private boolean open;
 
+    @Column(name = "latitude", precision = 10, scale = 8)
+    private Double latitude;
+
+    @Column(name = "longitude", precision = 11, scale = 8)
+    private Double longitude;
+
+    @Column(name = "delivery_radius")
+    private Double deliveryRadius; // 배달 반경 (km)
+
     @Builder
     private Store(User owner, String storeName, String address, String description, String picture,
-                  LocalTime openTime, LocalTime closeTime, boolean open) {
+                  LocalTime openTime, LocalTime closeTime, boolean open, Double latitude, Double longitude, Double deliveryRadius) {
         this.owner = owner;
         this.storeName = storeName;
         this.address = address;
@@ -68,9 +77,18 @@ public class Store {
         this.openTime = openTime;
         this.closeTime = closeTime;
         this.open = open;
+        this.latitude = latitude;
+        this.longitude = longitude;
+        this.deliveryRadius = deliveryRadius;
     }
 
     public void setOpen(boolean open) {
         this.open = open;
+    }
+
+    public void updateDeliveryArea(Double latitude, Double longitude, Double deliveryRadius) {
+        this.latitude = latitude;
+        this.longitude = longitude;
+        this.deliveryRadius = deliveryRadius;
     }
 }

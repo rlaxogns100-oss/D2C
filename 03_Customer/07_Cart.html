@@ -393,9 +393,16 @@
         // 실제로는 별도 API가 필요하지만, 현재 구조상 직접 계산
         // Menu의 owner -> Store의 owner가 같으므로 userId로 Store를 찾을 수 있음
         
-        // 2. 주문 데이터 생성
+        // 2. 주소 선택 확인
+        if (!selectedAddressId) {
+          alert('배달 주소를 선택해주세요.');
+          return;
+        }
+
+        // 3. 주문 데이터 생성
         const orderData = {
-          storeId: null,  // 잠시 후 채움
+          storeId: 11,  // pizzaschool.maejang.com의 storeId
+          addressId: selectedAddressId,
           request: "",  // 요청사항 (향후 추가 가능)
           items: cart.map(item => ({
             menuId: item.menuId,
@@ -403,10 +410,6 @@
             count: item.quantity
           }))
         };
-
-        // 3. ownerId로 storeId 설정
-        // pizzaschool.maejang.com의 storeId는 11
-        orderData.storeId = 11;
 
         console.log('[Order] Creating order:', orderData);
 

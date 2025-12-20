@@ -2,6 +2,7 @@ package com.maejang.store.controller;
 
 import com.maejang.global.response.JSONResponse;
 import com.maejang.auth.security.CustomUserDetails;
+import com.maejang.store.dto.request.DeliveryAreaUpdateRequest;
 import com.maejang.store.dto.request.StoreCreateRequest;
 import com.maejang.store.dto.response.StoreIdResponse;
 import com.maejang.store.dto.response.StoreResponse;
@@ -12,7 +13,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -52,6 +55,22 @@ public class StoreController {
     public ResponseEntity<JSONResponse<Void>> close(@AuthenticationPrincipal CustomUserDetails principal) {
         storeService.close(principal.getUserId());
         return ResponseEntity.ok(JSONResponse.success(null));
+    }
+
+    @Operation(summary = "배달 권역 설정", description = "가게의 배달 권역을 설정합니다.")
+    @PutMapping("/delivery-area")
+    public ResponseEntity<JSONResponse<Void>> updateDeliveryArea(
+            @AuthenticationPrincipal CustomUserDetails principal,
+            @Valid @RequestBody DeliveryAreaUpdateRequest req
+    ) {
+        storeService.updateDeliveryArea(principal.getUserId(), req);
+        return ResponseEntity.ok(JSONResponse.success(null));
+    }
+
+    @Operation(summary = "가게 조회 (storeId)", description = "storeId로 가게 정보를 조회합니다.")
+    @GetMapping("/{storeId}")
+    public ResponseEntity<JSONResponse<StoreResponse>> readById(@PathVariable Long storeId) {
+        return ResponseEntity.ok(JSONResponse.success(StoreResponse.from(storeService.readById(storeId))));
     }
 }
 

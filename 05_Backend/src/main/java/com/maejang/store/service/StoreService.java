@@ -3,6 +3,7 @@ package com.maejang.store.service;
 import com.maejang.global.exception.CustomException;
 import com.maejang.global.exception.ErrorCode;
 import com.maejang.store.domain.Store;
+import com.maejang.store.dto.request.DeliveryAreaUpdateRequest;
 import com.maejang.store.dto.request.StoreCreateRequest;
 import com.maejang.store.repository.StoreRepository;
 import com.maejang.user.domain.User;
@@ -57,6 +58,18 @@ public class StoreService {
     public void close(Long ownerId) {
         Store store = readByOwner(ownerId);
         store.setOpen(false);
+    }
+
+    @Transactional
+    public void updateDeliveryArea(Long ownerId, DeliveryAreaUpdateRequest req) {
+        Store store = readByOwner(ownerId);
+        store.updateDeliveryArea(req.latitude(), req.longitude(), req.deliveryRadius());
+    }
+
+    @Transactional(readOnly = true)
+    public Store readById(Long storeId) {
+        return storeRepository.findById(storeId)
+                .orElseThrow(() -> new CustomException(ErrorCode.STORE_NOT_FOUND));
     }
 }
 
