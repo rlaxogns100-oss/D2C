@@ -185,7 +185,7 @@
     function initializeMap() {
       const mapContainer = document.getElementById('map');
       const mapOption = {
-        center: new kakao.maps.LatLng(STORE_LOCATION.lat, STORE_LOCATION.lng),
+        center: new kakao.maps.LatLng(storeInfo.lat, storeInfo.lng),
         level: 4
       };
       
@@ -382,7 +382,7 @@
     // 페이지 로드 시 가게 정보 불러오기
     window.onload = async function() {
       await loadStoreInfo();
-      initMap();
+      initializeMap();
     };
   </script>
 </body>
