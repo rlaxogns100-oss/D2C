@@ -64,7 +64,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/v1/address/**", "/api/v1/cart/**").hasRole("CUSTOMER")
                         // 주문: 고객/사장 기능이 섞여있어서 endpoint 별로 분리
                         .requestMatchers("/api/v1/order/create", "/api/v1/order/read", "/api/v1/order/history", "/api/v1/order/delete").hasRole("CUSTOMER")
-                        .requestMatchers("/api/v1/order/check", "/api/v1/order/ok", "/api/v1/order/cancel", "/api/v1/order/complete").hasRole("OWNER")
+                        .requestMatchers("/api/v1/order/check", "/api/v1/order/ok", "/api/v1/order/cancel", "/api/v1/order/complete", "/api/v1/order/deliver").hasRole("OWNER")
 
                         .anyRequest().authenticated()
                 );

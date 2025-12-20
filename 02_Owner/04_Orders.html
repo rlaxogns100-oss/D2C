@@ -120,6 +120,11 @@
       color: #2196F3;
     }
 
+    .status-delivering {
+      background-color: #FFF3E0;
+      color: #FF9800;
+    }
+
     .status-rejected {
       background-color: #FFEBEE;
       color: #F44336;
@@ -302,10 +307,10 @@
         case 'new':
           return allOrders.filter(order => order.condition === 'ORDERED');
         case 'cooking':
-          return allOrders.filter(order => order.condition === 'COOKING');
+          return allOrders.filter(order => ['COOKING', 'DELIVERING'].includes(order.condition));
         case 'done':
           return allOrders.filter(order => 
-            ['REJECTED', 'CANCELLED', 'DELIVERED', 'DELIVERING'].includes(order.condition)
+            ['REJECTED', 'CANCELLED', 'DELIVERED'].includes(order.condition)
           );
         default:
           return allOrders;
@@ -353,6 +358,7 @@
       const statusClass = getStatusClass(order.condition);
       const showAcceptReject = order.condition === 'ORDERED';
       const showComplete = order.condition === 'COOKING';
+      const showDeliver = order.condition === 'DELIVERING';
       
       return `
         <div class="order-card-custom">
@@ -399,7 +405,15 @@
           ${showComplete ? `
             <div class="order-actions">
               <button class="btn-accept" onclick="completeOrder(${order.id})" style="width: 100%;">
-                ✓ 조리 완료
+                🚚 조리 완료 (배달 시작)
+              </button>
+            </div>
+          ` : ''}
+
+          ${showDeliver ? `
+            <div class="order-actions">
+              <button class="btn-accept" onclick="deliverOrder(${order.id})" style="width: 100%;">
+                ✓ 배달 완료
               </button>
             </div>
           ` : ''}
@@ -425,7 +439,7 @@
       const classMap = {
         'ORDERED': 'status-ordered',
         'COOKING': 'status-cooking',
-        'DELIVERING': 'status-cooking',
+        'DELIVERING': 'status-delivering',
         'DELIVERED': 'status-delivered',
         'REJECTED': 'status-rejected',
         'CANCELLED': 'status-cancelled'
@@ -521,9 +535,9 @@
       }
     }
 
-    // 조리 완료
+    // 조리 완료 (배달 시작)
     async function completeOrder(orderId) {
-      if (!confirm('조리를 완료하시겠습니까?')) return;
+      if (!confirm('조리를 완료하고 배달을 시작하시겠습니까?')) return;
 
       const token = localStorage.getItem('accessToken');
       
@@ -542,11 +556,40 @@
           throw new Error('조리 완료 처리에 실패했습니다.');
         }
 
-        alert('조리가 완료되었습니다!');
+        alert('조리가 완료되었습니다! 배달을 시작하세요.');
         await loadOrders(); // 목록 새로고침
       } catch (error) {
         console.error('Error:', error);
         alert('조리 완료 처리에 실패했습니다.');
+      }
+    }
+
+    // 배달 완료
+    async function deliverOrder(orderId) {
+      if (!confirm('배달을 완료하시겠습니까?')) return;
+
+      const token = localStorage.getItem('accessToken');
+      
+      try {
+        const response = await fetch(`${baseUrl}/api/v1/order/deliver?orderId=${orderId}`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        });
+
+        if (handleApiResponse(response)) return;
+
+        if (!response.ok) {
+          throw new Error('배달 완료 처리에 실패했습니다.');
+        }
+
+        alert('배달이 완료되었습니다!');
+        await loadOrders(); // 목록 새로고침
+      } catch (error) {
+        console.error('Error:', error);
+        alert('배달 완료 처리에 실패했습니다.');
       }
     }
 

@@ -134,6 +134,12 @@ public class OrderService {
     @Transactional
     public void completeByOwner(Long orderId) {
         Order order = read(orderId);
+        order.setCondition(OrderStatus.DELIVERING);
+    }
+
+    @Transactional
+    public void deliverByOwner(Long orderId) {
+        Order order = read(orderId);
         order.setCondition(OrderStatus.DELIVERED);
     }
 

@@ -79,10 +79,17 @@ public class OrderController {
         return ResponseEntity.ok(JSONResponse.success(null));
     }
 
-    @Operation(summary = "주문완료", description = "사장이 주문을 완료 처리합니다.")
+    @Operation(summary = "조리완료(배달시작)", description = "사장이 조리를 완료하고 배달을 시작합니다.")
     @PostMapping("/complete")
     public ResponseEntity<JSONResponse<Void>> complete(@RequestParam("orderId") Long orderId) {
         orderService.completeByOwner(orderId);
+        return ResponseEntity.ok(JSONResponse.success(null));
+    }
+
+    @Operation(summary = "배달완료", description = "사장이 배달을 완료 처리합니다.")
+    @PostMapping("/deliver")
+    public ResponseEntity<JSONResponse<Void>> deliver(@RequestParam("orderId") Long orderId) {
+        orderService.deliverByOwner(orderId);
         return ResponseEntity.ok(JSONResponse.success(null));
     }
 }
