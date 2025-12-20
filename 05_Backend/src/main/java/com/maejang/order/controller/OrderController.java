@@ -78,6 +78,13 @@ public class OrderController {
         orderService.rejectByOwner(orderId);
         return ResponseEntity.ok(JSONResponse.success(null));
     }
+
+    @Operation(summary = "주문완료", description = "사장이 주문을 완료 처리합니다.")
+    @PostMapping("/complete")
+    public ResponseEntity<JSONResponse<Void>> complete(@RequestParam("orderId") Long orderId) {
+        orderService.completeByOwner(orderId);
+        return ResponseEntity.ok(JSONResponse.success(null));
+    }
 }
 
 

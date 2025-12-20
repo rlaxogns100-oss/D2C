@@ -131,6 +131,12 @@ public class OrderService {
         order.setCondition(OrderStatus.REJECTED);
     }
 
+    @Transactional
+    public void completeByOwner(Long orderId) {
+        Order order = read(orderId);
+        order.setCondition(OrderStatus.DELIVERED);
+    }
+
     @Transactional(readOnly = true)
     public List<Order> checkByOwner(Long ownerId) {
         Store store = storeRepository.findFirstByOwnerId(ownerId)

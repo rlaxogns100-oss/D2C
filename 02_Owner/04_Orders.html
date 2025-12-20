@@ -351,7 +351,8 @@
     function createOrderCard(order) {
       const statusText = getStatusText(order.condition);
       const statusClass = getStatusClass(order.condition);
-      const showActions = order.condition === 'ORDERED';
+      const showAcceptReject = order.condition === 'ORDERED';
+      const showComplete = order.condition === 'COOKING';
       
       return `
         <div class="order-card-custom">
@@ -384,13 +385,21 @@
             </div>
           ` : ''}
 
-          ${showActions ? `
+          ${showAcceptReject ? `
             <div class="order-actions">
               <button class="btn-accept" onclick="acceptOrder(${order.id})">
                 ✓ 주문 수락
               </button>
               <button class="btn-reject" onclick="rejectOrder(${order.id})">
                 ✗ 주문 거절
+              </button>
+            </div>
+          ` : ''}
+
+          ${showComplete ? `
+            <div class="order-actions">
+              <button class="btn-accept" onclick="completeOrder(${order.id})" style="width: 100%;">
+                ✓ 조리 완료
               </button>
             </div>
           ` : ''}
@@ -509,6 +518,35 @@
       } catch (error) {
         console.error('Error:', error);
         alert('주문 거절에 실패했습니다.');
+      }
+    }
+
+    // 조리 완료
+    async function completeOrder(orderId) {
+      if (!confirm('조리를 완료하시겠습니까?')) return;
+
+      const token = localStorage.getItem('accessToken');
+      
+      try {
+        const response = await fetch(`${baseUrl}/api/v1/order/complete?orderId=${orderId}`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        });
+
+        if (handleApiResponse(response)) return;
+
+        if (!response.ok) {
+          throw new Error('조리 완료 처리에 실패했습니다.');
+        }
+
+        alert('조리가 완료되었습니다!');
+        await loadOrders(); // 목록 새로고침
+      } catch (error) {
+        console.error('Error:', error);
+        alert('조리 완료 처리에 실패했습니다.');
       }
     }
 
