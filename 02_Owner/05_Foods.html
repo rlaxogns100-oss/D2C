@@ -83,6 +83,17 @@
     let allMenus = [];  // 전체 메뉴 저장
     let currentCategory = '전체';
 
+    // 🔐 로그인 만료 체크 및 자동 리다이렉트
+    function checkAuthError(response) {
+      if (response.status === 401 || response.status === 403) {
+        alert('로그인이 만료되었습니다. 다시 로그인해주세요.');
+        localStorage.removeItem('accessToken');
+        location.href = '02_Login.html';
+        return true;
+      }
+      return false;
+    }
+
     // 카테고리 초기화 (LocalStorage)
     function initCategories() {
       const saved = localStorage.getItem('menuCategories');
@@ -239,6 +250,8 @@
           }
         });
 
+        if (checkAuthError(meResponse)) return;
+
         if (!meResponse.ok) {
           throw new Error('사용자 정보를 가져올 수 없습니다.');
         }
@@ -255,6 +268,8 @@
             'Authorization': `Bearer ${token}`
           }
         });
+
+        if (checkAuthError(menuResponse)) return;
 
         if (!menuResponse.ok) {
           throw new Error('메뉴 목록을 가져올 수 없습니다.');
@@ -401,6 +416,8 @@
             'Authorization': `Bearer ${token}`
           }
         });
+
+        if (checkAuthError(response)) return;
 
         const result = await response.json();
 

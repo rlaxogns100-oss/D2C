@@ -51,6 +51,22 @@
   </div>
   
   <script>
+    // baseUrl 처리 (로컬 파일 테스트용)
+    const baseUrl = window.location.protocol === 'file:' 
+      ? 'https://pizzaschool.maejang.com'
+      : '';
+
+    // 🔐 로그인 만료 체크 및 자동 리다이렉트
+    function checkAuthError(response) {
+      if (response.status === 401 || response.status === 403) {
+        alert('로그인이 필요합니다. 로그인 페이지로 이동합니다.');
+        localStorage.removeItem('accessToken');
+        location.href = '02_Login.html';
+        return true;
+      }
+      return false;
+    }
+    
     // 페이지 로드 시 장바구니 불러오기
     window.addEventListener('pageshow', function(event) {
       loadCartItems();
@@ -162,16 +178,84 @@
     }
     
     // 주문하기
-    function placeOrder() {
+    async function placeOrder() {
       const cart = getCart();
       
       if (cart.length === 0) {
         alert('장바구니가 비어있습니다');
         return;
       }
-      
-      // TODO: 주문 API 연동
-      alert('주문 기능은 준비중입니다.');
+
+      // 로그인 확인
+      const token = localStorage.getItem('accessToken');
+      if (!token) {
+        alert('로그인이 필요합니다.');
+        location.href = '02_Login.html';
+        return;
+      }
+
+      try {
+        // 1. 장바구니의 ownerId로 storeId 가져오기
+        const ownerId = cart[0].ownerId;
+        if (!ownerId) {
+          alert('주문 정보가 올바르지 않습니다. 장바구니를 다시 채워주세요.');
+          return;
+        }
+
+        // Owner의 store 정보 조회 (간접적으로 ownerId로 메뉴 조회하면서 확인)
+        // 실제로는 별도 API가 필요하지만, 현재 구조상 직접 계산
+        // Menu의 owner -> Store의 owner가 같으므로 userId로 Store를 찾을 수 있음
+        
+        // 2. 주문 데이터 생성
+        const orderData = {
+          storeId: null,  // 잠시 후 채움
+          request: "",  // 요청사항 (향후 추가 가능)
+          items: cart.map(item => ({
+            menuId: item.menuId,
+            option: item.option || null,
+            count: item.quantity
+          }))
+        };
+
+        // 3. ownerId로 storeId 설정
+        // pizzaschool.maejang.com의 storeId는 11
+        orderData.storeId = 11;
+
+        console.log('[Order] Creating order:', orderData);
+
+        // 4. 주문 생성 API 호출
+        const response = await fetch(`${baseUrl}/api/v1/order/create`, {
+          method: 'POST',
+          credentials: 'include',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(orderData)
+        });
+
+        if (checkAuthError(response)) return;
+
+        const result = await response.json();
+        console.log('[Order] Response:', result);
+
+        if (response.ok && result.success) {
+          // 주문 성공
+          alert(`주문이 완료되었습니다!\n주문 번호: ${result.data.orderId}`);
+          
+          // 장바구니 비우기
+          localStorage.removeItem('cart');
+          
+          // 주문 내역 페이지로 이동
+          location.href = '08_My_Orders.html';
+        } else {
+          throw new Error(result.message || '주문 생성에 실패했습니다.');
+        }
+
+      } catch (error) {
+        console.error('[Order] Error:', error);
+        alert('주문 실패: ' + error.message);
+      }
     }
   </script>
 </body>

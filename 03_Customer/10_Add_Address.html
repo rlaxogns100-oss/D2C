@@ -5,8 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>10 Add Address</title>
   <link rel="stylesheet" href="style.css">
-  <!-- ⚠️ LocalStorage Service (DB 연동 시 이 줄 삭제) -->
-  <script src="storage.js"></script>
 </head>
 <body>
   <div class="screen-label">새 주소 추가</div>
@@ -92,6 +90,32 @@
   </div>
   
   <script>
+    // baseUrl 처리 (로컬 파일 테스트용)
+    const baseUrl = window.location.protocol === 'file:' 
+      ? 'https://pizzaschool.maejang.com'
+      : '';
+
+    // 🔐 로그인 만료 체크 및 자동 리다이렉트
+    function checkAuthError(response) {
+      if (response.status === 401 || response.status === 403) {
+        alert('로그인이 만료되었습니다. 다시 로그인해주세요.');
+        localStorage.removeItem('accessToken');
+        location.href = '02_Login.html';
+        return true;
+      }
+      return false;
+    }
+
+    // 페이지 로드 시 로그인 확인
+    document.addEventListener('DOMContentLoaded', function() {
+      const token = localStorage.getItem('accessToken');
+      if (!token) {
+        alert('로그인이 필요합니다.');
+        location.href = '02_Login.html';
+        return;
+      }
+    });
+    
     // 라벨 선택 기능
     function selectLabel(button) {
       // 모든 라벨 버튼의 active 클래스 제거
@@ -102,15 +126,8 @@
       button.classList.add('active');
     }
     
-    /* ==========================================================================
-       📍 주소 추가 페이지 로직
-       
-       ⚠️ DB 연동 시 수정 필요:
-       - AddressStorage.addAddress() → fetch('/api/addresses', {method:'POST'})
-       ========================================================================== */
-    
-    // 주소 폼 유효성 검사
-    function validateAddress(event) {
+    // 주소 폼 유효성 검사 및 저장
+    async function validateAddress(event) {
       event.preventDefault();
       
       const street = document.getElementById('street').value.trim();
@@ -151,21 +168,48 @@
       const labelButton = document.querySelector('.label-btn.active');
       const label = labelButton ? labelButton.textContent : '집';
       
-      // 주소 객체 생성
-      const address = {
-        street: street,
-        postcode: postcode,
-        apartment: apartment,
-        label: label,
-        fullAddress: `${street}, ${apartment ? apartment + ', ' : ''}${postcode}`
+      // 주소 데이터 생성
+      const addressData = {
+        title: label,
+        detail: `${street}, ${apartment ? apartment + ', ' : ''}${postcode}`
       };
+
+      // API 호출
+      const token = localStorage.getItem('accessToken');
+      if (!token) {
+        alert('로그인이 필요합니다.');
+        location.href = '02_Login.html';
+        return false;
+      }
+
+      try {
+        const response = await fetch(`${baseUrl}/api/v1/address/create`, {
+          method: 'POST',
+          credentials: 'include',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(addressData)
+        });
+
+        if (checkAuthError(response)) return false;
+
+        const result = await response.json();
+        console.log('[Add Address] Response:', result);
+
+        if (response.ok && result.success) {
+          alert('주소가 저장되었습니다!');
+          location.href = '09_Address.html';
+        } else {
+          throw new Error(result.message || '주소 저장에 실패했습니다.');
+        }
+
+      } catch (error) {
+        console.error('[Add Address] Error:', error);
+        alert('주소 저장 실패: ' + error.message);
+      }
       
-      // LocalStorage에 저장
-      AddressStorage.addAddress(address); // ⚠️ DB: await fetch('/api/addresses', {method:'POST', body:JSON.stringify(address)})
-      
-      // 모든 검사 통과
-      alert('주소가 저장되었습니다!');
-      location.href = '09_Address.html';
       return false;
     }
   </script>

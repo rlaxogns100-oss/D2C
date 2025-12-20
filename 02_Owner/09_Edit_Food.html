@@ -86,6 +86,17 @@
     let uploadedImageUrl = null;
     let existingImageUrl = null;
 
+    // 🔐 로그인 만료 체크 및 자동 리다이렉트
+    function checkAuthError(response) {
+      if (response.status === 401 || response.status === 403) {
+        alert('로그인이 만료되었습니다. 다시 로그인해주세요.');
+        localStorage.removeItem('accessToken');
+        location.href = '02_Login.html';
+        return true;
+      }
+      return false;
+    }
+
     // 옵션 필드 추가
     function addOptionField(value = '') {
       optionCount++;
@@ -177,6 +188,10 @@
           body: formData
         });
 
+        if (checkAuthError(response)) {
+          throw new Error('로그인이 만료되었습니다.');
+        }
+
         const result = await response.json();
         
         if (response.ok && result.success) {
@@ -227,6 +242,8 @@
           }
         });
 
+        if (checkAuthError(meResponse)) return;
+
         if (!meResponse.ok) {
           throw new Error('사용자 정보를 가져올 수 없습니다.');
         }
@@ -241,6 +258,8 @@
             'Authorization': `Bearer ${token}`
           }
         });
+
+        if (checkAuthError(menuResponse)) return;
 
         if (!menuResponse.ok) {
           throw new Error('메뉴를 불러올 수 없습니다.');
@@ -349,6 +368,8 @@
           body: JSON.stringify(menuData)
         });
 
+        if (checkAuthError(response)) return;
+
         const result = await response.json();
         console.log('[Edit Menu] Response:', result);
 
@@ -393,6 +414,8 @@
             'Authorization': `Bearer ${token}`
           }
         });
+
+        if (checkAuthError(response)) return;
 
         const result = await response.json();
         console.log('[Edit Menu] Delete response:', result);

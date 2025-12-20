@@ -84,6 +84,17 @@
     let selectedImageFile = null;
     let uploadedImageUrl = null;
 
+    // 🔐 로그인 만료 체크 및 자동 리다이렉트
+    function checkAuthError(response) {
+      if (response.status === 401 || response.status === 403) {
+        alert('로그인이 만료되었습니다. 다시 로그인해주세요.');
+        localStorage.removeItem('accessToken');
+        location.href = '02_Login.html';
+        return true;
+      }
+      return false;
+    }
+
     // 페이지 로드 시 카테고리 로드
     document.addEventListener('DOMContentLoaded', () => {
       loadCategories();
@@ -149,6 +160,10 @@
           },
           body: formData
         });
+
+        if (checkAuthError(response)) {
+          throw new Error('로그인이 만료되었습니다.');
+        }
 
         const result = await response.json();
         
@@ -276,6 +291,8 @@
           },
           body: JSON.stringify(menuData)
         });
+
+        if (checkAuthError(response)) return;
 
         const result = await response.json();
         console.log('[Add Menu] Response:', result);

@@ -276,7 +276,8 @@
         option: selectedOption,
         additionalPrice: additionalPrice,
         totalPrice: (currentMenu.price + additionalPrice) * quantity,
-        picture: currentMenu.picture
+        picture: currentMenu.picture,
+        ownerId: OWNER_ID  // 주문 생성 시 필요
       };
 
       // localStorage에 저장
