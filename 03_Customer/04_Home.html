@@ -118,25 +118,22 @@
 
     let allMenus = [];  // 전체 메뉴 저장
     let currentCategory = '전체';
-    const OWNER_ID = 1;  // TODO: 실제로는 가게 선택 페이지에서 받아와야 함
+    
+    // 🏪 이 매장의 Owner ID (서브도메인별로 다르게 설정)
+    // pizzaschool.maejang.com → OWNER_ID = 11
+    // TODO: 나중에 서브도메인에 따라 자동으로 매칭
+    const OWNER_ID = 11;
 
     // 페이지 로드 시 메뉴 목록 불러오기
     document.addEventListener('DOMContentLoaded', async () => {
       console.log('[Customer Home] Page loaded, fetching menus...');
-      
-      // JWT 토큰 확인 (선택사항 - 비로그인 사용자도 메뉴 조회 가능하게 할 수 있음)
-      const token = localStorage.getItem('accessToken');
+      console.log('[Customer Home] Store Owner ID:', OWNER_ID);
       
       try {
-        // 메뉴 목록 가져오기
-        const headers = {};
-        if (token) {
-          headers['Authorization'] = `Bearer ${token}`;
-        }
-
+        // 이 매장(OWNER_ID)의 메뉴 목록 가져오기
+        // 비로그인 상태에서도 조회 가능
         const menuResponse = await fetch(`${baseUrl}/api/v1/menu/read?ownerId=${OWNER_ID}`, {
-          credentials: 'include',
-          headers: headers
+          credentials: 'include'
         });
 
         if (!menuResponse.ok) {

@@ -103,6 +103,9 @@
     let selectedOption = null;
     let additionalPrice = 0;
 
+    // 🏪 이 매장의 Owner ID (04_Home.html과 동일해야 함)
+    const OWNER_ID = 11;
+
     // 페이지 로드 시 메뉴 정보 불러오기
     document.addEventListener('DOMContentLoaded', async () => {
       console.log('[Food Details] Page loaded');
@@ -118,21 +121,13 @@
       }
 
       console.log('[Food Details] Menu ID:', menuId);
-
-      // JWT 토큰 확인 (선택사항)
-      const token = localStorage.getItem('accessToken');
-      const OWNER_ID = 1;  // TODO: 가게 선택 페이지에서 받아와야 함
+      console.log('[Food Details] Store Owner ID:', OWNER_ID);
 
       try {
-        // 메뉴 목록에서 해당 메뉴 찾기
-        const headers = {};
-        if (token) {
-          headers['Authorization'] = `Bearer ${token}`;
-        }
-
+        // 이 매장(OWNER_ID)의 메뉴 목록에서 해당 메뉴 찾기
+        // 비로그인 상태에서도 조회 가능
         const menuResponse = await fetch(`${baseUrl}/api/v1/menu/read?ownerId=${OWNER_ID}`, {
-          credentials: 'include',
-          headers: headers
+          credentials: 'include'
         });
 
         if (!menuResponse.ok) {
