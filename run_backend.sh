@@ -10,26 +10,21 @@ BLUE='\033[0;34m'
 RED='\033[0;31m'
 NC='\033[0m'
 
-echo -e "${BLUE}=== 1. 환경변수 설정 ===${NC}"
+echo -e "${BLUE}=== 1. 환경변수 확인 ===${NC}"
 
-# [DATABASE]
-# ⚠️ 서버에서 실행 시 실제 값으로 채워주세요
-export DB_PASSWORD='YOUR_DB_PASSWORD'
-export DB_PORT=3306
-export DB_USERNAME='admin'
-export DB_URL='maejang-db.cbsoemmw41zf.ap-southeast-2.rds.amazonaws.com'
-# ⚠️ 주의: DB 이름 확인 필요 (기본값: maejang)
-export DB_NAME='maejang-db' 
+# .env 파일 확인
+if [ ! -f ".env" ]; then
+    echo -e "${RED}❌ .env 파일이 없습니다!${NC}"
+    echo -e "${RED}   .env.example 파일을 복사하여 .env 파일을 만들고 실제 값을 입력하세요.${NC}"
+    echo ""
+    echo "   cp .env.example .env"
+    echo "   nano .env"
+    echo ""
+    exit 1
+fi
 
-# [AWS]
-# ⚠️ 서버에서 실행 시 실제 값으로 채워주세요
-export AWS_ACCESS_KEY='YOUR_AWS_ACCESS_KEY'
-export AWS_SECRET_KEY='YOUR_AWS_SECRET_KEY'
-export AWS_REGION='ap-southeast-2'
-# ⚠️ 주의: S3 버킷 이름 확인 필요
-export AWS_S3_BUCKET='maejang-bucket'
-
-echo "환경변수가 로드되었습니다."
+echo "✅ .env 파일 확인됨"
+echo "   (환경변수는 Spring Boot가 자동으로 .env 파일에서 로드합니다)"
 
 echo -e "${BLUE}=== 2. Java 확인 ===${NC}"
 if ! command -v java &> /dev/null; then

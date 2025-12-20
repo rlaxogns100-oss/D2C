@@ -26,12 +26,19 @@
         <input type="text" id="menuName" class="form-input" placeholder="예: 치킨 비리야니" required style="background-color: var(--white); border: 1px solid #E5E7EB;">
       </div>
 
-      <!-- UPLOAD PHOTO/VIDEO -->
+      <!-- UPLOAD PHOTO -->
       <div class="form-group">
-        <label class="form-label" style="color: var(--text-gray);">사진 URL (선택)</label>
-        <input type="text" id="picture" class="form-input" placeholder="https://example.com/image.jpg" style="background-color: var(--white); border: 1px solid #E5E7EB;">
+        <label class="form-label" style="color: var(--text-gray);">사진 (선택)</label>
+        <input type="file" id="imageFile" accept="image/*" style="display: none;" onchange="handleImageSelect(event)">
+        <div id="imagePreviewContainer" style="margin-bottom: 12px; display: none;">
+          <img id="imagePreview" src="" alt="미리보기" style="width: 100%; max-width: 300px; height: 200px; object-fit: cover; border-radius: 8px; border: 1px solid #E5E7EB;">
+          <button type="button" onclick="removeImage()" style="margin-top: 8px; padding: 8px 16px; background: #EF4444; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 14px;">이미지 제거</button>
+        </div>
+        <button type="button" onclick="document.getElementById('imageFile').click()" style="width: 100%; padding: 12px; border: 1px dashed #FF6B35; background: white; color: #FF6B35; border-radius: 8px; cursor: pointer; font-size: 14px;">
+          📷 이미지 선택
+        </button>
         <div style="font-size: 11px; color: var(--text-gray); margin-top: 4px;">
-          * 이미지 URL을 입력하세요. 향후 파일 업로드 기능이 추가될 예정입니다.
+          * JPG, PNG, GIF, WEBP 형식만 가능합니다. (최대 10MB)
         </div>
       </div>
 
@@ -74,11 +81,87 @@
       : '';
 
     let optionCount = 0;
+    let selectedImageFile = null;
+    let uploadedImageUrl = null;
 
     // 페이지 로드 시 카테고리 로드
     document.addEventListener('DOMContentLoaded', () => {
       loadCategories();
     });
+
+    // 이미지 선택 처리
+    function handleImageSelect(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      // 파일 크기 체크 (10MB)
+      if (file.size > 10 * 1024 * 1024) {
+        alert('파일 크기는 10MB를 초과할 수 없습니다.');
+        event.target.value = '';
+        return;
+      }
+
+      // 파일 형식 체크
+      const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+      if (!validTypes.includes(file.type)) {
+        alert('JPG, PNG, GIF, WEBP 형식만 업로드 가능합니다.');
+        event.target.value = '';
+        return;
+      }
+
+      selectedImageFile = file;
+
+      // 미리보기 표시
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        document.getElementById('imagePreview').src = e.target.result;
+        document.getElementById('imagePreviewContainer').style.display = 'block';
+      };
+      reader.readAsDataURL(file);
+    }
+
+    // 이미지 제거
+    function removeImage() {
+      selectedImageFile = null;
+      uploadedImageUrl = null;
+      document.getElementById('imageFile').value = '';
+      document.getElementById('imagePreviewContainer').style.display = 'none';
+      document.getElementById('imagePreview').src = '';
+    }
+
+    // 이미지 업로드 (S3)
+    async function uploadImageToS3() {
+      if (!selectedImageFile) {
+        return null;
+      }
+
+      const token = localStorage.getItem('accessToken');
+      const formData = new FormData();
+      formData.append('file', selectedImageFile);
+      formData.append('folder', 'menus');
+
+      try {
+        const response = await fetch(`${baseUrl}/api/v1/images/upload`, {
+          method: 'POST',
+          credentials: 'include',
+          headers: {
+            'Authorization': `Bearer ${token}`
+          },
+          body: formData
+        });
+
+        const result = await response.json();
+        
+        if (response.ok && result.success) {
+          return result.data.imageUrl;
+        } else {
+          throw new Error(result.message || '이미지 업로드 실패');
+        }
+      } catch (error) {
+        console.error('[Image Upload] Error:', error);
+        throw error;
+      }
+    }
 
     // 카테고리 로드
     function loadCategories() {
@@ -131,32 +214,16 @@
         return;
       }
 
-      // 옵션 수집
-      const optionInputs = document.querySelectorAll('.option-input');
-      const options = Array.from(optionInputs)
-        .map(input => input.value.trim())
-        .filter(val => val)
-        .join(',');
-
-      // 폼 데이터 수집
-      const menuData = {
-        menuName: document.getElementById('menuName').value.trim(),
-        picture: document.getElementById('picture').value.trim() || null,
-        price: parseInt(document.getElementById('price').value),
-        description: document.getElementById('description').value.trim() || null,
-        option: options || null,
-        category: document.getElementById('category').value
-      };
-
-      console.log('[Add Menu] Menu data:', menuData);
-
       // 유효성 검사
-      if (!menuData.menuName) {
+      const menuName = document.getElementById('menuName').value.trim();
+      const price = parseInt(document.getElementById('price').value);
+
+      if (!menuName) {
         alert('메뉴명을 입력하세요.');
         return;
       }
 
-      if (menuData.price < 0) {
+      if (price < 0) {
         alert('가격은 0원 이상이어야 합니다.');
         return;
       }
@@ -167,6 +234,39 @@
         submitBtn.disabled = true;
         submitBtn.textContent = '저장 중...';
 
+        // 1. 이미지 업로드 (선택된 경우)
+        if (selectedImageFile) {
+          try {
+            uploadedImageUrl = await uploadImageToS3();
+            console.log('[Add Menu] Image uploaded:', uploadedImageUrl);
+          } catch (error) {
+            alert('이미지 업로드 실패: ' + error.message);
+            submitBtn.disabled = false;
+            submitBtn.textContent = '저장하기';
+            return;
+          }
+        }
+
+        // 2. 옵션 수집
+        const optionInputs = document.querySelectorAll('.option-input');
+        const options = Array.from(optionInputs)
+          .map(input => input.value.trim())
+          .filter(val => val)
+          .join(',');
+
+        // 3. 메뉴 데이터 수집
+        const menuData = {
+          menuName: menuName,
+          picture: uploadedImageUrl || null,
+          price: price,
+          description: document.getElementById('description').value.trim() || null,
+          option: options || null,
+          category: document.getElementById('category').value
+        };
+
+        console.log('[Add Menu] Menu data:', menuData);
+
+        // 4. 메뉴 생성 API 호출
         const response = await fetch(`${baseUrl}/api/v1/menu/create`, {
           method: 'POST',
           credentials: 'include',
