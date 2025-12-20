@@ -28,11 +28,22 @@
     <!-- Summary -->
     <div class="cart-summary">
       <div class="delivery-address">
-        <div>
-          <h4>배달 주소</h4>
-          <p>2118 Thornridge Cir. Syracuse</p>
+        <div style="display: flex; align-items: center; gap: 8px; flex: 1;">
+          <button class="address-dropdown-btn" onclick="toggleAddressDropdown()" style="background: none; border: none; padding: 0; cursor: pointer; color: #FF6B35;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M6 9l6 6 6-6"/>
+            </svg>
+          </button>
+          <div style="flex: 1;">
+            <h4>배달 주소</h4>
+            <p id="selectedAddress">주소를 선택해주세요</p>
+          </div>
         </div>
-        <a href="09_Address.html">수정</a>
+      </div>
+      
+      <!-- 주소 드롭다운 메뉴 -->
+      <div id="addressDropdown" style="display: none; position: absolute; background: #2D3E50; border-radius: 12px; padding: 8px; margin-top: 8px; width: calc(100% - 32px); max-height: 300px; overflow-y: auto; z-index: 1000; box-shadow: 0 4px 12px rgba(0,0,0,0.3);">
+        <!-- JavaScript로 동적 생성 -->
       </div>
       
       <div class="cart-total">
@@ -67,9 +78,13 @@
       return false;
     }
     
+    let selectedAddressId = null;
+    let addressList = [];
+    
     // 페이지 로드 시 장바구니 불러오기
     window.addEventListener('pageshow', function(event) {
       loadCartItems();
+      loadAddresses();
     });
     
     // localStorage에서 장바구니 가져오기
@@ -175,6 +190,107 @@
       
       const message = `주문금액: ${subtotal.toLocaleString()}원\n배송비: ${deliveryFee.toLocaleString()}원\n합계: ${total.toLocaleString()}원`;
       alert(message);
+    }
+    
+    // 주소 목록 불러오기
+    async function loadAddresses() {
+      const token = localStorage.getItem('accessToken');
+      
+      // 로그인 안 한 경우 스킵
+      if (!token) {
+        document.getElementById('selectedAddress').textContent = '로그인 후 주소를 선택해주세요';
+        return;
+      }
+      
+      try {
+        const response = await fetch(`${baseUrl}/api/v1/address/read`, {
+          method: 'GET',
+          credentials: 'include',
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+
+        if (checkAuthError(response)) return;
+
+        if (!response.ok) {
+          throw new Error('주소 목록을 불러올 수 없습니다.');
+        }
+
+        const data = await response.json();
+        if (data.success && data.data) {
+          addressList = data.data;
+          
+          if (addressList.length === 0) {
+            document.getElementById('selectedAddress').textContent = '등록된 주소가 없습니다';
+          } else {
+            // 마지막 주소를 기본으로 선택 (가장 최근에 추가된 주소)
+            const lastAddress = addressList[addressList.length - 1];
+            selectAddress(lastAddress);
+          }
+        }
+      } catch (error) {
+        console.error('[Address] Error:', error);
+        document.getElementById('selectedAddress').textContent = '주소 불러오기 실패';
+      }
+    }
+    
+    // 주소 선택
+    function selectAddress(address) {
+      selectedAddressId = address.addressId;
+      document.getElementById('selectedAddress').textContent = address.detail || '주소 정보 없음';
+      
+      // 드롭다운 닫기
+      document.getElementById('addressDropdown').style.display = 'none';
+    }
+    
+    // 주소 드롭다운 토글
+    function toggleAddressDropdown() {
+      const dropdown = document.getElementById('addressDropdown');
+      
+      if (dropdown.style.display === 'none') {
+        // 드롭다운 열기
+        renderAddressDropdown();
+        dropdown.style.display = 'block';
+      } else {
+        // 드롭다운 닫기
+        dropdown.style.display = 'none';
+      }
+    }
+    
+    // 주소 드롭다운 렌더링
+    function renderAddressDropdown() {
+      const dropdown = document.getElementById('addressDropdown');
+      
+      if (addressList.length === 0) {
+        dropdown.innerHTML = `
+          <div style="padding: 16px; text-align: center; color: #8B92A8;">
+            등록된 주소가 없습니다
+          </div>
+          <button onclick="location.href='10_Add_Address.html'" style="width: 100%; padding: 12px; background: #FF6B35; color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer;">
+            + 새 주소 등록하기
+          </button>
+        `;
+        return;
+      }
+      
+      dropdown.innerHTML = addressList.map(address => `
+        <div 
+          onclick="selectAddress({addressId: ${address.addressId}, detail: '${address.detail?.replace(/'/g, "\\'")}'})" 
+          style="padding: 12px; cursor: pointer; border-radius: 8px; margin-bottom: 4px; ${selectedAddressId === address.addressId ? 'background: #3D4E60;' : ''}"
+          onmouseover="this.style.background='#3D4E60'" 
+          onmouseout="this.style.background='${selectedAddressId === address.addressId ? '#3D4E60' : 'transparent'}'"
+        >
+          <div style="font-weight: 600; color: #FF6B35; font-size: 14px; margin-bottom: 4px;">${address.title || '주소'}</div>
+          <div style="color: #E5E7EB; font-size: 13px;">${address.detail || ''}</div>
+        </div>
+      `).join('') + `
+        <div style="border-top: 1px solid #3D4E60; margin: 8px 0; padding-top: 8px;">
+          <button onclick="location.href='10_Add_Address.html'" style="width: 100%; padding: 12px; background: #FF6B35; color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer;">
+            + 새 주소 등록하기
+          </button>
+        </div>
+      `;
     }
     
     // 주문하기

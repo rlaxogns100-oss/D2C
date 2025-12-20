@@ -79,10 +79,18 @@
       <div class="form-group">
         <label class="form-label">주소 별칭</label>
         <div class="label-options">
-          <button type="button" class="label-btn active" onclick="selectLabel(this)">집</button>
-          <button type="button" class="label-btn" onclick="selectLabel(this)">회사</button>
-          <button type="button" class="label-btn" onclick="selectLabel(this)">기타</button>
+          <button type="button" class="label-btn active" onclick="selectLabel(this, '집')">집</button>
+          <button type="button" class="label-btn" onclick="selectLabel(this, '회사')">회사</button>
+          <button type="button" class="label-btn" onclick="selectLabel(this, '학교')">학교</button>
+          <button type="button" class="label-btn" onclick="selectLabel(this, 'custom')">직접 입력</button>
         </div>
+        <input 
+          type="text" 
+          id="customLabel" 
+          class="form-input" 
+          placeholder="주소 별칭을 입력하세요 (예: 할머니댁, 친구집 등)"
+          style="display: none; margin-top: 12px;"
+        >
       </div>
       
       <button type="submit" class="btn-primary">주소 저장</button>
@@ -117,13 +125,24 @@
     });
     
     // 라벨 선택 기능
-    function selectLabel(button) {
+    function selectLabel(button, labelType) {
       // 모든 라벨 버튼의 active 클래스 제거
       document.querySelectorAll('.label-btn').forEach(btn => {
         btn.classList.remove('active');
       });
       // 클릭한 버튼에 active 클래스 추가
       button.classList.add('active');
+      
+      // 직접 입력인 경우 input 표시
+      const customInput = document.getElementById('customLabel');
+      if (labelType === 'custom') {
+        customInput.style.display = 'block';
+        customInput.required = true;
+      } else {
+        customInput.style.display = 'none';
+        customInput.required = false;
+        customInput.value = '';
+      }
     }
     
     // 주소 폼 유효성 검사 및 저장
@@ -166,7 +185,17 @@
       
       // 선택된 라벨 가져오기
       const labelButton = document.querySelector('.label-btn.active');
-      const label = labelButton ? labelButton.textContent : '집';
+      let label = labelButton ? labelButton.textContent : '집';
+      
+      // 직접 입력인 경우 customLabel 값 사용
+      if (label === '직접 입력') {
+        const customLabel = document.getElementById('customLabel').value.trim();
+        if (customLabel === '') {
+          alert('주소 별칭을 입력해주세요');
+          return false;
+        }
+        label = customLabel;
+      }
       
       // 주소 데이터 생성
       const addressData = {
