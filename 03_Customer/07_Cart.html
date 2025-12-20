@@ -40,8 +40,8 @@
           <h4>총 합계:</h4>
         </div>
         <div style="text-align: right;">
-          <span class="cart-total-amount" id="totalPrice">$96</span>
-          <a href="#" style="display: block; margin-top: 4px;" onclick="alert('주문금액: $96\n배송비: $0 (무료)\n합계: $96'); return false;">상세 내역 ></a>
+          <span class="cart-total-amount" id="totalPrice">0원</span>
+          <a href="#" style="display: block; margin-top: 4px;" onclick="showPriceDetails(); return false;">상세 내역 ></a>
         </div>
       </div>
     </div>
@@ -148,6 +148,17 @@
       const total = subtotal + deliveryFee;
       
       document.getElementById('totalPrice').textContent = total.toLocaleString() + '원';
+    }
+
+    // 상세 내역 표시
+    function showPriceDetails() {
+      const cart = getCart();
+      const subtotal = cart.reduce((sum, item) => sum + item.totalPrice, 0);
+      const deliveryFee = subtotal > 0 ? 2500 : 0;
+      const total = subtotal + deliveryFee;
+      
+      const message = `주문금액: ${subtotal.toLocaleString()}원\n배송비: ${deliveryFee.toLocaleString()}원\n합계: ${total.toLocaleString()}원`;
+      alert(message);
     }
     
     // 주문하기
