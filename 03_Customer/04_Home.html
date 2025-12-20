@@ -69,51 +69,24 @@
       </div>
       
       <!-- Restaurant Name -->
-      <h2 class="restaurant-name">Spicy Restaurant</h2>
+      <h2 class="restaurant-name" id="restaurantName">로딩 중...</h2>
       
       <!-- Description -->
-      <p class="description">Maecenas sed diam eget risus varius blandit sit amet non magna. Integer posuere erat a ante venenatis dapibus posuere velit aliquet.</p>
+      <p class="description" id="restaurantDesc">메뉴를 불러오는 중입니다...</p>
       
       <!-- Category Tabs -->
-      <div class="category-tabs">
-        <button class="tab-btn active" onclick="selectCategory(this, 'burger')">버거</button>
-        <button class="tab-btn" onclick="selectCategory(this, 'sandwich')">샌드위치</button>
-        <button class="tab-btn" onclick="selectCategory(this, 'pizza')">피자</button>
-        <button class="tab-btn" onclick="selectCategory(this, 'sanwi')">기타</button>
+      <div class="category-tabs" id="categoryTabs">
+        <!-- 동적으로 로드됨 -->
       </div>
       
       <!-- Products Section -->
       <div class="section-header">
-        <h3>버거 <span class="item-count">(10)</span></h3>
+        <h3 id="categoryTitle">전체 <span class="item-count" id="itemCount">(0)</span></h3>
       </div>
       
       <!-- Product Grid -->
-      <div class="product-grid">
-        <!-- Product 1 -->
-        <div class="product-card" onclick="location.href='06_Food_Details.html'" style="cursor: pointer;">
-          <div class="product-image"></div>
-          <div class="product-info">
-            <h4 class="product-name">Burger Ferguson</h4>
-            <p class="product-restaurant">Spicy Restaurant</p>
-            <div class="product-footer">
-              <span class="product-price">$40</span>
-              <button class="add-btn" onclick="event.stopPropagation(); location.href='07_Cart.html'">+</button>
-            </div>
-          </div>
-        </div>
-        
-        <!-- Product 2 -->
-        <div class="product-card" onclick="location.href='06_Food_Details.html'" style="cursor: pointer;">
-          <div class="product-image"></div>
-          <div class="product-info">
-            <h4 class="product-name">Burger Ferguson</h4>
-            <p class="product-restaurant">Spicy Restaurant</p>
-            <div class="product-footer">
-              <span class="product-price">$40</span>
-              <button class="add-btn" onclick="event.stopPropagation(); location.href='07_Cart.html'">+</button>
-            </div>
-          </div>
-        </div>
+      <div class="product-grid" id="productGrid">
+        <!-- 동적으로 로드됨 -->
       </div>
 
       <!-- Business Info -->
@@ -138,7 +111,143 @@
   </div>
   
   <script>
-    // 드롭다운 메뉴 토글 함수
+    // baseUrl 처리 (로컬 파일 테스트용)
+    const baseUrl = window.location.protocol === 'file:' 
+      ? 'https://pizzaschool.maejang.com'
+      : '';
+
+    let allMenus = [];  // 전체 메뉴 저장
+    let currentCategory = '전체';
+    const OWNER_ID = 1;  // TODO: 실제로는 가게 선택 페이지에서 받아와야 함
+
+    // 페이지 로드 시 메뉴 목록 불러오기
+    document.addEventListener('DOMContentLoaded', async () => {
+      console.log('[Customer Home] Page loaded, fetching menus...');
+      
+      // JWT 토큰 확인 (선택사항 - 비로그인 사용자도 메뉴 조회 가능하게 할 수 있음)
+      const token = localStorage.getItem('accessToken');
+      
+      try {
+        // 메뉴 목록 가져오기
+        const headers = {};
+        if (token) {
+          headers['Authorization'] = `Bearer ${token}`;
+        }
+
+        const menuResponse = await fetch(`${baseUrl}/api/v1/menu/read?ownerId=${OWNER_ID}`, {
+          credentials: 'include',
+          headers: headers
+        });
+
+        if (!menuResponse.ok) {
+          throw new Error('메뉴 목록을 가져올 수 없습니다.');
+        }
+
+        const menuData = await menuResponse.json();
+        console.log('[Customer Home] Menus:', menuData);
+
+        if (menuData.success && menuData.data) {
+          allMenus = menuData.data;  // 전체 메뉴 저장
+          
+          // 가게 이름 업데이트 (첫 번째 메뉴의 owner 정보 활용)
+          if (allMenus.length > 0) {
+            document.getElementById('restaurantName').textContent = 'Spicy Restaurant';  // TODO: 가게 정보 API 연동
+            document.getElementById('restaurantDesc').textContent = '다양한 메뉴를 만나보세요!';
+          }
+          
+          // 카테고리 추출 및 렌더링
+          renderCategoryTabs();
+          
+          // 전체 메뉴 표시
+          filterByCategory('전체');
+        }
+
+      } catch (error) {
+        console.error('[Customer Home] Error:', error);
+        document.getElementById('restaurantName').textContent = 'Spicy Restaurant';
+        document.getElementById('restaurantDesc').textContent = '메뉴를 불러오는데 실패했습니다.';
+        document.getElementById('productGrid').innerHTML = `
+          <div style="text-align: center; padding: 60px 24px; color: var(--text-gray); grid-column: 1 / -1;">
+            <p style="font-size: 16px; margin-bottom: 12px;">메뉴를 불러올 수 없습니다</p>
+            <p style="font-size: 14px;">${error.message}</p>
+          </div>
+        `;
+      }
+    });
+
+    // 카테고리 탭 렌더링
+    function renderCategoryTabs() {
+      const categories = ['전체', ...new Set(allMenus.map(m => m.category).filter(c => c))];
+      const tabsContainer = document.getElementById('categoryTabs');
+      tabsContainer.innerHTML = categories.map(cat => 
+        `<button class="tab-btn ${cat === currentCategory ? 'active' : ''}" onclick="filterByCategory('${cat}')">${cat}</button>`
+      ).join('');
+    }
+
+    // 카테고리별 필터링
+    function filterByCategory(category) {
+      currentCategory = category;
+      
+      // 탭 active 상태 변경
+      document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.classList.remove('active');
+        if (btn.textContent.trim() === category) {
+          btn.classList.add('active');
+        }
+      });
+      
+      // 필터링
+      const filtered = category === '전체' 
+        ? allMenus 
+        : allMenus.filter(menu => menu.category === category);
+      
+      // 제목 업데이트
+      document.getElementById('categoryTitle').innerHTML = `${category} <span class="item-count" id="itemCount">(${filtered.length})</span>`;
+      
+      // 메뉴 리스트 렌더링
+      renderMenuList(filtered);
+    }
+
+    // 메뉴 리스트 렌더링
+    function renderMenuList(menus) {
+      const productGrid = document.getElementById('productGrid');
+
+      if (menus.length === 0) {
+        productGrid.innerHTML = `
+          <div style="text-align: center; padding: 60px 24px; color: var(--text-gray); grid-column: 1 / -1;">
+            <p style="font-size: 16px; margin-bottom: 12px;">등록된 메뉴가 없습니다</p>
+          </div>
+        `;
+        return;
+      }
+
+      productGrid.innerHTML = menus.map(menu => {
+        const imgStyle = menu.picture 
+          ? `background-image: url('${menu.picture}'); background-size: cover; background-position: center;` 
+          : 'background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);';
+        
+        return `
+          <div class="product-card" onclick="viewMenuDetail(${menu.menuId})" style="cursor: pointer;">
+            <div class="product-image" style="${imgStyle}"></div>
+            <div class="product-info">
+              <h4 class="product-name">${menu.menuName}</h4>
+              <p class="product-restaurant">${menu.description || 'Spicy Restaurant'}</p>
+              <div class="product-footer">
+                <span class="product-price">${menu.price.toLocaleString()}원</span>
+                <button class="add-btn" onclick="event.stopPropagation(); viewMenuDetail(${menu.menuId})">+</button>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // 메뉴 상세 페이지로 이동
+    function viewMenuDetail(menuId) {
+      location.href = `06_Food_Details.html?menuId=${menuId}`;
+    }
+
+    // 드롭다운 메뉴 토글
     function toggleDropdown() {
       const menu = document.getElementById('dropdownMenu');
       const btn = document.getElementById('menuBtn');
@@ -152,29 +261,11 @@
       const menu = document.getElementById('dropdownMenu');
       const btn = document.getElementById('menuBtn');
       
-      // 클릭한 곳이 메뉴나 버튼이 아니면 메뉴 닫기
       if (!menu.contains(event.target) && !btn.contains(event.target)) {
         menu.classList.remove('active');
         btn.classList.remove('active');
       }
     });
-    
-    // 카테고리 선택 함수
-    function selectCategory(button, category) {
-      // 모든 탭 버튼의 active 클래스 제거
-      document.querySelectorAll('.tab-btn').forEach(btn => {
-        btn.classList.remove('active');
-      });
-      // 선택한 버튼에 active 클래스 추가
-      button.classList.add('active');
-      
-      // 카테고리명 업데이트
-      const categoryName = button.textContent;
-      document.querySelector('.section-header h3').innerHTML = categoryName + ' <span class="item-count">(10)</span>';
-      
-      // 실제로는 여기서 해당 카테고리 상품을 불러오면 됨
-      console.log('Selected category:', category);
-    }
   </script>
 </body>
 </html>
