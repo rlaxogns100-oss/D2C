@@ -174,7 +174,10 @@
 
     // 카테고리 탭 렌더링
     function renderCategoryTabs() {
-      const categories = ['전체', ...new Set(allMenus.map(m => m.category).filter(c => c))];
+      // "전체"를 제외한 고유 카테고리 추출
+      const uniqueCategories = [...new Set(allMenus.map(m => m.category).filter(c => c && c !== '전체'))];
+      const categories = ['전체', ...uniqueCategories];
+      
       const tabsContainer = document.getElementById('categoryTabs');
       tabsContainer.innerHTML = categories.map(cat => 
         `<button class="tab-btn ${cat === currentCategory ? 'active' : ''}" onclick="filterByCategory('${cat}')">${cat}</button>`
