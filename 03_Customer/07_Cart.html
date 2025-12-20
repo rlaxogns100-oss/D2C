@@ -222,11 +222,54 @@
           addressList = data.data;
           
           if (addressList.length === 0) {
+            // 등록된 주소가 없는 경우
             document.getElementById('selectedAddress').textContent = '등록된 주소가 없습니다';
+            
+            // 우측에 "주소 등록하기" 버튼 추가
+            const addressSection = document.querySelector('.delivery-address');
+            const existingBtn = addressSection.querySelector('.address-register-btn');
+            if (!existingBtn) {
+              const registerBtn = document.createElement('a');
+              registerBtn.className = 'address-register-btn';
+              registerBtn.href = '10_Add_Address.html';
+              registerBtn.textContent = '주소 등록하기';
+              registerBtn.style.cssText = 'color: #FF6B35; font-weight: 600; text-decoration: none;';
+              addressSection.appendChild(registerBtn);
+            }
           } else {
-            // 마지막 주소를 기본으로 선택 (가장 최근에 추가된 주소)
-            const lastAddress = addressList[addressList.length - 1];
-            selectAddress(lastAddress);
+            // 주소 우선순위: 기본 주소 > 집 > 회사 > 학교 > 가장 최근
+            let defaultAddress = null;
+            
+            // 1. isDefault가 true인 주소 찾기
+            defaultAddress = addressList.find(addr => addr.isDefault);
+            
+            // 2. 없으면 '집' 찾기
+            if (!defaultAddress) {
+              defaultAddress = addressList.find(addr => addr.name === '집');
+            }
+            
+            // 3. 없으면 '회사' 찾기
+            if (!defaultAddress) {
+              defaultAddress = addressList.find(addr => addr.name === '회사');
+            }
+            
+            // 4. 없으면 '학교' 찾기
+            if (!defaultAddress) {
+              defaultAddress = addressList.find(addr => addr.name === '학교');
+            }
+            
+            // 5. 없으면 가장 최근 주소 (마지막 요소)
+            if (!defaultAddress) {
+              defaultAddress = addressList[addressList.length - 1];
+            }
+            
+            selectAddress(defaultAddress);
+            
+            // 주소 등록하기 버튼 제거 (주소가 있으면)
+            const existingBtn = document.querySelector('.address-register-btn');
+            if (existingBtn) {
+              existingBtn.remove();
+            }
           }
         }
       } catch (error) {
@@ -238,7 +281,7 @@
     // 주소 선택
     function selectAddress(address) {
       selectedAddressId = address.addressId;
-      document.getElementById('selectedAddress').textContent = address.detail || '주소 정보 없음';
+      document.getElementById('selectedAddress').textContent = address.address || '주소 정보 없음';
       
       // 드롭다운 닫기
       document.getElementById('addressDropdown').style.display = 'none';
@@ -276,13 +319,13 @@
       
       dropdown.innerHTML = addressList.map(address => `
         <div 
-          onclick="selectAddress({addressId: ${address.addressId}, detail: '${address.detail?.replace(/'/g, "\\'")}'})" 
+          onclick="selectAddress({addressId: ${address.addressId}, address: '${address.address?.replace(/'/g, "\\'")}'})" 
           style="padding: 12px; cursor: pointer; border-radius: 8px; margin-bottom: 4px; ${selectedAddressId === address.addressId ? 'background: #3D4E60;' : ''}"
           onmouseover="this.style.background='#3D4E60'" 
           onmouseout="this.style.background='${selectedAddressId === address.addressId ? '#3D4E60' : 'transparent'}'"
         >
-          <div style="font-weight: 600; color: #FF6B35; font-size: 14px; margin-bottom: 4px;">${address.title || '주소'}</div>
-          <div style="color: #E5E7EB; font-size: 13px;">${address.detail || ''}</div>
+          <div style="font-weight: 600; color: #FF6B35; font-size: 14px; margin-bottom: 4px;">${address.name || '주소'}</div>
+          <div style="color: #E5E7EB; font-size: 13px;">${address.address || ''}</div>
         </div>
       `).join('') + `
         <div style="border-top: 1px solid #3D4E60; margin: 8px 0; padding-top: 8px;">

@@ -101,7 +101,7 @@
                     <polyline points="9 22 9 12 15 12 15 22"/>
                   </svg>
                 </div>
-                <h4 class="address-label">${address.title || '주소'}</h4>
+                <h4 class="address-label">${address.name || '주소'}</h4>
               </div>
               <div class="address-actions">
                 <button class="icon-action-btn edit" onclick="location.href='10_Add_Address.html?id=${address.addressId}'">
@@ -117,7 +117,7 @@
                   </svg>
                 </button>
               </div>
-              <p class="address-text">${address.detail || ''}</p>
+              <p class="address-text">${address.address || ''}</p>
             </div>
           `).join('');
         }
