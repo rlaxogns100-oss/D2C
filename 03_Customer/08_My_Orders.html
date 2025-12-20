@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>08 My Orders</title>
+  <title>주문 내역</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -35,114 +35,149 @@
     
     <!-- Ongoing Tab Content -->
     <div id="ongoing-content" class="tab-content">
-      <!-- Category Label -->
-      <p style="font-size: 14px; font-weight: 600; margin-bottom: 16px;">음식</p>
-      
-      <!-- Order Cards (Ongoing) -->
-      <div class="order-card">
-        <div class="order-header">
-          <div class="order-image"></div>
-          <div class="order-info">
-            <h4>Burger Bistro</h4>
-            <p class="order-price">$64.00</p>
-            <p class="order-items">2개</p>
-          </div>
-        </div>
-        <p class="order-id">#162435 | 배송 중</p>
-        <div class="order-actions">
-          <button class="btn-primary" onclick="alert('주문 추적 기능은 준비중입니다')">주문 추적</button>
-          <button class="btn-outline" onclick="if(confirm('주문을 취소하시겠습니까?')) alert('주문이 취소되었습니다')">취소</button>
-        </div>
-      </div>
-      
-      <p style="font-size: 14px; font-weight: 600; margin-bottom: 16px;">음식</p>
-      
-      <div class="order-card">
-        <div class="order-header">
-          <div class="order-image"></div>
-          <div class="order-info">
-            <h4>Pizza Hut</h4>
-            <p class="order-price">$35.25</p>
-            <p class="order-items">3개</p>
-          </div>
-        </div>
-        <p class="order-id">#162434 | 준비 중</p>
-        <div class="order-actions">
-          <button class="btn-primary" onclick="alert('주문 추적 기능은 준비중입니다')">주문 추적</button>
-          <button class="btn-outline" onclick="if(confirm('주문을 취소하시겠습니까?')) alert('주문이 취소되었습니다')">취소</button>
-        </div>
-      </div>
+      <!-- 동적으로 로드됨 -->
     </div>
     
     <!-- History Tab Content -->
     <div id="history-content" class="tab-content" style="display: none;">
-      <!-- Category Label -->
-      <p style="font-size: 14px; font-weight: 600; margin-bottom: 16px;">음식</p>
-      
-      <!-- Order Cards (History) -->
-      <div class="order-card">
-        <div class="order-header">
-          <div class="order-image"></div>
-          <div class="order-info">
-            <h4>Spicy Restaurant</h4>
-            <p class="order-price">$80.00</p>
-            <p class="order-items">4개</p>
-          </div>
-        </div>
-        <p class="order-id">#162400 | 배송 완료 (12/10)</p>
-        <div class="order-actions">
-          <button class="btn-primary" onclick="alert('다시 주문하기 기능은 준비중입니다')">다시 주문</button>
-          <button class="btn-outline" onclick="alert('영수증 보기 기능은 준비중입니다')">영수증</button>
-        </div>
-      </div>
-      
-      <p style="font-size: 14px; font-weight: 600; margin-bottom: 16px;">음식</p>
-      
-      <div class="order-card">
-        <div class="order-header">
-          <div class="order-image"></div>
-          <div class="order-info">
-            <h4>Pizza Hut</h4>
-            <p class="order-price">$35.25</p>
-            <p class="order-items">3개</p>
-          </div>
-        </div>
-        <p class="order-id">#162380 | 배송 완료 (12/05)</p>
-        <div class="order-actions">
-          <button class="btn-primary" onclick="alert('다시 주문하기 기능은 준비중입니다')">다시 주문</button>
-          <button class="btn-outline" onclick="alert('영수증 보기 기능은 준비중입니다')">영수증</button>
-        </div>
-      </div>
-      
-      <p style="font-size: 14px; font-weight: 600; margin-bottom: 16px;">음식</p>
-      
-      <div class="order-card">
-        <div class="order-header">
-          <div class="order-image"></div>
-          <div class="order-info">
-            <h4>Burger Ferguson</h4>
-            <p class="order-price">$40.00</p>
-            <p class="order-items">1개</p>
-          </div>
-        </div>
-        <p class="order-id">#162350 | 배송 완료 (12/01)</p>
-        <div class="order-actions">
-          <button class="btn-primary" onclick="alert('다시 주문하기 기능은 준비중입니다')">다시 주문</button>
-          <button class="btn-outline" onclick="alert('영수증 보기 기능은 준비중입니다')">영수증</button>
-        </div>
-      </div>
+      <!-- 동적으로 로드됨 -->
     </div>
   </div>
+
+  <style>
+    /* 주문 추적 스타일 */
+    .order-tracking {
+      margin: 16px 0;
+      padding: 16px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      border-radius: 12px;
+      color: white;
+    }
+
+    .tracking-header {
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .tracking-steps {
+      display: flex;
+      justify-content: space-between;
+      position: relative;
+      margin-bottom: 8px;
+    }
+
+    .tracking-step {
+      flex: 1;
+      text-align: center;
+      position: relative;
+      z-index: 2;
+    }
+
+    .step-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 8px;
+      font-size: 20px;
+      transition: all 0.3s;
+    }
+
+    .step-icon.active {
+      background: white;
+      color: #667eea;
+      box-shadow: 0 4px 12px rgba(255, 255, 255, 0.5);
+    }
+
+    .step-icon.completed {
+      background: #4CAF50;
+      color: white;
+    }
+
+    .step-label {
+      font-size: 11px;
+      opacity: 0.8;
+    }
+
+    .step-label.active {
+      opacity: 1;
+      font-weight: 600;
+    }
+
+    .tracking-line {
+      position: absolute;
+      top: 20px;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: rgba(255, 255, 255, 0.3);
+      z-index: 1;
+    }
+
+    .tracking-line-progress {
+      position: absolute;
+      top: 0;
+      left: 0;
+      height: 100%;
+      background: white;
+      transition: width 0.5s ease;
+    }
+
+    .status-badge {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: 600;
+      margin-left: 8px;
+    }
+
+    .status-ordered {
+      background: #FFF3E0;
+      color: #FF9800;
+    }
+
+    .status-cooking {
+      background: #E3F2FD;
+      color: #2196F3;
+    }
+
+    .status-delivering {
+      background: #F3E5F5;
+      color: #9C27B0;
+    }
+
+    .status-delivered {
+      background: #E8F5E9;
+      color: #4CAF50;
+    }
+
+    .status-rejected {
+      background: #FFEBEE;
+      color: #F44336;
+    }
+
+    .status-cancelled {
+      background: #F5F5F5;
+      color: #757575;
+    }
+  </style>
   
   <script>
-    // baseUrl 처리 (로컬 파일 테스트용)
     const baseUrl = window.location.protocol === 'file:' 
       ? 'https://pizzaschool.maejang.com'
       : '';
 
     let allOrders = [];
 
-    // 🔐 로그인 만료 체크 및 자동 리다이렉트
+    // 로그인 체크
     function checkAuthError(response) {
       if (response.status === 401 || response.status === 403) {
         alert('로그인이 만료되었습니다. 다시 로그인해주세요.');
@@ -155,9 +190,16 @@
 
     // 페이지 로드 시 주문 불러오기
     document.addEventListener('DOMContentLoaded', async function() {
-      console.log('[My Orders] Page loaded');
+      await loadOrderHistory();
       
-      // JWT 토큰 확인
+      // 30초마다 자동 새로고침
+      setInterval(() => {
+        loadOrderHistory();
+      }, 30000);
+    });
+
+    // 주문 내역 로드
+    async function loadOrderHistory() {
       const token = localStorage.getItem('accessToken');
       if (!token) {
         alert('로그인이 필요합니다.');
@@ -166,10 +208,8 @@
       }
 
       try {
-        // 주문 내역 API 호출
         const response = await fetch(`${baseUrl}/api/v1/order/history`, {
           method: 'GET',
-          credentials: 'include',
           headers: {
             'Authorization': `Bearer ${token}`
           }
@@ -182,90 +222,165 @@
         }
 
         const data = await response.json();
-        console.log('[My Orders] Orders:', data);
 
         if (data.success && data.data) {
           allOrders = data.data;
-          loadOrders();
+          renderOrders();
         }
 
       } catch (error) {
-        console.error('[My Orders] Error:', error);
-        alert('주문 내역을 불러오는데 실패했습니다: ' + error.message);
+        console.error('Error:', error);
+        alert('주문 내역을 불러오는데 실패했습니다.');
       }
-    });
+    }
     
-    // 주문 로드 (현재 탭에 맞게)
-    function loadOrders() {
-      // 진행 중인 주문: ORDERED, COOKING
+    // 주문 렌더링
+    function renderOrders() {
+      // 진행 중: ORDERED, COOKING, DELIVERING
       const ongoingOrders = allOrders.filter(order => 
-        order.condition === 'ORDERED' || order.condition === 'COOKING'
+        ['ORDERED', 'COOKING', 'DELIVERING'].includes(order.condition)
       );
       
-      // 완료된 주문: COMPLETED, CANCELLED, REJECTED
+      // 완료: DELIVERED, CANCELLED, REJECTED
       const historyOrders = allOrders.filter(order => 
-        order.condition === 'COMPLETED' || order.condition === 'CANCELLED' || order.condition === 'REJECTED'
+        ['DELIVERED', 'CANCELLED', 'REJECTED'].includes(order.condition)
       );
       
-      // Ongoing 탭 렌더링
+      // Ongoing 탭
       const ongoingContent = document.getElementById('ongoing-content');
       if (ongoingOrders.length > 0) {
-        ongoingContent.innerHTML = ongoingOrders.map(order => renderOrder(order, true)).join('');
+        ongoingContent.innerHTML = ongoingOrders.map(order => renderOrderCard(order, true)).join('');
       } else {
         ongoingContent.innerHTML = '<p style="text-align: center; padding: 40px; color: var(--text-gray);">진행중인 주문이 없습니다</p>';
       }
       
-      // History 탭 렌더링
+      // History 탭
       const historyContent = document.getElementById('history-content');
       if (historyOrders.length > 0) {
-        historyContent.innerHTML = historyOrders.map(order => renderOrder(order, false)).join('');
+        historyContent.innerHTML = historyOrders.map(order => renderOrderCard(order, false)).join('');
       } else {
         historyContent.innerHTML = '<p style="text-align: center; padding: 40px; color: var(--text-gray);">주문 내역이 없습니다</p>';
       }
     }
-    
-    // 주문 상태 텍스트 변환
+
+    // 주문 상태 텍스트
     function getOrderStatusText(condition) {
       const statusMap = {
         'ORDERED': '주문 접수',
         'COOKING': '조리 중',
-        'COMPLETED': '배송 완료',
+        'DELIVERING': '배달 중',
+        'DELIVERED': '배달 완료',
         'CANCELLED': '취소됨',
         'REJECTED': '거절됨'
       };
       return statusMap[condition] || condition;
     }
 
+    // 주문 상태 클래스
+    function getStatusClass(condition) {
+      const classMap = {
+        'ORDERED': 'status-ordered',
+        'COOKING': 'status-cooking',
+        'DELIVERING': 'status-delivering',
+        'DELIVERED': 'status-delivered',
+        'REJECTED': 'status-rejected',
+        'CANCELLED': 'status-cancelled'
+      };
+      return classMap[condition] || '';
+    }
+
+    // 주문 추적 프로그레스
+    function getTrackingProgress(condition) {
+      const progressMap = {
+        'ORDERED': 25,
+        'COOKING': 50,
+        'DELIVERING': 75,
+        'DELIVERED': 100
+      };
+      return progressMap[condition] || 0;
+    }
+
+    // 주문 추적 UI
+    function renderOrderTracking(order) {
+      const steps = [
+        { key: 'ORDERED', icon: '📝', label: '주문접수' },
+        { key: 'COOKING', icon: '👨‍🍳', label: '조리중' },
+        { key: 'DELIVERING', icon: '🚚', label: '배달중' },
+        { key: 'DELIVERED', icon: '✓', label: '완료' }
+      ];
+
+      const currentIndex = steps.findIndex(s => s.key === order.condition);
+      const progress = getTrackingProgress(order.condition);
+
+      return `
+        <div class="order-tracking">
+          <div class="tracking-header">
+            🔔 주문 추적
+            <span class="status-badge ${getStatusClass(order.condition)}">
+              ${getOrderStatusText(order.condition)}
+            </span>
+          </div>
+          
+          <div style="position: relative;">
+            <div class="tracking-line">
+              <div class="tracking-line-progress" style="width: ${progress}%"></div>
+            </div>
+            
+            <div class="tracking-steps">
+              ${steps.map((step, index) => `
+                <div class="tracking-step">
+                  <div class="step-icon ${index < currentIndex ? 'completed' : ''} ${index === currentIndex ? 'active' : ''}">
+                    ${step.icon}
+                  </div>
+                  <div class="step-label ${index === currentIndex ? 'active' : ''}">
+                    ${step.label}
+                  </div>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
     // 주문 카드 렌더링
-    function renderOrder(order, isOngoing) {
+    function renderOrderCard(order, isOngoing) {
       const date = new Date(order.orderAt).toLocaleDateString('ko-KR', {
-        year: 'numeric',
         month: '2-digit',
-        day: '2-digit'
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit'
       });
       
       const statusText = getOrderStatusText(order.condition);
+      const statusClass = getStatusClass(order.condition);
       
       return `
-        <p style="font-size: 14px; font-weight: 600; margin-bottom: 16px;">음식</p>
-        <div class="order-card">
+        <div class="order-card" style="margin-bottom: 16px;">
           <div class="order-header">
-            <div class="order-image"></div>
-            <div class="order-info">
+            <div class="order-info" style="flex: 1;">
               <h4>주문 #${order.id}</h4>
               <p class="order-price">${order.price.toLocaleString()}원</p>
-              <p class="order-items">${order.request || '요청사항 없음'}</p>
+              <p class="order-items">${date}</p>
             </div>
+            <span class="status-badge ${statusClass}">${statusText}</span>
           </div>
-          <p class="order-id">#${order.id} | ${isOngoing ? statusText : statusText + ' (' + date + ')'}</p>
+          
+          ${isOngoing ? renderOrderTracking(order) : ''}
+          
+          ${order.request ? `
+            <p style="font-size: 13px; color: var(--text-gray); margin: 12px 0; padding: 8px; background: var(--bg-light); border-radius: 8px;">
+              💬 ${order.request}
+            </p>
+          ` : ''}
+          
           <div class="order-actions">
-            ${isOngoing ? `
-              <button class="btn-primary" onclick="alert('주문 추적 기능은 준비중입니다')">주문 추적</button>
-              <button class="btn-outline" onclick="cancelOrder(${order.id})">취소</button>
-            ` : `
+            ${isOngoing && order.condition === 'ORDERED' ? `
+              <button class="btn-outline" onclick="cancelOrder(${order.id})">주문 취소</button>
+            ` : ''}
+            ${!isOngoing ? `
               <button class="btn-primary" onclick="alert('다시 주문하기 기능은 준비중입니다')">다시 주문</button>
-              <button class="btn-outline" onclick="alert('영수증 보기 기능은 준비중입니다')">영수증</button>
-            `}
+            ` : ''}
           </div>
         </div>
       `;
@@ -273,21 +388,13 @@
     
     // 주문 취소
     async function cancelOrder(orderId) {
-      if (!confirm('주문을 취소하시겠습니까?')) {
-        return;
-      }
+      if (!confirm('주문을 취소하시겠습니까?')) return;
 
       const token = localStorage.getItem('accessToken');
-      if (!token) {
-        alert('로그인이 필요합니다.');
-        location.href = '02_Login.html';
-        return;
-      }
 
       try {
         const response = await fetch(`${baseUrl}/api/v1/order/delete?orderId=${orderId}`, {
           method: 'DELETE',
-          credentials: 'include',
           headers: {
             'Authorization': `Bearer ${token}`
           }
@@ -295,53 +402,31 @@
 
         if (checkAuthError(response)) return;
 
-        const result = await response.json();
-
-        if (response.ok && result.success) {
-          alert('주문이 취소되었습니다.');
-          
-          // 주문 목록 다시 불러오기
-          const historyResponse = await fetch(`${baseUrl}/api/v1/order/history`, {
-            method: 'GET',
-            credentials: 'include',
-            headers: {
-              'Authorization': `Bearer ${token}`
-            }
-          });
-
-          if (historyResponse.ok) {
-            const historyData = await historyResponse.json();
-            if (historyData.success && historyData.data) {
-              allOrders = historyData.data;
-              loadOrders();
-            }
-          }
-        } else {
-          throw new Error(result.message || '주문 취소에 실패했습니다.');
+        if (!response.ok) {
+          throw new Error('주문 취소에 실패했습니다.');
         }
 
+        alert('주문이 취소되었습니다.');
+        await loadOrderHistory();
+
       } catch (error) {
-        console.error('[My Orders] Cancel error:', error);
+        console.error('Error:', error);
         alert('주문 취소 실패: ' + error.message);
       }
     }
     
-    // 탭 전환 기능
+    // 탭 전환
     function switchTab(tabName) {
-      // 모든 탭 버튼의 active 클래스 제거
       document.querySelectorAll('.orders-tab').forEach(tab => {
         tab.classList.remove('active');
       });
       
-      // 클릭한 탭 버튼에 active 클래스 추가
       event.target.classList.add('active');
       
-      // 모든 탭 콘텐츠 숨기기
       document.querySelectorAll('.tab-content').forEach(content => {
         content.style.display = 'none';
       });
       
-      // 선택한 탭 콘텐츠만 보이기
       document.getElementById(tabName + '-content').style.display = 'block';
     }
   </script>
