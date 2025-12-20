@@ -36,7 +36,7 @@ public class ImageService {
      */
     public String uploadImage(MultipartFile file, String folder) {
         if (file == null || file.isEmpty()) {
-            throw new CustomException(ErrorCode.BAD_REQUEST, "파일이 비어있습니다.");
+            throw new CustomException(ErrorCode.EMPTY_FILE);
         }
 
         // 파일 확장자 검증
@@ -63,7 +63,7 @@ public class ImageService {
 
         } catch (IOException e) {
             log.error("S3 업로드 실패: {}", e.getMessage());
-            throw new CustomException(ErrorCode.INTERNAL_SERVER_ERROR, "이미지 업로드에 실패했습니다.");
+            throw new CustomException(ErrorCode.IMAGE_UPLOAD_FAILED);
         }
     }
 
@@ -110,7 +110,7 @@ public class ImageService {
     private void validateImageExtension(String extension) {
         String ext = extension.toLowerCase();
         if (!ext.equals(".jpg") && !ext.equals(".jpeg") && !ext.equals(".png") && !ext.equals(".gif") && !ext.equals(".webp")) {
-            throw new CustomException(ErrorCode.BAD_REQUEST, "지원하지 않는 이미지 형식입니다. (jpg, jpeg, png, gif, webp만 가능)");
+            throw new CustomException(ErrorCode.INVALID_IMAGE_FORMAT);
         }
     }
 
