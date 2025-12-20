@@ -87,9 +87,47 @@
     
     let selectedAddressId = null;
     let addressList = [];
+    const STORE_ID = 11;
+    let storeInfo = {
+      lat: null,
+      lng: null,
+      deliveryRadius: null
+    };
+    
+    // 두 좌표 간 거리 계산 (Haversine formula, km 단위)
+    function calculateDistance(lat1, lon1, lat2, lon2) {
+      const R = 6371; // 지구 반경 (km)
+      const dLat = (lat2 - lat1) * Math.PI / 180;
+      const dLon = (lon2 - lon1) * Math.PI / 180;
+      const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+                Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+                Math.sin(dLon/2) * Math.sin(dLon/2);
+      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+      return R * c;
+    }
+    
+    // 가게 정보 불러오기
+    async function loadStoreInfo() {
+      try {
+        const response = await fetch(`${baseUrl}/api/v1/store/${STORE_ID}`);
+        const result = await response.json();
+        
+        if (response.ok && result.success && result.data) {
+          const store = result.data;
+          if (store.latitude && store.longitude) {
+            storeInfo.lat = store.latitude;
+            storeInfo.lng = store.longitude;
+            storeInfo.deliveryRadius = store.deliveryRadius;
+          }
+        }
+      } catch (error) {
+        console.error('가게 정보 로드 실패:', error);
+      }
+    }
     
     // 페이지 로드 시 장바구니 불러오기
-    window.addEventListener('pageshow', function(event) {
+    window.addEventListener('pageshow', async function(event) {
+      await loadStoreInfo();
       loadCartItems();
       loadAddresses();
     });
@@ -345,17 +383,47 @@
         return;
       }
       
-      dropdown.innerHTML = addressList.map(address => `
-        <div 
-          onclick="selectAddress({addressId: ${address.addressId}, name: '${address.name?.replace(/'/g, "\\'")}', address: '${address.address?.replace(/'/g, "\\'")}'})" 
-          style="padding: 12px; cursor: pointer; border-radius: 8px; margin-bottom: 4px; ${selectedAddressId === address.addressId ? 'background: #3D4E60;' : ''}"
-          onmouseover="this.style.background='#3D4E60'" 
-          onmouseout="this.style.background='${selectedAddressId === address.addressId ? '#3D4E60' : 'transparent'}'"
-        >
-          <div style="font-weight: 600; color: #FF6B35; font-size: 14px; margin-bottom: 4px;">${address.name || '주소'}</div>
-          <div style="color: #E5E7EB; font-size: 13px;">${address.address || ''}</div>
-        </div>
-      `).join('') + `
+      dropdown.innerHTML = addressList.map(address => {
+        // 배달 권역 체크
+        let isWithinRange = true;
+        let distanceText = '';
+        
+        if (storeInfo.lat && storeInfo.lng && storeInfo.deliveryRadius 
+            && address.latitude && address.longitude) {
+          const distance = calculateDistance(
+            storeInfo.lat, storeInfo.lng,
+            address.latitude, address.longitude
+          );
+          distanceText = `${distance.toFixed(1)}km`;
+          isWithinRange = distance <= storeInfo.deliveryRadius;
+        }
+        
+        const isDisabled = !isWithinRange;
+        const backgroundColor = isDisabled ? '#1A1F2E' : (selectedAddressId === address.addressId ? '#3D4E60' : 'transparent');
+        const opacity = isDisabled ? '0.5' : '1';
+        const cursor = isDisabled ? 'not-allowed' : 'pointer';
+        const nameColor = isDisabled ? '#8B92A8' : '#FF6B35';
+        const addressColor = isDisabled ? '#6B7280' : '#E5E7EB';
+        
+        return `
+          <div 
+            onclick="${isDisabled ? `alert('배달 권역 밖입니다. (거리: ${distanceText}, 배달 가능: ${storeInfo.deliveryRadius}km)')` : `selectAddress({addressId: ${address.addressId}, name: '${address.name?.replace(/'/g, "\\'")}', address: '${address.address?.replace(/'/g, "\\'")}'})`}"
+            style="padding: 12px; cursor: ${cursor}; border-radius: 8px; margin-bottom: 4px; background: ${backgroundColor}; opacity: ${opacity}; position: relative;"
+            ${!isDisabled ? `onmouseover="this.style.background='#3D4E60'" onmouseout="this.style.background='${selectedAddressId === address.addressId ? '#3D4E60' : 'transparent'}'"` : ''}
+          >
+            <div style="display: flex; justify-content: space-between; align-items: start;">
+              <div style="flex: 1;">
+                <div style="font-weight: 600; color: ${nameColor}; font-size: 14px; margin-bottom: 4px;">
+                  ${address.name || '주소'}
+                  ${isDisabled ? ' <span style="font-size: 11px; color: #EF4444;">⚠️ 배달 불가</span>' : ''}
+                </div>
+                <div style="color: ${addressColor}; font-size: 13px;">${address.address || ''}</div>
+              </div>
+              ${distanceText ? `<div style="font-size: 11px; color: #8B92A8; margin-left: 8px;">${distanceText}</div>` : ''}
+            </div>
+          </div>
+        `;
+      }).join('') + `
         <div style="border-top: 1px solid #3D4E60; margin: 8px 0; padding-top: 8px;">
           <button onclick="location.href='10_Add_Address.html'" style="width: 100%; padding: 12px; background: #FF6B35; color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer;">
             + 새 주소 등록하기
