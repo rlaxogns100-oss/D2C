@@ -22,7 +22,7 @@
         조리 중 (<span id="count-cooking">0</span>)
       </div>
       <div class="tab-item" onclick="switchTab('done')" id="tab-done">
-        완료/취소 (<span id="count-done">0</span>)
+        완료 (<span id="count-done">0</span>)
       </div>
     </div>
 
@@ -307,10 +307,10 @@
         case 'new':
           return allOrders.filter(order => order.condition === 'ORDERED');
         case 'cooking':
-          return allOrders.filter(order => ['COOKING', 'DELIVERING'].includes(order.condition));
+          return allOrders.filter(order => order.condition === 'COOKING');
         case 'done':
           return allOrders.filter(order => 
-            ['REJECTED', 'CANCELLED', 'DELIVERED'].includes(order.condition)
+            ['DELIVERING', 'DELIVERED', 'REJECTED', 'CANCELLED'].includes(order.condition)
           );
         default:
           return allOrders;
@@ -373,11 +373,11 @@
           <div class="customer-info-box">
             <div class="info-row">
               <span class="info-label">고객명</span>
-              <span class="info-value">${order.user.username || '정보 없음'}</span>
+              <span class="info-value">${order.user.name || '정보 없음'}</span>
             </div>
             <div class="info-row">
               <span class="info-label">연락처</span>
-              <span class="info-value">${order.user.phone || '정보 없음'}</span>
+              <span class="info-value">${order.user.email || '정보 없음'}</span>
             </div>
           </div>
 
