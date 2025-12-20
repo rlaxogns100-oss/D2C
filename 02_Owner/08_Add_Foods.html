@@ -45,10 +45,7 @@
       <div class="form-group">
         <label class="form-label" style="color: var(--text-gray);">카테고리 *</label>
         <select id="category" class="form-input" required style="background-color: var(--white); border: 1px solid #E5E7EB;">
-          <option value="전체">전체</option>
-          <option value="아침">아침</option>
-          <option value="점심">점심</option>
-          <option value="저녁">저녁</option>
+          <!-- 동적으로 로드됨 -->
         </select>
       </div>
 
@@ -77,6 +74,18 @@
       : '';
 
     let optionCount = 0;
+
+    // 페이지 로드 시 카테고리 로드
+    document.addEventListener('DOMContentLoaded', () => {
+      loadCategories();
+    });
+
+    // 카테고리 로드
+    function loadCategories() {
+      const categories = JSON.parse(localStorage.getItem('menuCategories') || '["전체", "아침", "점심", "저녁"]');
+      const select = document.getElementById('category');
+      select.innerHTML = categories.map(cat => `<option value="${cat}">${cat}</option>`).join('');
+    }
 
     // 옵션 필드 추가
     function addOptionField() {

@@ -45,10 +45,7 @@
       <div class="form-group">
         <label class="form-label" style="color: var(--text-gray);">카테고리 *</label>
         <select id="category" class="form-input" required style="background-color: var(--white); border: 1px solid #E5E7EB;">
-          <option value="전체">전체</option>
-          <option value="아침">아침</option>
-          <option value="점심">점심</option>
-          <option value="저녁">저녁</option>
+          <!-- 동적으로 로드됨 -->
         </select>
       </div>
 
@@ -101,9 +98,19 @@
       }
     }
 
+    // 카테고리 로드
+    function loadCategories() {
+      const categories = JSON.parse(localStorage.getItem('menuCategories') || '["전체", "아침", "점심", "저녁"]');
+      const select = document.getElementById('category');
+      select.innerHTML = categories.map(cat => `<option value="${cat}">${cat}</option>`).join('');
+    }
+
     // 페이지 로드 시 메뉴 정보 불러오기
     document.addEventListener('DOMContentLoaded', async () => {
       console.log('[Edit Menu] Page loaded');
+      
+      // 카테고리 먼저 로드
+      loadCategories();
 
       // URL에서 menuId 추출
       const urlParams = new URLSearchParams(window.location.search);
