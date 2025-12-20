@@ -28,24 +28,22 @@
     <!-- Summary -->
     <div class="cart-summary">
       <div class="delivery-address">
-        <div style="display: flex; align-items: flex-start; gap: 12px; flex: 1;">
-          <button class="address-dropdown-btn" onclick="toggleAddressDropdown()" style="background: none; border: none; padding: 0; cursor: pointer; color: #FF6B35; margin-top: 4px;">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M6 9l6 6 6-6"/>
+        <div style="flex: 1;">
+          <h4 style="margin-bottom: 8px; font-size: 14px; color: #8B92A8;">배달 주소</h4>
+          <div style="display: flex; align-items: center; gap: 12px;">
+            <svg id="addressIcon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#FF6B35" stroke-width="2" style="flex-shrink: 0;">
+              <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+              <polyline points="9 22 9 12 15 12 15 22"/>
             </svg>
-          </button>
-          <div style="flex: 1;">
-            <h4 style="margin-bottom: 8px; font-size: 14px; color: #8B92A8;">배달 주소</h4>
-            <div id="selectedAddressContainer" style="display: flex; align-items: center; gap: 8px;">
-              <svg id="addressIcon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#FF6B35" stroke-width="2" style="flex-shrink: 0;">
-                <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
-                <polyline points="9 22 9 12 15 12 15 22"/>
-              </svg>
-              <div style="flex: 1;">
-                <div id="selectedAddressName" style="font-size: 16px; font-weight: 600; color: #FFFFFF; margin-bottom: 4px;">주소를 선택해주세요</div>
-                <div id="selectedAddressDetail" style="font-size: 13px; color: #8B92A8; display: none;"></div>
-              </div>
+            <div style="flex: 1;">
+              <div id="selectedAddressName" style="font-size: 16px; font-weight: 600; color: #FFFFFF; margin-bottom: 4px;">주소를 선택해주세요</div>
+              <div id="selectedAddressDetail" style="font-size: 13px; color: #8B92A8; display: none;"></div>
             </div>
+            <button class="address-dropdown-btn" onclick="toggleAddressDropdown()" style="background: none; border: none; padding: 8px; cursor: pointer; color: #FF6B35; flex-shrink: 0;">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M6 9l6 6 6-6"/>
+              </svg>
+            </button>
           </div>
         </div>
       </div>
