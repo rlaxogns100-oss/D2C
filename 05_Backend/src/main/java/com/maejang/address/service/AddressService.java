@@ -33,6 +33,8 @@ public class AddressService {
                 .name(req.name()) // 집, 회사 ,,
                 .address(req.address()) // 주소
                 .isDefault(isDefault)
+                .latitude(req.latitude())
+                .longitude(req.longitude())
                 .build();
 
         return addressRepository.save(address).getAddressId();
@@ -54,7 +56,7 @@ public class AddressService {
         }
 
         // 부분 수정: null이면 변경하지 않음
-        address.updatePartial(req.name(), req.address());
+        address.updatePartial(req.name(), req.address(), req.latitude(), req.longitude());
     }
 
     @Transactional

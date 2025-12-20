@@ -42,12 +42,20 @@ public class Address {
     @Column(name = "is_default", nullable = false)
     private boolean isDefault;
 
+    @Column(name = "latitude")
+    private Double latitude;
+
+    @Column(name = "longitude")
+    private Double longitude;
+
     @Builder
-    private Address(User user, String name, String address, boolean isDefault) {
+    private Address(User user, String name, String address, boolean isDefault, Double latitude, Double longitude) {
         this.user = user;
         this.name = name;
         this.address = address;
         this.isDefault = isDefault;
+        this.latitude = latitude;
+        this.longitude = longitude;
     }
 
     /**
@@ -57,20 +65,26 @@ public class Address {
         return addressId;
     }
 
-    public void update(String name, String address, boolean isDefault) {
+    public void update(String name, String address, boolean isDefault, Double latitude, Double longitude) {
         this.name = name;
         this.address = address;
         this.isDefault = isDefault;
+        this.latitude = latitude;
+        this.longitude = longitude;
     }
 
-    public void updateInfo(String name, String address) {
+    public void updateInfo(String name, String address, Double latitude, Double longitude) {
         this.name = name;
         this.address = address;
+        this.latitude = latitude;
+        this.longitude = longitude;
     }
 
-    public void updatePartial(String name, String address) {
+    public void updatePartial(String name, String address, Double latitude, Double longitude) {
         if (name != null) this.name = name;
         if (address != null) this.address = address;
+        if (latitude != null) this.latitude = latitude;
+        if (longitude != null) this.longitude = longitude;
     }
 
     public void setDefault(boolean isDefault) {

@@ -7,7 +7,11 @@ public record AddressCreateRequest(
         String name,
 
         @NotBlank(message = "address는 필수입니다.")
-        String address
+        String address,
+
+        Double latitude,
+
+        Double longitude
 ) {
 }
 

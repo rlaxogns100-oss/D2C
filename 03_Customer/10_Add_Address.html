@@ -5,6 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>10 Add Address</title>
   <link rel="stylesheet" href="style.css">
+  <!-- 카카오 맵 API -->
+  <script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=18d5884d5326027cfa1a256d516a78ec&libraries=services"></script>
+  <!-- 카카오 주소 검색 API -->
+  <script src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
 </head>
 <body>
   <div class="screen-label">새 주소 추가</div>
@@ -21,36 +25,43 @@
     </div>
     
     <!-- Map -->
-    <div class="map-container">
-      <div class="map-marker"></div>
-      <button style="position: absolute; top: 16px; right: 16px; padding: 8px 16px; background: #2D3E50; color: white; border: none; border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer;">
-        위치 수정
-      </button>
+    <div id="map" class="map-container" style="position: relative;">
+      <!-- 카카오 맵이 여기에 표시됩니다 -->
     </div>
     
     <!-- Address Preview -->
-    <div class="address-preview">
+    <div class="address-preview" id="addressPreview" style="display: none;">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
         <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
         <circle cx="12" cy="10" r="3"/>
       </svg>
-      <p>3235 Royal Ln. Mesa, New Jersy 34567</p>
+      <p id="addressPreviewText"></p>
     </div>
     
     <!-- Form -->
     <form onsubmit="return validateAddress(event)">
       <div class="form-group">
         <label class="form-label" for="street">도로명 주소</label>
-        <div class="form-row">
+        <div style="display: flex; gap: 8px;">
           <input 
             type="text" 
             id="street" 
             class="form-input" 
-            placeholder="Hasan Nagar"
-            style="grid-column: 1 / -1;"
+            placeholder="주소 검색 버튼을 클릭하세요"
+            style="flex: 1;"
+            readonly
             required
           >
+          <button 
+            type="button" 
+            onclick="searchAddress()" 
+            style="padding: 12px 20px; background: #FF6B35; color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; white-space: nowrap;">
+            주소 검색
+          </button>
         </div>
+        <!-- 좌표 저장용 hidden input -->
+        <input type="hidden" id="latitude">
+        <input type="hidden" id="longitude">
       </div>
       
       <div class="form-row">
@@ -61,6 +72,7 @@
             id="postcode" 
             class="form-input" 
             placeholder="34567"
+            readonly
             required
           >
         </div>
@@ -103,6 +115,12 @@
       ? 'https://pizzaschool.maejang.com'
       : '';
 
+    // 🗺️ 카카오 맵 & 마커
+    let map;
+    let storeMarker; // 가게 위치 마커 (빨강)
+    let customerMarker; // 고객 주소 마커 (파랑)
+    const STORE_LOCATION = { lat: 37.5012743, lng: 127.0396597 }; // user_id=11 가게 위치 (나중에 DB에서 가져오기)
+
     // 🔐 로그인 만료 체크 및 자동 리다이렉트
     function checkAuthError(response) {
       if (response.status === 401 || response.status === 403) {
@@ -114,7 +132,7 @@
       return false;
     }
 
-    // 페이지 로드 시 로그인 확인
+    // 페이지 로드 시 로그인 확인 및 지도 초기화
     document.addEventListener('DOMContentLoaded', function() {
       const token = localStorage.getItem('accessToken');
       if (!token) {
@@ -122,7 +140,86 @@
         location.href = '02_Login.html';
         return;
       }
+
+      // 카카오 맵 초기화 (가게 위치 중심)
+      initializeMap();
     });
+
+    // 카카오 맵 초기화
+    function initializeMap() {
+      const mapContainer = document.getElementById('map');
+      const mapOption = {
+        center: new kakao.maps.LatLng(STORE_LOCATION.lat, STORE_LOCATION.lng),
+        level: 4
+      };
+      
+      map = new kakao.maps.Map(mapContainer, mapOption);
+      
+      // 가게 위치 마커 추가 (빨강)
+      storeMarker = new kakao.maps.Marker({
+        position: new kakao.maps.LatLng(STORE_LOCATION.lat, STORE_LOCATION.lng),
+        map: map
+      });
+
+      // 가게 마커에 인포윈도우 추가
+      const storeInfowindow = new kakao.maps.InfoWindow({
+        content: '<div style="padding:5px;font-size:12px;color:#FF6B35;font-weight:600;">🏪 가게 위치</div>'
+      });
+      storeInfowindow.open(map, storeMarker);
+    }
+
+    // 카카오 주소 검색 팝업
+    function searchAddress() {
+      new daum.Postcode({
+        oncomplete: function(data) {
+          // 선택한 주소 정보
+          const roadAddr = data.roadAddress; // 도로명 주소
+          const zonecode = data.zonecode; // 우편번호
+          
+          // 폼에 주소 입력
+          document.getElementById('street').value = roadAddr;
+          document.getElementById('postcode').value = zonecode;
+          
+          // 주소 미리보기 표시
+          document.getElementById('addressPreview').style.display = 'flex';
+          document.getElementById('addressPreviewText').textContent = roadAddr;
+          
+          // 좌표 변환 (주소 → 위도/경도)
+          const geocoder = new kakao.maps.services.Geocoder();
+          geocoder.addressSearch(roadAddr, function(result, status) {
+            if (status === kakao.maps.services.Status.OK) {
+              const coords = new kakao.maps.LatLng(result[0].y, result[0].x);
+              
+              // 좌표 저장
+              document.getElementById('latitude').value = result[0].y;
+              document.getElementById('longitude').value = result[0].x;
+              
+              // 지도에 고객 주소 마커 추가 (파랑)
+              if (customerMarker) {
+                customerMarker.setMap(null); // 기존 마커 제거
+              }
+              
+              customerMarker = new kakao.maps.Marker({
+                position: coords,
+                map: map
+              });
+              
+              // 고객 마커에 인포윈도우 추가
+              const customerInfowindow = new kakao.maps.InfoWindow({
+                content: '<div style="padding:5px;font-size:12px;color:#4A90E2;font-weight:600;">📍 배달 주소</div>'
+              });
+              customerInfowindow.open(map, customerMarker);
+              
+              // 두 마커가 모두 보이도록 지도 범위 조정
+              const bounds = new kakao.maps.LatLngBounds();
+              bounds.extend(new kakao.maps.LatLng(STORE_LOCATION.lat, STORE_LOCATION.lng));
+              bounds.extend(coords);
+              map.setBounds(bounds);
+            }
+          });
+        }
+      }).open();
+    }
     
     // 라벨 선택 기능
     function selectLabel(button, labelType) {
@@ -152,34 +249,24 @@
       const street = document.getElementById('street').value.trim();
       const postcode = document.getElementById('postcode').value.trim();
       const apartment = document.getElementById('apartment').value.trim();
+      const latitude = document.getElementById('latitude').value;
+      const longitude = document.getElementById('longitude').value;
       
-      // 거리 주소 빈 값 체크
-      if (street === '') {
-        alert('거리 주소를 입력해주세요');
+      // 주소 검색 여부 체크
+      if (!latitude || !longitude) {
+        alert('주소 검색 버튼을 클릭하여 주소를 선택해주세요');
         return false;
       }
       
-      // 거리 주소 길이 체크
-      if (street.length < 5) {
-        alert('거리 주소는 5자 이상 입력해주세요');
+      // 거리 주소 빈 값 체크
+      if (street === '') {
+        alert('주소를 선택해주세요');
         return false;
       }
       
       // 우편번호 빈 값 체크
       if (postcode === '') {
         alert('우편번호를 입력해주세요');
-        return false;
-      }
-      
-      // 우편번호 숫자 체크
-      if (!/^\d+$/.test(postcode)) {
-        alert('우편번호는 숫자만 입력해주세요');
-        return false;
-      }
-      
-      // 우편번호 길이 체크 (5자리)
-      if (postcode.length !== 5) {
-        alert('우편번호는 5자리 숫자여야 합니다');
         return false;
       }
       
@@ -200,7 +287,9 @@
       // 주소 데이터 생성
       const addressData = {
         name: label,
-        address: `${street}, ${apartment ? apartment + ', ' : ''}${postcode}`
+        address: `${street}${apartment ? ', ' + apartment : ''} (${postcode})`,
+        latitude: parseFloat(latitude),
+        longitude: parseFloat(longitude)
       };
 
       // API 호출
