@@ -142,7 +142,7 @@
       }
 
       try {
-        const response = await fetch(`${baseUrl}/api/v1/address/delete?addressId=${addressId}`, {
+        const response = await fetch(`${baseUrl}/api/v1/address/delete/${addressId}`, {
           method: 'DELETE',
           credentials: 'include',
           headers: {
