@@ -427,8 +427,8 @@
       }
 
       try {
-        const response = await fetch(`${baseUrl}/api/v1/store/update-delivery-area`, {
-          method: 'POST',
+        const response = await fetch(`${baseUrl}/api/v1/store/delivery-area`, {
+          method: 'PUT',
           headers: {
             'Authorization': `Bearer ${token}`,
             'Content-Type': 'application/json'
@@ -467,12 +467,8 @@
       }
 
       try {
-        // JWT에서 user ID 추출
-        const payload = JSON.parse(atob(token.split('.')[1]));
-        const userId = payload.uid;
-
-        // 가게 정보 조회
-        const response = await fetch(`${baseUrl}/api/v1/store/${userId}`, {
+        // 가게 정보 조회 (로그인한 사장의 가게)
+        const response = await fetch(`${baseUrl}/api/v1/store/read`, {
           headers: {
             'Authorization': `Bearer ${token}`
           }
