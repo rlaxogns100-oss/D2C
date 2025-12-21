@@ -4,111 +4,163 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>배달 권역 설정</title>
-  <link rel="stylesheet" href="common.css">
+  <link rel="stylesheet" href="style.css">
   <script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=18d5884d5326027cfa1a256d516a78ec&libraries=services"></script>
   <style>
-    .delivery-container {
-      padding: 20px;
-      max-width: 1200px;
+    .delivery-page {
+      padding: 20px 24px;
+      max-width: 600px;
       margin: 0 auto;
     }
 
-    .page-title {
+    .page-header {
       font-size: 24px;
       font-weight: 700;
-      margin-bottom: 30px;
-      color: #333;
+      margin-bottom: 24px;
+      color: var(--text-dark);
     }
 
-    .map-section {
-      background: #fff;
+    .info-card {
+      background: var(--primary-orange-light);
+      border-left: 4px solid var(--primary-orange);
+      padding: 16px;
       border-radius: 12px;
+      margin-bottom: 24px;
+    }
+
+    .info-card p {
+      margin: 0;
+      font-size: 14px;
+      color: var(--text-dark);
+      line-height: 1.6;
+    }
+
+    .current-location {
+      background: var(--white);
+      border-radius: 16px;
       padding: 20px;
       margin-bottom: 20px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      box-shadow: var(--shadow-sm);
     }
 
-    .map-title {
-      font-size: 18px;
-      font-weight: 600;
-      margin-bottom: 15px;
-      color: #333;
-    }
-
-    .map-description {
-      font-size: 14px;
-      color: #666;
-      margin-bottom: 15px;
-      line-height: 1.5;
-    }
-
-    #map {
-      width: 100%;
-      height: 500px;
-      border-radius: 8px;
-      margin-bottom: 20px;
-    }
-
-    .controls {
+    .location-header {
       display: flex;
-      gap: 10px;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+
+    .location-title {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--text-dark);
+    }
+
+    .edit-btn {
+      padding: 8px 16px;
+      background: var(--primary-orange);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .location-info {
+      background: var(--bg-gray);
+      padding: 16px;
+      border-radius: 12px;
+    }
+
+    .location-row {
+      display: flex;
+      margin-bottom: 8px;
+    }
+
+    .location-row:last-child {
+      margin-bottom: 0;
+    }
+
+    .location-label {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-gray);
+      min-width: 80px;
+    }
+
+    .location-value {
+      font-size: 14px;
+      color: var(--text-dark);
+      flex: 1;
+    }
+
+    .edit-section {
+      display: none;
+      background: var(--white);
+      border-radius: 16px;
+      padding: 20px;
       margin-bottom: 20px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .edit-section.active {
+      display: block;
+    }
+
+    .section-title {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--text-dark);
+      margin-bottom: 16px;
     }
 
     .search-container {
-      flex: 1;
       display: flex;
-      gap: 10px;
+      gap: 8px;
+      margin-bottom: 16px;
     }
 
     .search-input {
       flex: 1;
       padding: 12px 16px;
-      border: 1px solid #ddd;
+      border: 1px solid var(--border-color);
       border-radius: 8px;
       font-size: 14px;
     }
 
     .search-btn {
-      padding: 12px 24px;
-      background: #4A90E2;
+      padding: 12px 20px;
+      background: var(--primary-orange);
       color: white;
       border: none;
       border-radius: 8px;
       font-weight: 600;
       cursor: pointer;
-      transition: background 0.3s;
+      white-space: nowrap;
     }
 
-    .search-btn:hover {
-      background: #357ABD;
+    #map {
+      width: 100%;
+      height: 400px;
+      border-radius: 12px;
+      margin-bottom: 16px;
     }
 
     .radius-section {
-      background: #fff;
-      border-radius: 12px;
+      background: var(--white);
+      border-radius: 16px;
       padding: 20px;
       margin-bottom: 20px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-    }
-
-    .radius-control {
-      display: flex;
-      flex-direction: column;
-      gap: 15px;
-    }
-
-    .radius-label {
-      font-size: 16px;
-      font-weight: 600;
-      color: #333;
+      box-shadow: var(--shadow-sm);
     }
 
     .radius-value {
-      font-size: 24px;
+      font-size: 32px;
       font-weight: 700;
-      color: #4A90E2;
+      color: var(--primary-orange);
       text-align: center;
+      margin: 16px 0;
     }
 
     .radius-slider {
@@ -117,140 +169,174 @@
       border-radius: 4px;
       outline: none;
       -webkit-appearance: none;
-      background: #ddd;
+      background: var(--bg-gray);
     }
 
     .radius-slider::-webkit-slider-thumb {
       -webkit-appearance: none;
-      appearance: none;
       width: 24px;
       height: 24px;
       border-radius: 50%;
-      background: #4A90E2;
+      background: var(--primary-orange);
       cursor: pointer;
     }
 
-    .radius-slider::-moz-range-thumb {
-      width: 24px;
-      height: 24px;
-      border-radius: 50%;
-      background: #4A90E2;
-      cursor: pointer;
-      border: none;
-    }
-
-    .info-box {
-      background: #F0F8FF;
-      border-left: 4px solid #4A90E2;
-      padding: 15px;
-      border-radius: 8px;
-      margin-bottom: 20px;
-    }
-
-    .info-box p {
-      margin: 0;
-      font-size: 14px;
-      color: #333;
-      line-height: 1.6;
+    .slider-labels {
+      display: flex;
+      justify-content: space-between;
+      font-size: 12px;
+      color: var(--text-gray);
+      margin-top: 8px;
     }
 
     .save-btn {
       width: 100%;
       padding: 16px;
-      background: #4A90E2;
+      background: var(--primary-orange);
       color: white;
       border: none;
-      border-radius: 8px;
+      border-radius: 12px;
       font-size: 16px;
       font-weight: 700;
       cursor: pointer;
-      transition: background 0.3s;
     }
 
-    .save-btn:hover {
-      background: #357ABD;
-    }
-
-    .save-btn:disabled {
-      background: #ccc;
-      cursor: not-allowed;
+    .cancel-btn {
+      width: 100%;
+      padding: 16px;
+      background: var(--white);
+      color: var(--primary-orange);
+      border: 1px solid var(--primary-orange);
+      border-radius: 12px;
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
+      margin-top: 12px;
     }
   </style>
 </head>
 <body>
-  <div class="delivery-container">
-    <h1 class="page-title">⚙️ 배달 권역 설정</h1>
+  <div class="delivery-page">
+    <h1 class="page-header">⚙️ 배달 권역 설정</h1>
 
-    <div class="info-box">
+    <div class="info-card">
       <p>📍 가게 위치와 배달 가능 반경을 설정하세요. 설정한 반경 내에서만 고객이 주문할 수 있습니다.</p>
     </div>
 
-    <div class="map-section">
-      <div class="map-title">가게 위치 설정</div>
-      <div class="map-description">
-        지도를 클릭하여 가게 위치를 설정하거나, 아래 검색창에서 주소를 검색하세요.
+    <!-- 현재 설정 표시 -->
+    <div class="current-location" id="currentView">
+      <div class="location-header">
+        <div class="location-title">현재 설정</div>
+        <button class="edit-btn" onclick="showEditMode()">수정</button>
       </div>
-      
-      <div class="controls">
-        <div class="search-container">
-          <input type="text" id="searchAddress" class="search-input" placeholder="주소를 입력하세요 (예: 서울 강남구 역삼동)">
-          <button onclick="searchAddress()" class="search-btn">🔍 주소 검색</button>
+      <div class="location-info">
+        <div class="location-row">
+          <span class="location-label">가게 주소</span>
+          <span class="location-value" id="currentAddress">설정되지 않음</span>
         </div>
+        <div class="location-row">
+          <span class="location-label">배달 반경</span>
+          <span class="location-value" id="currentRadius">설정되지 않음</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 수정 모드 -->
+    <div class="edit-section" id="editView">
+      <div class="section-title">가게 위치 설정</div>
+      
+      <div class="search-container">
+        <input type="text" id="searchAddress" class="search-input" placeholder="주소를 입력하세요 (예: 서울 강남구 역삼동)">
+        <button onclick="searchAddress()" class="search-btn">🔍 검색</button>
       </div>
 
       <div id="map"></div>
+      <p style="font-size: 12px; color: var(--text-gray); text-align: center; margin: 0;">
+        지도를 클릭하여 위치를 변경할 수 있습니다
+      </p>
     </div>
 
     <div class="radius-section">
-      <div class="radius-control">
-        <div class="radius-label">배달 가능 반경</div>
-        <div class="radius-value"><span id="radiusValue">3.0</span> km</div>
-        <input 
-          type="range" 
-          id="radiusSlider" 
-          class="radius-slider" 
-          min="0.5" 
-          max="10" 
-          step="0.5" 
-          value="3.0"
-          oninput="updateRadius(this.value)"
-        >
-        <div style="display: flex; justify-content: space-between; font-size: 12px; color: #999;">
-          <span>0.5km</span>
-          <span>10km</span>
-        </div>
+      <div class="section-title">배달 가능 반경</div>
+      <div class="radius-value"><span id="radiusValue">3.0</span> km</div>
+      <input 
+        type="range" 
+        id="radiusSlider" 
+        class="radius-slider" 
+        min="0.5" 
+        max="10" 
+        step="0.5" 
+        value="3.0"
+        oninput="updateRadius(this.value)"
+      >
+      <div class="slider-labels">
+        <span>0.5km</span>
+        <span>10km</span>
       </div>
     </div>
 
     <button class="save-btn" onclick="saveDeliveryArea()">💾 저장하기</button>
+    <button class="cancel-btn" id="cancelBtn" style="display: none;" onclick="cancelEdit()">취소</button>
   </div>
 
   <script>
-    const baseUrl = 'https://api.maejang.com';
+    const baseUrl = window.location.protocol === 'file:' 
+      ? 'https://pizzaschool.maejang.com'
+      : '';
     
     let map;
     let marker;
     let circle;
     let geocoder;
     
-    // 가게 위치 (초기값: 서울시청)
     let storeLocation = {
       lat: 37.5665,
       lng: 126.9780
     };
     
-    // 배달 반경 (km)
     let deliveryRadius = 3.0;
+    let storeData = null;
 
     // 인증 에러 체크
     function checkAuthError(response) {
       if (response.status === 401 || response.status === 403) {
         alert('로그인이 만료되었습니다. 다시 로그인해주세요.');
         localStorage.removeItem('accessToken');
-        location.href = '00_Login.html';
+        location.href = '01_Login.html';
         return true;
       }
       return false;
+    }
+
+    // 수정 모드 표시
+    function showEditMode() {
+      document.getElementById('editView').classList.add('active');
+      document.getElementById('cancelBtn').style.display = 'block';
+      
+      if (!map) {
+        initMap();
+      }
+    }
+
+    // 수정 취소
+    function cancelEdit() {
+      document.getElementById('editView').classList.remove('active');
+      document.getElementById('cancelBtn').style.display = 'none';
+      
+      // 원래 값으로 복원
+      if (storeData) {
+        if (storeData.latitude && storeData.longitude) {
+          storeLocation = {
+            lat: storeData.latitude,
+            lng: storeData.longitude
+          };
+        }
+        if (storeData.deliveryRadius) {
+          deliveryRadius = storeData.deliveryRadius;
+          document.getElementById('radiusSlider').value = deliveryRadius;
+          document.getElementById('radiusValue').textContent = deliveryRadius.toFixed(1);
+        }
+      }
     }
 
     // 지도 초기화
@@ -264,26 +350,23 @@
       map = new kakao.maps.Map(container, options);
       geocoder = new kakao.maps.services.Geocoder();
       
-      // 마커 생성
       marker = new kakao.maps.Marker({
         position: new kakao.maps.LatLng(storeLocation.lat, storeLocation.lng),
         map: map
       });
       
-      // 배달 권역 원 생성
       circle = new kakao.maps.Circle({
         center: new kakao.maps.LatLng(storeLocation.lat, storeLocation.lng),
-        radius: deliveryRadius * 1000, // km to m
+        radius: deliveryRadius * 1000,
         strokeWeight: 3,
-        strokeColor: '#4A90E2',
+        strokeColor: '#FF6B35',
         strokeOpacity: 0.8,
         strokeStyle: 'solid',
-        fillColor: '#4A90E2',
+        fillColor: '#FF6B35',
         fillOpacity: 0.2
       });
       circle.setMap(map);
       
-      // 지도 클릭 이벤트
       kakao.maps.event.addListener(map, 'click', function(mouseEvent) {
         const latlng = mouseEvent.latLng;
         updateStoreLocation(latlng.getLat(), latlng.getLng());
@@ -306,7 +389,7 @@
       document.getElementById('radiusValue').textContent = deliveryRadius.toFixed(1);
       
       if (circle) {
-        circle.setRadius(deliveryRadius * 1000); // km to m
+        circle.setRadius(deliveryRadius * 1000);
       }
     }
 
@@ -335,18 +418,17 @@
       const token = localStorage.getItem('accessToken');
       if (!token) {
         alert('로그인이 필요합니다.');
-        location.href = '00_Login.html';
+        location.href = '01_Login.html';
         return;
       }
 
-      if (!confirm(`배달 권역을 설정하시겠습니까?\n\n위치: (${storeLocation.lat.toFixed(6)}, ${storeLocation.lng.toFixed(6)})\n반경: ${deliveryRadius}km`)) {
+      if (!confirm(`배달 권역을 설정하시겠습니까?\n\n반경: ${deliveryRadius}km`)) {
         return;
       }
 
       try {
-        const response = await fetch(`${baseUrl}/api/v1/store/delivery-area`, {
-          method: 'PUT',
-          credentials: 'include',
+        const response = await fetch(`${baseUrl}/api/v1/store/update-delivery-area`, {
+          method: 'POST',
           headers: {
             'Authorization': `Bearer ${token}`,
             'Content-Type': 'application/json'
@@ -364,6 +446,8 @@
         
         if (response.ok && result.success) {
           alert('배달 권역이 저장되었습니다!');
+          await loadCurrentDeliveryArea();
+          cancelEdit();
         } else {
           alert('저장 실패: ' + (result.error?.message || '알 수 없는 오류'));
         }
@@ -378,13 +462,17 @@
       const token = localStorage.getItem('accessToken');
       if (!token) {
         alert('로그인이 필요합니다.');
-        location.href = '00_Login.html';
+        location.href = '01_Login.html';
         return;
       }
 
       try {
-        const response = await fetch(`${baseUrl}/api/v1/store/read`, {
-          credentials: 'include',
+        // JWT에서 user ID 추출
+        const payload = JSON.parse(atob(token.split('.')[1]));
+        const userId = payload.uid;
+
+        // 가게 정보 조회
+        const response = await fetch(`${baseUrl}/api/v1/store/${userId}`, {
           headers: {
             'Authorization': `Bearer ${token}`
           }
@@ -395,23 +483,34 @@
         const result = await response.json();
         
         if (response.ok && result.success && result.data) {
-          const store = result.data;
+          storeData = result.data;
           
-          // 저장된 배달 권역이 있으면 적용
-          if (store.latitude && store.longitude && store.deliveryRadius) {
+          // UI 업데이트
+          if (storeData.latitude && storeData.longitude && storeData.deliveryRadius) {
             storeLocation = {
-              lat: store.latitude,
-              lng: store.longitude
+              lat: storeData.latitude,
+              lng: storeData.longitude
             };
-            deliveryRadius = store.deliveryRadius;
+            deliveryRadius = storeData.deliveryRadius;
             
             document.getElementById('radiusSlider').value = deliveryRadius;
             document.getElementById('radiusValue').textContent = deliveryRadius.toFixed(1);
             
-            // 지도 업데이트
-            if (map) {
-              updateStoreLocation(storeLocation.lat, storeLocation.lng);
-            }
+            // 주소 역검색
+            const geocoder = new kakao.maps.services.Geocoder();
+            geocoder.coord2Address(storeData.longitude, storeData.latitude, function(result, status) {
+              if (status === kakao.maps.services.Status.OK && result[0]) {
+                const address = result[0].address.address_name;
+                document.getElementById('currentAddress').textContent = address;
+              } else {
+                document.getElementById('currentAddress').textContent = `위도: ${storeData.latitude.toFixed(6)}, 경도: ${storeData.longitude.toFixed(6)}`;
+              }
+            });
+            
+            document.getElementById('currentRadius').textContent = `${storeData.deliveryRadius.toFixed(1)} km`;
+          } else {
+            document.getElementById('currentAddress').textContent = '설정되지 않음';
+            document.getElementById('currentRadius').textContent = '설정되지 않음';
           }
         }
       } catch (error) {
@@ -422,7 +521,6 @@
     // 페이지 로드 시
     window.onload = async function() {
       await loadCurrentDeliveryArea();
-      initMap();
     };
   </script>
 </body>
