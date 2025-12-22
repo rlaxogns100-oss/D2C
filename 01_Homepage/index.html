@@ -1,561 +1,310 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Index</title>
-  <link rel="stylesheet" href="style.css">
-  <style>
-    /* 랜딩 페이지 전용 스타일 */
-    .landing-hero {
-      background: linear-gradient(135deg, #FF6B35 0%, #FF8C42 100%);
-      color: white;
-      padding: 60px 24px 40px;
-      text-align: center;
-      position: relative;
-      overflow: hidden;
-    }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>D2C Builder - 사장님만의 자사몰을 만드세요</title>
     
-    .landing-hero::before {
-      content: '';
-      position: absolute;
-      top: -50%;
-      right: -20%;
-      width: 300px;
-      height: 300px;
-      background: rgba(255, 255, 255, 0.1);
-      border-radius: 50%;
-    }
+    <!-- 폰트: Pretendard -->
+    <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.8/dist/web/static/pretendard.css" />
     
-    .landing-hero::after {
-      content: '';
-      position: absolute;
-      bottom: -30%;
-      left: -10%;
-      width: 200px;
-      height: 200px;
-      background: rgba(255, 255, 255, 0.1);
-      border-radius: 50%;
-    }
+    <!-- Tailwind CSS (CDN) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Pretendard', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#eff6ff',
+                            100: '#dbeafe',
+                            500: '#3b82f6',
+                            600: '#2563eb',
+                            700: '#1d4ed8',
+                            900: '#1e3a8a',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
     
-    .hero-content {
-      position: relative;
-      z-index: 1;
-    }
-    
-    .landing-logo {
-      font-size: 48px;
-      margin-bottom: 16px;
-    }
-    
-    .landing-title {
-      font-size: 32px;
-      font-weight: 700;
-      margin-bottom: 16px;
-      line-height: 1.2;
-    }
-    
-    .landing-subtitle {
-      font-size: 16px;
-      opacity: 0.95;
-      margin-bottom: 32px;
-      line-height: 1.5;
-    }
-    
-    .cta-buttons {
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-      max-width: 320px;
-      margin: 0 auto;
-    }
-    
-    .cta-btn {
-      padding: 16px 32px;
-      border-radius: 12px;
-      font-size: 16px;
-      font-weight: 600;
-      border: none;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      text-decoration: none;
-      display: inline-block;
-    }
-    
-    .cta-primary {
-      background: white;
-      color: var(--primary-orange);
-    }
-    
-    .cta-primary:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
-    }
-    
-    .cta-secondary {
-      background: rgba(255, 255, 255, 0.2);
-      color: white;
-      border: 2px solid white;
-    }
-    
-    .cta-secondary:hover {
-      background: rgba(255, 255, 255, 0.3);
-    }
-    
-    .landing-section {
-      padding: 48px 24px;
-    }
-    
-    .section-title {
-      font-size: 24px;
-      font-weight: 700;
-      text-align: center;
-      margin-bottom: 32px;
-      color: var(--text-dark);
-    }
-    
-    .features-grid {
-      display: grid;
-      gap: 24px;
-      max-width: 400px;
-      margin: 0 auto;
-    }
-    
-    .feature-card {
-      background: white;
-      border-radius: 16px;
-      padding: 24px;
-      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
-      transition: transform 0.3s ease;
-    }
-    
-    .feature-card:hover {
-      transform: translateY(-4px);
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
-    }
-    
-    .feature-icon {
-      width: 48px;
-      height: 48px;
-      background: linear-gradient(135deg, #FF6B35 0%, #FF8C42 100%);
-      border-radius: 12px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 24px;
-      margin-bottom: 16px;
-    }
-    
-    .feature-title {
-      font-size: 18px;
-      font-weight: 600;
-      margin-bottom: 8px;
-      color: var(--text-dark);
-    }
-    
-    .feature-desc {
-      font-size: 14px;
-      color: var(--text-gray);
-      line-height: 1.6;
-    }
-    
-    .pricing-section {
-      background: linear-gradient(135deg, #F8F9FA 0%, #E9ECEF 100%);
-    }
-    
-    .pricing-card {
-      background: white;
-      border-radius: 20px;
-      padding: 32px 24px;
-      max-width: 360px;
-      margin: 0 auto;
-      box-shadow: 0 4px 24px rgba(0, 0, 0, 0.1);
-    }
-    
-    .pricing-badge {
-      display: inline-block;
-      background: var(--primary-orange);
-      color: white;
-      padding: 6px 16px;
-      border-radius: 20px;
-      font-size: 12px;
-      font-weight: 600;
-      margin-bottom: 16px;
-    }
-    
-    .pricing-title {
-      font-size: 24px;
-      font-weight: 700;
-      margin-bottom: 8px;
-    }
-    
-    .pricing-price {
-      font-size: 48px;
-      font-weight: 700;
-      color: var(--primary-orange);
-      margin-bottom: 8px;
-    }
-    
-    .pricing-price span {
-      font-size: 18px;
-      color: var(--text-gray);
-      font-weight: 400;
-    }
-    
-    .pricing-features {
-      list-style: none;
-      padding: 0;
-      margin: 24px 0;
-    }
-    
-    .pricing-features li {
-      padding: 12px 0;
-      border-bottom: 1px solid #F0F0F0;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      font-size: 14px;
-    }
-    
-    .pricing-features li:last-child {
-      border-bottom: none;
-    }
-    
-    .check-icon {
-      color: #28A745;
-      font-weight: 700;
-      font-size: 18px;
-    }
-    
-    .demo-section {
-      padding: 48px 24px;
-      text-align: center;
-    }
-    
-    .demo-preview {
-      max-width: 320px;
-      margin: 0 auto 32px;
-      border-radius: 20px;
-      overflow: hidden;
-      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
-    }
-    
-    .demo-preview img {
-      width: 100%;
-      display: block;
-    }
-    
-    .demo-placeholder {
-      aspect-ratio: 9/16;
-      background: linear-gradient(135deg, #E9ECEF 0%, #DEE2E6 100%);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 48px;
-    }
-    
-    .footer {
-      background: #2C3E50;
-      color: white;
-      padding: 32px 24px;
-      text-align: center;
-    }
-    
-    .footer-logo {
-      font-size: 24px;
-      margin-bottom: 16px;
-    }
-    
-    .footer-links {
-      display: flex;
-      justify-content: center;
-      gap: 24px;
-      margin-bottom: 16px;
-      flex-wrap: wrap;
-    }
-    
-    .footer-link {
-      color: white;
-      text-decoration: none;
-      font-size: 14px;
-      opacity: 0.8;
-      transition: opacity 0.3s;
-    }
-    
-    .footer-link:hover {
-      opacity: 1;
-    }
-    
-    .footer-copyright {
-      font-size: 12px;
-      opacity: 0.6;
-      margin-top: 16px;
-    }
-    
-    .stats-section {
-      background: white;
-      padding: 32px 24px;
-    }
-    
-    .stats-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 16px;
-      max-width: 400px;
-      margin: 0 auto;
-    }
-    
-    .stat-item {
-      text-align: center;
-    }
-    
-    .stat-number {
-      font-size: 28px;
-      font-weight: 700;
-      color: var(--primary-orange);
-      margin-bottom: 4px;
-    }
-    
-    .stat-label {
-      font-size: 12px;
-      color: var(--text-gray);
-    }
-  </style>
+    <style>
+        /* 스크롤 부드럽게 */
+        html { scroll-behavior: smooth; }
+        
+        /* 모바일 하단 CTA 여백 확보 */
+        body { padding-bottom: 80px; }
+        
+        /* 폼 포커스 시 아웃라인 커스텀 */
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #2563eb;
+            ring: 2px;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2);
+        }
+    </style>
 </head>
-<body>
-  <div class="screen-label">Landing</div>
-  
-  <!-- Hero Section -->
-  <section class="landing-hero">
-    <div class="hero-content">
-      <div class="landing-logo">🍔</div>
-      <h1 class="landing-title">나만의 배달 주문<br>웹사이트를 만드세요</h1>
-      <p class="landing-subtitle">
-        높은 수수료는 이제 그만!<br>
-        월 구독으로 자체 주문 시스템 운영
-      </p>
-      <div class="cta-buttons">
-        <button class="cta-btn cta-primary" onclick="scrollToDemo()">
-          데모 체험하기
-        </button>
-        <button class="cta-btn cta-secondary" onclick="alert('문의하기 기능은 준비중입니다\n\n이메일: contact@d2c-builder.com\n전화: 02-1234-5678')">
-          문의하기
-        </button>
-      </div>
-    </div>
-  </section>
+<body class="font-sans text-gray-800 bg-white">
 
-  <!-- Stats Section -->
-  <section class="stats-section">
-    <div class="stats-grid">
-      <div class="stat-item">
-        <div class="stat-number">0%</div>
-        <div class="stat-label">주문 수수료</div>
-      </div>
-      <div class="stat-item">
-        <div class="stat-number">24/7</div>
-        <div class="stat-label">자동 운영</div>
-      </div>
-      <div class="stat-item">
-        <div class="stat-number">100%</div>
-        <div class="stat-label">매출 귀속</div>
-      </div>
-    </div>
-  </section>
+    <!-- 상단 네비게이션 (심플) -->
+    <nav class="w-full py-4 px-6 border-b border-gray-100 flex justify-between items-center sticky top-0 bg-white/95 backdrop-blur z-50">
+        <div class="text-xl font-bold text-brand-700">D2C Builder</div>
+        <a href="#apply" class="text-sm font-medium text-brand-600 hover:text-brand-800">무료 상담 신청</a>
+    </nav>
 
-  <!-- Features Section -->
-  <section class="landing-section">
-    <h2 class="section-title">왜 D2C Builder인가요?</h2>
-    <div class="features-grid">
-      <div class="feature-card">
-        <div class="feature-icon">💰</div>
-        <h3 class="feature-title">수수료 0원</h3>
-        <p class="feature-desc">
-          배달 플랫폼 수수료 부담 없이<br>
-          100% 순수익을 가져가세요
+    <!-- 1. 히어로 섹션 -->
+    <header class="relative px-6 pt-12 pb-16 text-center lg:pt-20 lg:pb-24 overflow-hidden">
+        <div class="absolute inset-0 -z-10 bg-gradient-to-b from-brand-50 to-white"></div>
+        
+        <span class="inline-block py-1 px-3 rounded-full bg-brand-100 text-brand-700 text-xs font-bold mb-4">
+            사장님을 위한 베타 서비스 오픈 🚀
+        </span>
+        
+        <h1 class="text-3xl font-extrabold leading-tight tracking-tight text-gray-900 md:text-5xl mb-4">
+            수수료 내는 플랫폼 장사,<br>
+            <span class="text-brand-600">언제까지 하실 건가요?</span>
+        </h1>
+        
+        <p class="text-lg text-gray-600 mb-8 leading-relaxed max-w-2xl mx-auto">
+            개발자 없이, 0원으로 시작하는 나만의 자사몰.<br class="hidden md:block">
+            복잡한 건 저희가 다 해드립니다. 사장님은 '신청'만 하세요.
         </p>
-      </div>
-      
-      <div class="feature-card">
-        <div class="feature-icon">🌐</div>
-        <h3 class="feature-title">독립 웹사이트</h3>
-        <p class="feature-desc">
-          나만의 도메인으로<br>
-          브랜드 정체성을 강화하세요
-        </p>
-      </div>
-      
-      <div class="feature-card">
-        <div class="feature-icon">📱</div>
-        <h3 class="feature-title">모바일 최적화</h3>
-        <p class="feature-desc">
-          스마트폰에 최적화된<br>
-          직관적인 주문 경험 제공
-        </p>
-      </div>
-      
-      <div class="feature-card">
-        <div class="feature-icon">⚡</div>
-        <h3 class="feature-title">빠른 구축</h3>
-        <p class="feature-desc">
-          5분 만에 설정 완료<br>
-          즉시 주문 받기 시작
-        </p>
-      </div>
-      
-      <div class="feature-card">
-        <div class="feature-icon">🔒</div>
-        <h3 class="feature-title">안전한 결제</h3>
-        <p class="feature-desc">
-          다양한 결제 수단과<br>
-          보안 시스템 기본 제공
-        </p>
-      </div>
-      
-      <div class="feature-card">
-        <div class="feature-icon">📊</div>
-        <h3 class="feature-title">실시간 관리</h3>
-        <p class="feature-desc">
-          주문, 메뉴, 고객 데이터를<br>
-          한눈에 관리하세요
-        </p>
-      </div>
-    </div>
-  </section>
+        
+        <div class="flex flex-col sm:flex-row justify-center gap-4">
+            <a href="#apply" class="inline-flex justify-center items-center py-4 px-8 text-base font-bold text-center text-white rounded-lg bg-brand-600 hover:bg-brand-700 focus:ring-4 focus:ring-brand-300 transition shadow-lg shadow-brand-500/30">
+                지금 무료 제작 상담받기
+            </a>
+            <a href="#features" class="inline-flex justify-center items-center py-4 px-8 text-base font-medium text-center text-gray-900 rounded-lg border border-gray-300 hover:bg-gray-100 focus:ring-4 focus:ring-gray-100 transition">
+                자세히 알아보기
+            </a>
+        </div>
+    </header>
 
-  <!-- Pricing Section -->
-  <section class="landing-section pricing-section">
-    <h2 class="section-title">간단한 가격</h2>
-    <div class="pricing-card">
-      <span class="pricing-badge">MONTHLY PLAN</span>
-      <h3 class="pricing-title">월 구독제</h3>
-      <div class="pricing-price">
-        ₩49,000
-        <span>/월</span>
-      </div>
-      <ul class="pricing-features">
-        <li>
-          <span class="check-icon">✓</span>
-          무제한 주문 접수
-        </li>
-        <li>
-          <span class="check-icon">✓</span>
-          독립 도메인 제공
-        </li>
-        <li>
-          <span class="check-icon">✓</span>
-          메뉴 무제한 등록
-        </li>
-        <li>
-          <span class="check-icon">✓</span>
-          실시간 주문 알림
-        </li>
-        <li>
-          <span class="check-icon">✓</span>
-          고객 데이터 관리
-        </li>
-        <li>
-          <span class="check-icon">✓</span>
-          24/7 기술 지원
-        </li>
-      </ul>
-      <button class="cta-btn cta-primary" style="width: 100%; margin-top: 16px;" onclick="alert('가입 기능은 준비중입니다!\n\n베타 테스터 모집 중\n이메일: beta@d2c-builder.com')">
-        지금 시작하기
-      </button>
-    </div>
-  </section>
+    <!-- 2. 문제 제기 (Pain Points) -->
+    <section class="py-16 px-6 bg-white">
+        <div class="max-w-screen-md mx-auto text-center">
+            <h2 class="text-2xl font-bold text-gray-900 mb-8 md:text-3xl">
+                "열심히 팔아도<br>남는 게 없으신가요?"
+            </h2>
+            
+            <div class="grid md:grid-cols-3 gap-8 mt-10">
+                <div class="p-6 bg-gray-50 rounded-xl">
+                    <div class="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4 text-2xl">💸</div>
+                    <h3 class="text-lg font-bold mb-2">높은 수수료</h3>
+                    <p class="text-gray-600 text-sm">판매할 때마다 떼어가는<br>플랫폼 수수료와 광고비</p>
+                </div>
+                <div class="p-6 bg-gray-50 rounded-xl">
+                    <div class="w-12 h-12 bg-gray-200 rounded-full flex items-center justify-center mx-auto mb-4 text-2xl">👥</div>
+                    <h3 class="text-lg font-bold mb-2">사라지는 고객</h3>
+                    <p class="text-gray-600 text-sm">우리 가게 단골인데<br>고객 정보는 플랫폼이 소유</p>
+                </div>
+                <div class="p-6 bg-gray-50 rounded-xl">
+                    <div class="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-4 text-2xl">⚔️</div>
+                    <h3 class="text-lg font-bold mb-2">최저가 경쟁</h3>
+                    <p class="text-gray-600 text-sm">옆 가게와 가격만 비교당하는<br>피 말리는 전쟁터</p>
+                </div>
+            </div>
+        </div>
+    </section>
 
-  <!-- Demo Section -->
-  <section class="landing-section demo-section" id="demo-section">
-    <h2 class="section-title">실제 화면 미리보기</h2>
-    <div class="demo-preview">
-      <div class="demo-placeholder">
-        📱
-      </div>
-    </div>
-    <button class="cta-btn cta-primary" onclick="location.href='01_Loading.html'">
-      라이브 데모 체험하기
-    </button>
-  </section>
+    <!-- 3. 솔루션 (Solution) -->
+    <section id="features" class="py-16 px-6 bg-slate-900 text-white">
+        <div class="max-w-screen-lg mx-auto">
+            <div class="text-center mb-12">
+                <h2 class="text-2xl font-bold md:text-3xl mb-4">이제 <span class="text-brand-400">사장님의 브랜드</span>를<br>직접 키우실 때입니다</h2>
+                <p class="text-slate-300">D2C Builder가 기술적인 모든 것을 해결해드립니다.</p>
+            </div>
 
-  <!-- How It Works Section -->
-  <section class="landing-section" style="background: #F8F9FA;">
-    <h2 class="section-title">어떻게 시작하나요?</h2>
-    <div class="features-grid">
-      <div class="feature-card">
-        <div class="feature-icon" style="background: #6C757D;">1️⃣</div>
-        <h3 class="feature-title">회원가입</h3>
-        <p class="feature-desc">
-          간단한 정보 입력으로<br>
-          30초 만에 가입 완료
-        </p>
-      </div>
-      
-      <div class="feature-card">
-        <div class="feature-icon" style="background: #6C757D;">2️⃣</div>
-        <h3 class="feature-title">메뉴 등록</h3>
-        <p class="feature-desc">
-          음식 사진과 가격을<br>
-          쉽게 등록하세요
-        </p>
-      </div>
-      
-      <div class="feature-card">
-        <div class="feature-icon" style="background: #6C757D;">3️⃣</div>
-        <h3 class="feature-title">도메인 연결</h3>
-        <p class="feature-desc">
-          나만의 웹사이트 주소로<br>
-          고객에게 공유하세요
-        </p>
-      </div>
-      
-      <div class="feature-card">
-        <div class="feature-icon" style="background: #28A745;">✓</div>
-        <h3 class="feature-title">주문 받기 시작!</h3>
-        <p class="feature-desc">
-          실시간으로 주문을 받고<br>
-          매출을 올리세요
-        </p>
-      </div>
-    </div>
-  </section>
+            <div class="space-y-8 md:space-y-0 md:grid md:grid-cols-3 md:gap-8">
+                <!-- Feature 1 -->
+                <div class="flex flex-col items-center text-center">
+                    <div class="flex items-center justify-center w-16 h-16 rounded-full bg-brand-600 mb-4 shadow-[0_0_20px_rgba(37,99,235,0.5)]">
+                        <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    </div>
+                    <h3 class="text-xl font-bold mb-2">수수료 0%<br>순수익 극대화</h3>
+                    <p class="text-slate-400 text-sm">판매 수수료가 없습니다.<br>결제 수수료(PG)만 내고 수익은 다 가져가세요.</p>
+                </div>
+                
+                <!-- Feature 2 -->
+                <div class="flex flex-col items-center text-center">
+                    <div class="flex items-center justify-center w-16 h-16 rounded-full bg-brand-600 mb-4 shadow-[0_0_20px_rgba(37,99,235,0.5)]">
+                        <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+                    </div>
+                    <h3 class="text-xl font-bold mb-2">단골 고객<br>데이터 자산화</h3>
+                    <p class="text-slate-400 text-sm">회원가입한 고객에게 직접<br>문자, 카톡을 보내 재구매를 만드세요.</p>
+                </div>
 
-  <!-- CTA Section -->
-  <section class="landing-section" style="background: linear-gradient(135deg, #FF6B35 0%, #FF8C42 100%); color: white; text-align: center;">
-    <h2 class="section-title" style="color: white; font-size: 28px; margin-bottom: 16px;">
-      지금 바로 시작하세요
-    </h2>
-    <p style="font-size: 16px; opacity: 0.95; margin-bottom: 32px; max-width: 320px; margin-left: auto; margin-right: auto;">
-      첫 달 무료 체험!<br>
-      신용카드 등록 없이 시작 가능
-    </p>
-    <button class="cta-btn cta-primary" onclick="alert('베타 테스터 신청이 접수되었습니다!\n\n담당자가 24시간 내에 연락드리겠습니다.\n\n감사합니다 😊')">
-      무료로 시작하기
-    </button>
-  </section>
+                <!-- Feature 3 -->
+                <div class="flex flex-col items-center text-center">
+                    <div class="flex items-center justify-center w-16 h-16 rounded-full bg-brand-600 mb-4 shadow-[0_0_20px_rgba(37,99,235,0.5)]">
+                        <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"></path></svg>
+                    </div>
+                    <h3 class="text-xl font-bold mb-2">코딩 없이<br>간편한 관리</h3>
+                    <p class="text-slate-400 text-sm">블로그 글 쓰듯 상품을 올리고<br>주문을 확인하세요. 스마트폰으로도 가능!</p>
+                </div>
+            </div>
+        </div>
+    </section>
 
-  <!-- Footer -->
-  <footer class="footer">
-    <div class="footer-logo">🍔 D2C Builder</div>
-    <div class="footer-links">
-      <a href="#" class="footer-link">서비스 소개</a>
-      <a href="#" class="footer-link">가격</a>
-      <a href="#" class="footer-link">고객센터</a>
-      <a href="#" class="footer-link">이용약관</a>
-      <a href="#" class="footer-link">개인정보처리방침</a>
-    </div>
-    <div class="footer-copyright">
-      © 2024 D2C Builder. All rights reserved.<br>
-      Made with ❤️ for independent restaurants
-    </div>
-  </footer>
+    <!-- 4. 미리보기 (Social Proof / Demo) -->
+    <section class="py-16 px-6 bg-brand-50">
+        <div class="max-w-screen-lg mx-auto text-center">
+            <h2 class="text-2xl font-bold text-gray-900 mb-4">"이렇게 만들어드립니다"</h2>
+            <p class="text-gray-600 mb-10">업종에 딱 맞는 깔끔하고 세련된 디자인</p>
 
-  <script>
-    function scrollToDemo() {
-      document.getElementById('demo-section').scrollIntoView({ 
-        behavior: 'smooth' 
-      });
-    }
-  </script>
+            <!-- Mockup Slider (Simple CSS Grid for demo) -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
+                <div class="bg-white p-2 rounded-2xl shadow-xl transform md:rotate-2 hover:rotate-0 transition duration-500">
+                    <div class="aspect-[9/16] bg-gray-200 rounded-xl overflow-hidden relative">
+                        <!-- Placeholder for App Screenshot -->
+                        <div class="absolute inset-0 flex items-center justify-center bg-gray-100 text-gray-400">
+                            <span class="text-lg">식당/카페 예시화면</span>
+                        </div>
+                    </div>
+                    <p class="mt-4 font-bold text-gray-700">요식업 (배달/포장)</p>
+                </div>
+                <div class="bg-white p-2 rounded-2xl shadow-xl transform md:-rotate-2 hover:rotate-0 transition duration-500 mt-6 md:mt-0">
+                    <div class="aspect-[9/16] bg-gray-200 rounded-xl overflow-hidden relative">
+                        <!-- Placeholder for App Screenshot -->
+                        <div class="absolute inset-0 flex items-center justify-center bg-gray-100 text-gray-400">
+                            <span class="text-lg">쇼핑몰 예시화면</span>
+                        </div>
+                    </div>
+                    <p class="mt-4 font-bold text-gray-700">쇼핑몰 (의류/잡화)</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 5. 특별 제안 (Offer) -->
+    <section class="py-12 px-6 bg-red-50 border-y border-red-100">
+        <div class="max-w-screen-md mx-auto text-center">
+            <span class="inline-block px-3 py-1 bg-red-100 text-red-600 rounded-full text-xs font-bold mb-3">선착순 50명 한정 혜택</span>
+            <h2 class="text-xl md:text-2xl font-bold text-gray-900 mb-2">
+                지금 신청하시는 사장님께만 드립니다
+            </h2>
+            <div class="mt-6 flex flex-col md:flex-row justify-center gap-4 text-left md:text-center">
+                <div class="flex items-center gap-3 bg-white p-4 rounded-lg shadow-sm border border-red-100">
+                    <div class="w-8 h-8 rounded-full bg-red-100 text-red-600 flex items-center justify-center font-bold">1</div>
+                    <div>
+                        <p class="text-xs text-gray-500">초기 구축비</p>
+                        <p class="font-bold text-gray-900">100만원 → 0원</p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-3 bg-white p-4 rounded-lg shadow-sm border border-red-100">
+                    <div class="w-8 h-8 rounded-full bg-red-100 text-red-600 flex items-center justify-center font-bold">2</div>
+                    <div>
+                        <p class="text-xs text-gray-500">디자인 세팅</p>
+                        <p class="font-bold text-gray-900">전문가 무료 지원</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 6. 신청 폼 (Contact Form) -->
+    <section id="apply" class="py-16 px-6 bg-white">
+        <div class="max-w-screen-sm mx-auto">
+            <div class="text-center mb-10">
+                <h2 class="text-2xl font-bold text-gray-900 mb-2">무료 제작 상담 신청</h2>
+                <p class="text-gray-600 text-sm">정보를 남겨주시면 담당자가 24시간 이내에 연락드립니다.<br>부담 없이 상담만 받으셔도 됩니다.</p>
+            </div>
+
+            <form id="consultationForm" class="space-y-6 bg-white p-6 md:p-8 rounded-2xl border border-gray-200 shadow-lg">
+                <div>
+                    <label for="companyName" class="block mb-2 text-sm font-medium text-gray-900">업체명 (상호) <span class="text-red-500">*</span></label>
+                    <input type="text" id="companyName" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-brand-500 focus:border-brand-500 block w-full p-3" placeholder="예: 맛있는 떡볶이" required>
+                </div>
+                
+                <div>
+                    <label for="phone" class="block mb-2 text-sm font-medium text-gray-900">연락처 <span class="text-red-500">*</span></label>
+                    <input type="tel" id="phone" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-brand-500 focus:border-brand-500 block w-full p-3" placeholder="010-1234-5678 (알림톡 발송용)" required>
+                </div>
+
+                <div>
+                    <label for="category" class="block mb-2 text-sm font-medium text-gray-900">업종 <span class="text-red-500">*</span></label>
+                    <select id="category" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-brand-500 focus:border-brand-500 block w-full p-3" required>
+                        <option value="" disabled selected>선택해주세요</option>
+                        <option value="food">요식업 (식당/카페)</option>
+                        <option value="retail">도소매 (쇼핑몰)</option>
+                        <option value="service">서비스/예약</option>
+                        <option value="other">기타</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label for="currentUrl" class="block mb-2 text-sm font-medium text-gray-900">운영 중인 SNS/사이트 (선택)</label>
+                    <input type="url" id="currentUrl" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-brand-500 focus:border-brand-500 block w-full p-3" placeholder="인스타그램, 블로그, 배민 링크 등">
+                </div>
+
+                <div class="pt-4">
+                    <button type="submit" class="w-full text-white bg-brand-600 hover:bg-brand-700 focus:ring-4 focus:ring-brand-300 font-bold rounded-xl text-lg px-5 py-4 text-center transition shadow-lg">
+                        무료 제작 신청하기
+                    </button>
+                    <p class="mt-3 text-center text-xs text-gray-400">신청 시 개인정보 수집 및 이용에 동의하는 것으로 간주합니다.</p>
+                </div>
+            </form>
+        </div>
+    </section>
+
+    <!-- Sticky Mobile Button -->
+    <div class="fixed bottom-0 left-0 w-full p-4 bg-white border-t border-gray-100 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)] md:hidden z-40" id="stickyCta">
+        <a href="#apply" class="block w-full text-white bg-brand-600 hover:bg-brand-700 font-bold rounded-lg text-base px-5 py-3 text-center shadow-md">
+            무료 제작 신청하기
+        </a>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-gray-50 py-10 px-6 border-t border-gray-200">
+        <div class="max-w-screen-lg mx-auto text-center md:text-left">
+            <h3 class="text-lg font-bold text-gray-700 mb-2">D2C Builder</h3>
+            <p class="text-sm text-gray-500 mb-6">사장님의 성공을 돕는 든든한 파트너</p>
+            <div class="text-xs text-gray-400 space-y-1">
+                <p>Copyright © 2024 D2C Builder. All rights reserved.</p>
+                <p>문의: help@d2cbuilder.com</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Sticky Button Logic
+        // 스크롤이 신청 폼 근처에 도달하면 스티키 버튼을 숨겨서 중복을 방지합니다.
+        const stickyCta = document.getElementById('stickyCta');
+        const formSection = document.getElementById('apply');
+        
+        window.addEventListener('scroll', () => {
+            if (!stickyCta || !formSection) return;
+            
+            const formRect = formSection.getBoundingClientRect();
+            const windowHeight = window.innerHeight;
+            
+            // 폼이 화면에 절반 이상 보이면 스티키 버튼 숨김
+            if (formRect.top < windowHeight * 0.8) {
+                stickyCta.style.transform = 'translateY(100%)';
+                stickyCta.style.transition = 'transform 0.3s ease-in-out';
+            } else {
+                stickyCta.style.transform = 'translateY(0)';
+            }
+        });
+
+        // Form Submission Logic (Demo)
+        document.getElementById('consultationForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // 데이터 수집 시늉
+            const name = document.getElementById('companyName').value;
+            const phone = document.getElementById('phone').value;
+            
+            // 실제 백엔드 연동 전이라 알림으로 대체
+            if(confirm(`[${name}] 사장님, 신청하시겠습니까?\n입력하신 번호(${phone})로 안내 문자가 발송됩니다.`)) {
+                alert('신청이 완료되었습니다! \n담당자가 빠르게 연락드리겠습니다.');
+                this.reset();
+            }
+        });
+    </script>
 </body>
 </html>
