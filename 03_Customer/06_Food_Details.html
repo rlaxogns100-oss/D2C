@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>06 Food Details</title>
   <link rel="stylesheet" href="style.css">
+  <script src="config.js"></script>
 </head>
 <body>
   <div class="screen-label">메뉴 상세</div>
@@ -94,17 +95,15 @@
   
   <script>
     // baseUrl 처리 (로컬 파일 테스트용)
-    const baseUrl = window.location.protocol === 'file:' 
-      ? 'https://pizzaschool.maejang.com'
-      : '';
+    // config.js에서 가져옴
 
     let currentMenu = null;
     let quantity = 1;
     let selectedOption = null;
     let additionalPrice = 0;
 
-    // 🏪 이 매장의 Owner ID (04_Home.html과 동일해야 함)
-    const OWNER_ID = 11;
+    // 🏪 이 매장의 Owner ID (config.js에서 가져옴)
+    // const OWNER_ID = 11;
 
     // 페이지 로드 시 메뉴 정보 불러오기
     document.addEventListener('DOMContentLoaded', async () => {

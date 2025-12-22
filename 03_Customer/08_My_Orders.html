@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>주문 내역</title>
   <link rel="stylesheet" href="style.css">
+  <script src="config.js"></script>
 </head>
 <body>
   <div class="screen-label">주문 내역</div>
@@ -45,29 +46,31 @@
   </div>
 
   <style>
-    /* 주문 추적 스타일 */
+    /* 주문 추적 스타일 (담백한 버전) */
     .order-tracking {
       margin: 16px 0;
-      padding: 16px;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      border-radius: 12px;
-      color: white;
+      padding: 20px 16px;
+      background: #F9FAFB;
+      border-radius: 8px;
+      border: 1px solid #E5E7EB;
+      color: var(--text-dark);
     }
 
     .tracking-header {
       font-size: 14px;
       font-weight: 600;
-      margin-bottom: 16px;
+      margin-bottom: 20px;
       display: flex;
+      justify-content: space-between;
       align-items: center;
-      gap: 8px;
+      color: #374151;
     }
 
     .tracking-steps {
       display: flex;
       justify-content: space-between;
       position: relative;
-      margin-bottom: 8px;
+      margin-top: 12px;
     }
 
     .tracking-step {
@@ -77,47 +80,46 @@
       z-index: 2;
     }
 
-    .step-icon {
-      width: 40px;
-      height: 40px;
+    .step-dot {
+      width: 12px;
+      height: 12px;
       border-radius: 50%;
-      background: rgba(255, 255, 255, 0.3);
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      background: #E5E7EB;
       margin: 0 auto 8px;
-      font-size: 20px;
       transition: all 0.3s;
+      border: 2px solid #fff;
+      box-shadow: 0 0 0 1px #E5E7EB;
     }
 
-    .step-icon.active {
-      background: white;
-      color: #667eea;
-      box-shadow: 0 4px 12px rgba(255, 255, 255, 0.5);
+    .step-dot.active {
+      background: #FF6B35;
+      box-shadow: 0 0 0 1px #FF6B35;
+      transform: scale(1.2);
     }
 
-    .step-icon.completed {
-      background: #4CAF50;
-      color: white;
+    .step-dot.completed {
+      background: #FF6B35;
+      box-shadow: 0 0 0 1px #FF6B35;
     }
 
     .step-label {
-      font-size: 11px;
-      opacity: 0.8;
+      font-size: 12px;
+      color: #9CA3AF;
+      font-weight: 500;
     }
 
     .step-label.active {
-      opacity: 1;
-      font-weight: 600;
+      color: #111827;
+      font-weight: 700;
     }
 
     .tracking-line {
       position: absolute;
-      top: 20px;
-      left: 0;
-      right: 0;
+      top: 6px;
+      left: 10%;
+      right: 10%;
       height: 2px;
-      background: rgba(255, 255, 255, 0.3);
+      background: #E5E7EB;
       z-index: 1;
     }
 
@@ -126,54 +128,46 @@
       top: 0;
       left: 0;
       height: 100%;
-      background: white;
+      background: #FF6B35;
       transition: width 0.5s ease;
     }
 
     .status-badge {
       display: inline-block;
-      padding: 4px 12px;
-      border-radius: 12px;
+      padding: 4px 10px;
+      border-radius: 6px;
       font-size: 12px;
-      font-weight: 600;
-      margin-left: 8px;
+      font-weight: 500;
     }
 
     .status-ordered {
-      background: #FFF3E0;
-      color: #FF9800;
+      background: #F3F4F6;
+      color: #6B7280;
     }
 
     .status-cooking {
-      background: #E3F2FD;
-      color: #2196F3;
+      background: #E0F2FE;
+      color: #0369A1;
     }
 
     .status-delivering {
-      background: #F3E5F5;
-      color: #9C27B0;
+      background: #FEF3C7;
+      color: #D97706;
     }
 
     .status-delivered {
-      background: #E8F5E9;
-      color: #4CAF50;
+      background: #D1FAE5;
+      color: #059669;
     }
 
-    .status-rejected {
-      background: #FFEBEE;
-      color: #F44336;
-    }
-
-    .status-cancelled {
-      background: #F5F5F5;
-      color: #757575;
+    .status-rejected, .status-cancelled {
+      background: #FEE2E2;
+      color: #DC2626;
     }
   </style>
   
   <script>
-    const baseUrl = window.location.protocol === 'file:' 
-      ? 'https://pizzaschool.maejang.com'
-      : '';
+    // config.js 사용
 
     let allOrders = [];
 
@@ -303,10 +297,10 @@
     // 주문 추적 UI
     function renderOrderTracking(order) {
       const steps = [
-        { key: 'ORDERED', icon: '📝', label: '주문접수' },
-        { key: 'COOKING', icon: '👨‍🍳', label: '조리중' },
-        { key: 'DELIVERING', icon: '🚚', label: '배달중' },
-        { key: 'DELIVERED', icon: '✓', label: '완료' }
+        { key: 'ORDERED', label: '주문접수' },
+        { key: 'COOKING', label: '조리중' },
+        { key: 'DELIVERING', label: '배달중' },
+        { key: 'DELIVERED', label: '배달완료' }
       ];
 
       const currentIndex = steps.findIndex(s => s.key === order.condition);
@@ -315,13 +309,13 @@
       return `
         <div class="order-tracking">
           <div class="tracking-header">
-            🔔 주문 추적
+            <span>주문 진행상황</span>
             <span class="status-badge ${getStatusClass(order.condition)}">
               ${getOrderStatusText(order.condition)}
             </span>
           </div>
           
-          <div style="position: relative;">
+          <div style="position: relative; padding: 0 10px;">
             <div class="tracking-line">
               <div class="tracking-line-progress" style="width: ${progress}%"></div>
             </div>
@@ -329,9 +323,7 @@
             <div class="tracking-steps">
               ${steps.map((step, index) => `
                 <div class="tracking-step">
-                  <div class="step-icon ${index < currentIndex ? 'completed' : ''} ${index === currentIndex ? 'active' : ''}">
-                    ${step.icon}
-                  </div>
+                  <div class="step-dot ${index <= currentIndex ? 'completed' : ''} ${index === currentIndex ? 'active' : ''}"></div>
                   <div class="step-label ${index === currentIndex ? 'active' : ''}">
                     ${step.label}
                   </div>

@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>09 Address</title>
   <link rel="stylesheet" href="style.css">
+  <script src="config.js"></script>
 </head>
 <body>
   <div class="screen-label">주소 관리</div>
@@ -31,9 +32,7 @@
   
   <script>
     // baseUrl 처리 (로컬 파일 테스트용)
-    const baseUrl = window.location.protocol === 'file:' 
-      ? 'https://pizzaschool.maejang.com'
-      : '';
+    // config.js에서 가져옴
 
     // 🔐 로그인 만료 체크 및 자동 리다이렉트
     function checkAuthError(response) {
