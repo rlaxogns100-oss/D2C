@@ -56,6 +56,8 @@ public class SecurityConfig {
 
                         // 가게 정보 조회 (고객도 볼 수 있어야 함)
                         .requestMatchers("/api/v1/store/{storeId}").permitAll()
+                        .requestMatchers("/api/v1/stores/by-subdomain").permitAll()
+                        .requestMatchers("/api/v1/stores/check-subdomain").permitAll()
                         .requestMatchers("/api/v1/menu/read/**").permitAll()
 
                         // Role 기반 접근 제어 (JWT 적용 전에는 ownerId/userId를 요청으로 받아도 결국 서버에서 role 체크 필요)
