@@ -30,14 +30,16 @@ pizzaschool.maejang.com {
     }
 
     # [우선순위 2] 점주 페이지 (/admin)
-    
-    # /admin (슬래시 없음) 접속 시 /admin/ 으로 강제 리다이렉트
-    redir /admin /admin/
-
-    handle_path /admin/* {
+    handle /admin* {
+        # /admin → /admin/ 리다이렉트
+        @without_slash path /admin
+        redir @without_slash /admin/
+        
+        # /admin/* 처리
+        uri strip_prefix /admin
         root * /home/ubuntu/D2C/02_Owner
         file_server
-        try_files {path} {path}/ /00_My_Profile.html
+        try_files {path} /00_My_Profile.html
     }
 
     # [우선순위 3] 나머지 모든 요청 (고객용 정적 파일)
