@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>매장 매칭 관리</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- Header -->
+  <div class="header">
+    <div class="header-content">
+      <div class="logo">🏪 매장 매칭 관리</div>
+      <a href="index.html" class="btn btn-secondary btn-sm">← 대시보드</a>
+    </div>
+  </div>
+
+  <div class="container">
+    <!-- 매장 없는 OWNER 목록 -->
+    <div class="section">
+      <div class="section-header">
+        <h2 class="section-title">👥 매장 없는 OWNER 목록</h2>
+        <button class="btn btn-secondary btn-sm" onclick="loadUsersWithoutStore()">🔄 새로고침</button>
+      </div>
+      <table class="table">
+        <thead>
+          <tr>
+            <th>User ID</th>
+            <th>이메일</th>
+            <th>이름</th>
+            <th>전화번호</th>
+            <th>가입일</th>
+            <th>액션</th>
+          </tr>
+        </thead>
+        <tbody id="usersTable">
+          <tr>
+            <td colspan="6" class="empty-state">
+              <div class="empty-icon">📭</div>
+              <div>데이터를 불러오는 중...</div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- 전체 매장 목록 -->
+    <div class="section">
+      <div class="section-header">
+        <h2 class="section-title">🏪 전체 매장 목록</h2>
+        <button class="btn btn-secondary btn-sm" onclick="loadAllStores()">🔄 새로고침</button>
+      </div>
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Store ID</th>
+            <th>서브도메인</th>
+            <th>매장명</th>
+            <th>Owner</th>
+            <th>상태</th>
+            <th>액션</th>
+          </tr>
+        </thead>
+        <tbody id="storesTable">
+          <tr>
+            <td colspan="6" class="empty-state">
+              <div class="empty-icon">📭</div>
+              <div>데이터를 불러오는 중...</div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- 매장 생성 모달 -->
+  <div class="modal-overlay" id="createModal">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 class="modal-title">🏪 새 매장 생성</h3>
+      </div>
+      <form onsubmit="return createStore(event)">
+        <div class="modal-body">
+          <div class="form-group">
+            <label class="form-label">👤 점주 정보</label>
+            <div style="background: #F3F4F6; padding: 12px; border-radius: 8px; font-size: 14px;">
+              <div><strong>User ID:</strong> <span id="modalUserId"></span></div>
+              <div><strong>이메일:</strong> <span id="modalEmail"></span></div>
+              <div><strong>이름:</strong> <span id="modalName"></span></div>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="storeName">매장명 *</label>
+            <input type="text" id="storeName" class="form-input" placeholder="치킨킹" required>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="subdomain">서브도메인 *</label>
+            <div style="display: flex; gap: 8px; align-items: center;">
+              <input 
+                type="text" 
+                id="subdomain" 
+                class="form-input" 
+                placeholder="chickenking" 
+                pattern="[a-z0-9-]+"
+                style="flex: 1;"
+                required
+              >
+              <span style="color: #6B7280;">.maejang.com</span>
+              <button type="button" class="btn btn-secondary btn-sm" onclick="checkSubdomain()">중복확인</button>
+            </div>
+            <div class="form-hint" id="subdomainMsg">영문 소문자, 숫자, 하이픈(-)만 사용 가능</div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="address">주소 *</label>
+            <input type="text" id="address" class="form-input" placeholder="서울시 강남구 테헤란로 123" required>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="description">설명 (선택)</label>
+            <textarea id="description" class="form-input" rows="3" placeholder="매장 소개"></textarea>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" onclick="closeModal()">취소</button>
+          <button type="submit" class="btn btn-success">생성</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    const baseUrl = '';
+    const token = localStorage.getItem('accessToken');
+    let currentUserId = null;
+    let subdomainChecked = false;
+
+    // 매장 없는 유저 목록 로드
+    async function loadUsersWithoutStore() {
+      try {
+        const response = await fetch(`${baseUrl}/api/v1/admin/users/without-store`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+
+        if (!response.ok) throw new Error('Failed to load users');
+
+        const result = await response.json();
+        const users = result.data || [];
+
+        const tbody = document.getElementById('usersTable');
+        
+        if (users.length === 0) {
+          tbody.innerHTML = `
+            <tr>
+              <td colspan="6" class="empty-state">
+                <div class="empty-icon">✅</div>
+                <div>모든 OWNER에게 매장이 연결되어 있습니다!</div>
+              </td>
+            </tr>
+          `;
+          return;
+        }
+
+        tbody.innerHTML = users.map(user => `
+          <tr>
+            <td>${user.userId}</td>
+            <td>${user.email}</td>
+            <td>${user.name || '-'}</td>
+            <td>${user.phone || '-'}</td>
+            <td>${new Date(user.createdAt).toLocaleDateString()}</td>
+            <td>
+              <button class="btn btn-success btn-sm" onclick="openCreateModal(${user.userId}, '${user.email}', '${user.name || ''}')">
+                매장 생성하기
+              </button>
+            </td>
+          </tr>
+        `).join('');
+
+      } catch (error) {
+        console.error('유저 목록 로드 실패:', error);
+        document.getElementById('usersTable').innerHTML = `
+          <tr>
+            <td colspan="6" class="empty-state">
+              <div class="empty-icon">❌</div>
+              <div>데이터를 불러올 수 없습니다</div>
+            </td>
+          </tr>
+        `;
+      }
+    }
+
+    // 전체 매장 목록 로드
+    async function loadAllStores() {
+      try {
+        const response = await fetch(`${baseUrl}/api/v1/admin/stores/all`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+
+        if (!response.ok) throw new Error('Failed to load stores');
+
+        const result = await response.json();
+        const stores = result.data || [];
+
+        const tbody = document.getElementById('storesTable');
+        
+        if (stores.length === 0) {
+          tbody.innerHTML = `
+            <tr>
+              <td colspan="6" class="empty-state">
+                <div class="empty-icon">📭</div>
+                <div>등록된 매장이 없습니다</div>
+              </td>
+            </tr>
+          `;
+          return;
+        }
+
+        tbody.innerHTML = stores.map(store => `
+          <tr>
+            <td>${store.storeId}</td>
+            <td><a href="https://${store.subdomain}.maejang.com" target="_blank" style="color: #4F46E5; text-decoration: none;">${store.subdomain}.maejang.com</a></td>
+            <td>${store.storeName}</td>
+            <td>${store.ownerEmail}</td>
+            <td><span class="badge badge-active">운영중</span></td>
+            <td>
+              <button class="btn btn-secondary btn-sm" onclick="editStore(${store.storeId})">수정</button>
+            </td>
+          </tr>
+        `).join('');
+
+      } catch (error) {
+        console.error('매장 목록 로드 실패:', error);
+        document.getElementById('storesTable').innerHTML = `
+          <tr>
+            <td colspan="6" class="empty-state">
+              <div class="empty-icon">❌</div>
+              <div>데이터를 불러올 수 없습니다</div>
+            </td>
+          </tr>
+        `;
+      }
+    }
+
+    // 매장 생성 모달 열기
+    function openCreateModal(userId, email, name) {
+      currentUserId = userId;
+      subdomainChecked = false;
+      
+      document.getElementById('modalUserId').textContent = userId;
+      document.getElementById('modalEmail').textContent = email;
+      document.getElementById('modalName').textContent = name || '(없음)';
+      
+      document.getElementById('storeName').value = '';
+      document.getElementById('subdomain').value = '';
+      document.getElementById('address').value = '';
+      document.getElementById('description').value = '';
+      document.getElementById('subdomainMsg').textContent = '영문 소문자, 숫자, 하이픈(-)만 사용 가능';
+      document.getElementById('subdomainMsg').className = 'form-hint';
+      
+      document.getElementById('createModal').classList.add('active');
+    }
+
+    // 모달 닫기
+    function closeModal() {
+      document.getElementById('createModal').classList.remove('active');
+    }
+
+    // 서브도메인 중복 확인
+    async function checkSubdomain() {
+      const subdomain = document.getElementById('subdomain').value.trim().toLowerCase();
+      const msgEl = document.getElementById('subdomainMsg');
+      
+      if (!subdomain) {
+        msgEl.textContent = '서브도메인을 입력하세요';
+        msgEl.className = 'form-hint form-error';
+        return;
+      }
+
+      if (!/^[a-z0-9-]+$/.test(subdomain)) {
+        msgEl.textContent = '영문 소문자, 숫자, 하이픈(-)만 사용 가능합니다';
+        msgEl.className = 'form-hint form-error';
+        return;
+      }
+
+      if (subdomain.length < 3 || subdomain.length > 20) {
+        msgEl.textContent = '3~20자 사이로 입력해주세요';
+        msgEl.className = 'form-hint form-error';
+        return;
+      }
+
+      // 예약어 체크
+      const reserved = ['www', 'admin', 'api', 'mail', 'ftp', 'app', 'dev', 'test', 'db', 'cdn'];
+      if (reserved.includes(subdomain)) {
+        msgEl.textContent = '사용할 수 없는 도메인입니다 (예약어)';
+        msgEl.className = 'form-hint form-error';
+        return;
+      }
+
+      try {
+        const response = await fetch(`${baseUrl}/api/v1/store/check-subdomain?subdomain=${subdomain}`);
+        const result = await response.json();
+
+        if (result.data === true) {
+          msgEl.textContent = '✓ 사용 가능한 도메인입니다!';
+          msgEl.className = 'form-hint form-success';
+          subdomainChecked = true;
+        } else {
+          msgEl.textContent = '이미 사용 중인 도메인입니다';
+          msgEl.className = 'form-hint form-error';
+          subdomainChecked = false;
+        }
+      } catch (error) {
+        msgEl.textContent = '확인 중 오류가 발생했습니다';
+        msgEl.className = 'form-hint form-error';
+      }
+    }
+
+    // 매장 생성
+    async function createStore(event) {
+      event.preventDefault();
+
+      if (!subdomainChecked) {
+        alert('서브도메인 중복 확인을 해주세요');
+        return false;
+      }
+
+      const data = {
+        userId: currentUserId,
+        subdomain: document.getElementById('subdomain').value.trim().toLowerCase(),
+        storeName: document.getElementById('storeName').value.trim(),
+        address: document.getElementById('address').value.trim(),
+        description: document.getElementById('description').value.trim()
+      };
+
+      try {
+        const response = await fetch(`${baseUrl}/api/v1/admin/store/create`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(data)
+        });
+
+        if (!response.ok) throw new Error('Failed to create store');
+
+        const result = await response.json();
+        
+        alert(`✅ 매장이 생성되었습니다!\n\n매장 주소: https://${data.subdomain}.maejang.com`);
+        
+        closeModal();
+        loadUsersWithoutStore();
+        loadAllStores();
+
+      } catch (error) {
+        console.error('매장 생성 실패:', error);
+        alert('매장 생성에 실패했습니다: ' + error.message);
+      }
+
+      return false;
+    }
+
+    // 페이지 로드 시
+    document.addEventListener('DOMContentLoaded', () => {
+      loadUsersWithoutStore();
+      loadAllStores();
+    });
+
+    // 모달 외부 클릭 시 닫기
+    document.getElementById('createModal').addEventListener('click', (e) => {
+      if (e.target.id === 'createModal') {
+        closeModal();
+      }
+    });
+  </script>
+</body>
+</html>
+

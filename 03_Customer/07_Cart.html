@@ -103,6 +103,9 @@
     
     // 가게 정보 불러오기
     async function loadStoreInfo() {
+      // config.js의 매장 정보 로드 대기
+      await window.STORE_CONFIG_LOADED;
+      
       try {
         const response = await fetch(`${baseUrl}/api/v1/store/${STORE_ID}`);
         const result = await response.json();

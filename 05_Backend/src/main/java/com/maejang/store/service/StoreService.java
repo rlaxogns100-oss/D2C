@@ -31,6 +31,7 @@ public class StoreService {
         Store store = Store.builder()
                 .owner(owner)
                 .storeName(req.storeName())
+                .subdomain(req.subdomain()) // 서브도메인 추가
                 .address(req.address())
                 .description(req.description())
                 .picture(req.picture())
@@ -70,6 +71,17 @@ public class StoreService {
     public Store readById(Long storeId) {
         return storeRepository.findById(storeId)
                 .orElseThrow(() -> new CustomException(ErrorCode.STORE_NOT_FOUND));
+    }
+
+    // 서브도메인으로 매장 조회
+    public Store findBySubdomain(String subdomain) {
+        return storeRepository.findBySubdomain(subdomain)
+                .orElseThrow(() -> new CustomException(ErrorCode.STORE_NOT_FOUND));
+    }
+
+    // 서브도메인 중복 확인
+    public boolean existsBySubdomain(String subdomain) {
+        return storeRepository.existsBySubdomain(subdomain);
     }
 }
 

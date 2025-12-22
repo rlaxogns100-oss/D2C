@@ -1,8 +1,7 @@
 /**
  * 🏪 서브도메인별 매장 설정 (관리자용)
  * 
- * 각 서브도메인마다 다른 OWNER_ID와 STORE_ID를 자동으로 매핑합니다.
- * 03_Customer/config.js와 동일한 설정을 사용합니다.
+ * 고객용 config.js와 동일한 로직입니다.
  */
 
 // 서브도메인 감지
@@ -14,47 +13,70 @@ const baseUrl = window.location.protocol === 'file:'
   ? 'https://pizzaschool.maejang.com'
   : '';
 
-// 서브도메인별 설정 매핑
-const SUBDOMAIN_CONFIG = {
-  'pizzaschool': {
-    OWNER_ID: 11,
-    STORE_ID: 11,
-    STORE_NAME: 'Pizza School',
-    DESCRIPTION: '신선한 피자를 만나보세요'
-  },
-  '7room': {
-    OWNER_ID: 2,  // rlaxogns90@snu.ac.kr 유저의 ID (DB 삽입 후 실제 ID로 변경 필요)
-    STORE_ID: 2,  // 7room 매장의 ID (DB 삽입 후 실제 ID로 변경 필요)
-    STORE_NAME: '세븐룸',
-    DESCRIPTION: '맛있는 음식을 만나보세요'
-  },
-  // 기타 서브도메인 (localhost, 127.0.0.1 등) - 기본값으로 pizzaschool 사용
-  'localhost': {
-    OWNER_ID: 11,
-    STORE_ID: 11,
-    STORE_NAME: 'Pizza School (Dev)',
-    DESCRIPTION: '개발 환경'
-  },
-  '127': {  // 127.0.0.1의 경우
-    OWNER_ID: 11,
-    STORE_ID: 11,
-    STORE_NAME: 'Pizza School (Dev)',
-    DESCRIPTION: '개발 환경'
+// 전역 변수
+let OWNER_ID = null;
+let STORE_ID = null;
+let STORE_NAME = null;
+let STORE_INFO = null;
+
+// 매장 정보 로드 함수
+async function loadStoreConfig() {
+  try {
+    // localhost는 pizzaschool로 기본 처리
+    const targetSubdomain = (subdomain === 'localhost' || subdomain === '127') 
+      ? 'pizzaschool' 
+      : subdomain;
+    
+    console.log('🏪 [Admin Config] 서브도메인 감지:', targetSubdomain);
+    
+    const response = await fetch(`${baseUrl}/api/v1/store/by-subdomain?subdomain=${targetSubdomain}`);
+    
+    if (!response.ok) {
+      throw new Error('매장을 찾을 수 없습니다.');
+    }
+    
+    const result = await response.json();
+    
+    if (!result.success || !result.data) {
+      throw new Error('매장 정보가 없습니다.');
+    }
+    
+    STORE_INFO = result.data;
+    OWNER_ID = STORE_INFO.userId;
+    STORE_ID = STORE_INFO.storeId;
+    STORE_NAME = STORE_INFO.storeName;
+    
+    console.log('✅ [Admin Config] 매장 정보 로드 완료');
+    console.log('   - OWNER_ID:', OWNER_ID);
+    console.log('   - STORE_ID:', STORE_ID);
+    console.log('   - STORE_NAME:', STORE_NAME);
+    
+    return STORE_INFO;
+    
+  } catch (error) {
+    console.error('❌ [Admin Config] 매장 정보 로드 실패:', error);
+    
+    // 점주 페이지에서는 다른 메시지 표시
+    document.body.innerHTML = `
+      <div style="display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 24px; text-align: center; background: #f8f9fa;">
+        <div style="max-width: 400px;">
+          <div style="font-size: 64px; margin-bottom: 24px;">🏪</div>
+          <h1 style="font-size: 28px; font-weight: 700; margin-bottom: 12px; color: #1a1d26;">매장을 찾을 수 없습니다</h1>
+          <p style="color: #6b7280; font-size: 16px; line-height: 1.6; margin-bottom: 32px;">
+            매장 정보가 설정되지 않았습니다.<br>
+            관리자에게 문의하세요.
+          </p>
+          <a href="/" style="display: inline-block; padding: 12px 24px; background: #FF6B35; color: white; text-decoration: none; border-radius: 8px; font-weight: 600;">
+            돌아가기 →
+          </a>
+        </div>
+      </div>
+    `;
+    
+    throw error;
   }
-};
+}
 
-// 현재 서브도메인의 설정 가져오기 (없으면 pizzaschool 기본값)
-const currentConfig = SUBDOMAIN_CONFIG[subdomain] || SUBDOMAIN_CONFIG['pizzaschool'];
-
-// 전역 변수로 export (기존 코드에서 사용 가능하도록)
-const OWNER_ID = currentConfig.OWNER_ID;
-const STORE_ID = currentConfig.STORE_ID;
-const STORE_NAME = currentConfig.STORE_NAME;
-const STORE_DESCRIPTION = currentConfig.DESCRIPTION;
-
-console.log('🏪 [Admin Config] 현재 서브도메인:', subdomain);
-console.log('🏪 [Admin Config] OWNER_ID:', OWNER_ID);
-console.log('🏪 [Admin Config] STORE_ID:', STORE_ID);
-console.log('🏪 [Admin Config] STORE_NAME:', STORE_NAME);
-
+// 페이지 로드 시 자동 실행
+window.STORE_CONFIG_LOADED = loadStoreConfig();
 

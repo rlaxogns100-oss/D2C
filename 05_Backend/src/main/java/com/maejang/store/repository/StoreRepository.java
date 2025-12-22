@@ -9,6 +9,12 @@ public interface StoreRepository extends JpaRepository<Store, Long> {
     List<Store> findByOwnerId(Long ownerId);
     Optional<Store> findFirstByOwnerId(Long ownerId);
     boolean existsByOwnerId(Long ownerId);
+    
+    // 서브도메인으로 매장 조회
+    Optional<Store> findBySubdomain(String subdomain);
+    
+    // 서브도메인 중복 확인
+    boolean existsBySubdomain(String subdomain);
 }
 
 

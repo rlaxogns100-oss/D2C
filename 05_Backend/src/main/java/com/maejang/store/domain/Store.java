@@ -66,9 +66,12 @@ public class Store {
     @Column(name = "delivery_radius")
     private Double deliveryRadius; // 배달 반경 (km)
 
+    @Column(name = "subdomain", unique = true, length = 50)
+    private String subdomain; // 서브도메인 (예: pizzaschool)
+
     @Builder
     private Store(User owner, String storeName, String address, String description, String picture,
-                  LocalTime openTime, LocalTime closeTime, boolean open, Double latitude, Double longitude, Double deliveryRadius) {
+                  LocalTime openTime, LocalTime closeTime, boolean open, Double latitude, Double longitude, Double deliveryRadius, String subdomain) {
         this.owner = owner;
         this.storeName = storeName;
         this.address = address;
@@ -80,6 +83,7 @@ public class Store {
         this.latitude = latitude;
         this.longitude = longitude;
         this.deliveryRadius = deliveryRadius;
+        this.subdomain = subdomain;
     }
 
     public void setOpen(boolean open) {

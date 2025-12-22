@@ -72,6 +72,19 @@ public class StoreController {
     public ResponseEntity<JSONResponse<StoreResponse>> readById(@PathVariable Long storeId) {
         return ResponseEntity.ok(JSONResponse.success(StoreResponse.from(storeService.readById(storeId))));
     }
+
+    @Operation(summary = "가게 조회 (subdomain)", description = "서브도메인으로 가게 정보를 조회합니다.")
+    @GetMapping("/by-subdomain")
+    public ResponseEntity<JSONResponse<StoreResponse>> readBySubdomain(@RequestParam String subdomain) {
+        return ResponseEntity.ok(JSONResponse.success(StoreResponse.from(storeService.findBySubdomain(subdomain))));
+    }
+
+    @Operation(summary = "서브도메인 중복 확인", description = "서브도메인 사용 가능 여부를 확인합니다.")
+    @GetMapping("/check-subdomain")
+    public ResponseEntity<JSONResponse<Boolean>> checkSubdomain(@RequestParam String subdomain) {
+        boolean exists = storeService.existsBySubdomain(subdomain);
+        return ResponseEntity.ok(JSONResponse.success(!exists)); // 사용 가능하면 true
+    }
 }
 
 

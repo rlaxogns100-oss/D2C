@@ -124,6 +124,9 @@
 
     // 페이지 로드 시 메뉴 목록 불러오기
     document.addEventListener('DOMContentLoaded', async () => {
+      // config.js의 매장 정보 로드 대기
+      await window.STORE_CONFIG_LOADED;
+      
       console.log('[Customer Home] Page loaded, fetching menus...');
       console.log('[Customer Home] Store Owner ID:', OWNER_ID);
       
