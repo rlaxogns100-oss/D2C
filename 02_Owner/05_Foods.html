@@ -409,7 +409,7 @@
       }
 
       try {
-        const response = await fetch(`${baseUrl}/api/v1/menu/delete?menuId=${menuId}`, {
+        const response = await fetch(`${baseUrl}/api/v1/menu/delete/${menuId}`, {
           method: 'DELETE',
           credentials: 'include',
           headers: {
