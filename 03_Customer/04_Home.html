@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>04 Home</title>
   <link rel="stylesheet" href="style.css">
+  <script src="config.js"></script>
 </head>
 <body>
   <div class="screen-label">홈</div>
@@ -111,18 +112,15 @@
   </div>
   
   <script>
-    // baseUrl 처리 (로컬 파일 테스트용)
-    const baseUrl = window.location.protocol === 'file:' 
-      ? 'https://pizzaschool.maejang.com'
-      : '';
+    // ⚠️ config.js에서 baseUrl, OWNER_ID가 자동으로 설정됩니다
+    // 기존 코드 호환성을 위해 아래 코드는 주석 처리 (삭제하지 마세요!)
+    // const baseUrl = window.location.protocol === 'file:' 
+    //   ? 'https://pizzaschool.maejang.com'
+    //   : '';
+    // const OWNER_ID = 11;
 
     let allMenus = [];  // 전체 메뉴 저장
     let currentCategory = '전체';
-    
-    // 🏪 이 매장의 Owner ID (서브도메인별로 다르게 설정)
-    // pizzaschool.maejang.com → OWNER_ID = 11
-    // TODO: 나중에 서브도메인에 따라 자동으로 매칭
-    const OWNER_ID = 11;
 
     // 페이지 로드 시 메뉴 목록 불러오기
     document.addEventListener('DOMContentLoaded', async () => {

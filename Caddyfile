@@ -48,3 +48,43 @@ pizzaschool.maejang.com {
         output file /var/log/caddy/pizzaschool.access.log
     }
 }
+
+# 3. 세븐룸 매장 (7room.maejang.com)
+7room.maejang.com {
+    
+    # [우선순위 1] 백엔드 API (pizzaschool과 동일한 백엔드 사용)
+    handle /api/* {
+        reverse_proxy localhost:8080
+    }
+
+    # [우선순위 2] 관리자 페이지
+    
+    # /admin (슬래시 없음) 접속 시 /admin/ 으로 강제 리다이렉트 (브라우저 경로 문제 해결)
+    redir /admin /admin/
+
+    handle_path /admin/* {
+        root * /home/ubuntu/D2C/02_Owner
+        file_server
+        
+        # 루트(/)나 index.html 요청 시 강제로 01_Loading.html로 변경
+        rewrite / /01_Loading.html
+        rewrite /index.html /01_Loading.html
+        
+        try_files {path} {path}/ /01_Loading.html
+    }
+
+    # [우선순위 3] 나머지 모든 요청 (고객용 정적 파일)
+    handle {
+        root * /home/ubuntu/D2C/03_Customer
+        file_server
+        
+        # 🔥 핵심 수정: 루트(/) 접속 시 무조건 01_Loading.html로 내부 변경
+        rewrite / /01_Loading.html
+        
+        try_files {path} {path}/ /01_Loading.html
+    }
+
+    log {
+        output file /var/log/caddy/7room.access.log
+    }
+}

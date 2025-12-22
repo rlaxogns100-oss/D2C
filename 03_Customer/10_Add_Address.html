@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>10 Add Address</title>
   <link rel="stylesheet" href="style.css">
+  <script src="config.js"></script>
   <!-- 카카오 맵 API -->
   <script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=18d5884d5326027cfa1a256d516a78ec&libraries=services"></script>
   <!-- 카카오 주소 검색 API -->
@@ -110,16 +111,17 @@
   </div>
   
   <script>
-    // baseUrl 처리 (로컬 파일 테스트용)
-    const baseUrl = window.location.protocol === 'file:' 
-      ? 'https://pizzaschool.maejang.com'
-      : '';
+    // ⚠️ config.js에서 baseUrl, STORE_ID가 자동으로 설정됩니다
+    // 기존 코드 호환성을 위해 아래 코드는 주석 처리 (삭제하지 마세요!)
+    // const baseUrl = window.location.protocol === 'file:' 
+    //   ? 'https://pizzaschool.maejang.com'
+    //   : '';
+    // const STORE_ID = 11; // user_id=11의 store_id
 
     // 🗺️ 카카오 맵 & 마커
     let map;
     let storeMarker; // 가게 위치 마커 (빨강)
     let customerMarker; // 고객 주소 마커 (파랑)
-    const STORE_ID = 11; // user_id=11의 store_id
     let storeInfo = {
       lat: 37.5012743,
       lng: 127.0396597,
