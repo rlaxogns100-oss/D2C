@@ -59,8 +59,15 @@ public class MenuService {
     }
 
     @Transactional
-    public void delete(Long menuId) {
-        menuRepository.deleteById(menuId);
+    public void delete(Long ownerId, Long menuId) {
+        Menu menu = menuRepository.findById(menuId)
+                .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND));
+
+        if (!menu.getOwner().getId().equals(ownerId)) {
+            throw new CustomException(ErrorCode.FORBIDDEN);
+        }
+
+        menu.delete();
     }
 }
 

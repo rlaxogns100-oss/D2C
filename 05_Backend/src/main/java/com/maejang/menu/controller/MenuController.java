@@ -62,8 +62,11 @@ public class MenuController {
 
     @Operation(summary = "메뉴 삭제", description = "메뉴를 삭제합니다.")
     @DeleteMapping("/delete/{menuId}")
-    public ResponseEntity<JSONResponse<Void>> delete(@PathVariable Long menuId) {
-        menuService.delete(menuId);
+    public ResponseEntity<JSONResponse<Void>> delete(
+            @AuthenticationPrincipal CustomUserDetails principal,
+            @PathVariable Long menuId
+    ) {
+        menuService.delete(principal.getUserId(), menuId);
         return ResponseEntity.ok(JSONResponse.success(null));
     }
 }

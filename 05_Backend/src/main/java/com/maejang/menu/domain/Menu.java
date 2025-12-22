@@ -14,11 +14,13 @@ import lombok.Builder;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.Where;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
 @Table(name = "menus")
+@Where(clause = "is_deleted = false")
 public class Menu {
 
     @Id
@@ -56,6 +58,9 @@ public class Menu {
     @Column(name = "category", length = 50)
     private String category;
 
+    @Column(name = "is_deleted")
+    private Boolean isDeleted = false;
+
     @Builder
     private Menu(User owner, String menuName, String picture, int price, String description, String option, String category) {
         this.owner = owner;
@@ -65,6 +70,7 @@ public class Menu {
         this.description = description;
         this.option = option;
         this.category = category;
+        this.isDeleted = false;
     }
 
     public void update(String menuName, String picture, int price, String description, String option, String category) {
@@ -83,5 +89,9 @@ public class Menu {
         if (description != null) this.description = description;
         if (option != null) this.option = option;
         if (category != null) this.category = category;
+    }
+
+    public void delete() {
+        this.isDeleted = true;
     }
 }
