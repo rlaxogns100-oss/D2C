@@ -42,7 +42,7 @@ async function loadStoreConfig() {
     }
     
     STORE_INFO = result.data;
-    OWNER_ID = STORE_INFO.userId;
+    OWNER_ID = STORE_INFO.ownerId;
     STORE_ID = STORE_INFO.storeId;
     STORE_NAME = STORE_INFO.storeName;
     
