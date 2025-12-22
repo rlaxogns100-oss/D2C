@@ -9,8 +9,8 @@ maejang.com {
     }
 }
 
-# 2. 와일드카드 서브도메인 (*.maejang.com)
-*.maejang.com {
+# 2. pizzaschool 서브도메인
+pizzaschool.maejang.com {
     
     # [우선순위 1] 백엔드 API
     handle /api/* {
@@ -48,6 +48,6 @@ maejang.com {
     }
 
     log {
-        output file /var/log/caddy/wildcard.access.log
+        output file /var/log/caddy/pizzaschool.access.log
     }
 }
