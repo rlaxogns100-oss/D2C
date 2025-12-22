@@ -1,8 +1,20 @@
-# 1. 메인 랜딩 페이지 (maejang.com)
+# 1. 메인 랜딩 페이지 + 통합 관리자 (maejang.com)
 maejang.com {
-    root * /home/ubuntu/D2C/01_Homepage
-    file_server
-    try_files {path} {path}/ /index.html
+    # /admin → 통합 관리자 페이지
+    redir /admin /admin/
+    
+    handle_path /admin/* {
+        root * /home/ubuntu/D2C/00_Admin
+        file_server
+        try_files {path} {path}/ /index.html
+    }
+    
+    # 나머지 → 홈페이지
+    handle {
+        root * /home/ubuntu/D2C/01_Homepage
+        file_server
+        try_files {path} {path}/ /index.html
+    }
     
     log {
         output file /var/log/caddy/maejang.access.log
@@ -17,23 +29,15 @@ pizzaschool.maejang.com {
         reverse_proxy localhost:8080
     }
 
-    # [우선순위 2] 관리자 페이지
+    # [우선순위 2] 점주 페이지 (/admin)
     
     # /admin (슬래시 없음) 접속 시 /admin/ 으로 강제 리다이렉트
     redir /admin /admin/
 
     handle_path /admin/* {
-        root * /home/ubuntu/D2C/00_Admin
-        file_server
-        try_files {path} {path}/ /index.html
-    }
-    
-    # /owner (점주 페이지)
-    handle_path /owner/* {
         root * /home/ubuntu/D2C/02_Owner
         file_server
-        rewrite / /01_Loading.html
-        try_files {path} {path}/ /01_Loading.html
+        try_files {path} {path}/ /00_My_Profile.html
     }
 
     # [우선순위 3] 나머지 모든 요청 (고객용 정적 파일)

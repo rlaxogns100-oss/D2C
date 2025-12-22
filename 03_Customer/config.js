@@ -30,7 +30,7 @@ async function loadStoreConfig() {
     
     console.log('🏪 [Config] 서브도메인 감지:', targetSubdomain);
     
-    const response = await fetch(`${baseUrl}/api/v1/store/by-subdomain?subdomain=${targetSubdomain}`);
+    const response = await fetch(`${baseUrl}/api/v1/stores/by-subdomain?subdomain=${targetSubdomain}`);
     
     if (!response.ok) {
       throw new Error('매장을 찾을 수 없습니다.');
