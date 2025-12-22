@@ -70,11 +70,6 @@
   </div>
   
   <script>
-    // baseUrl 처리 (로컬 파일 테스트용)
-    const baseUrl = window.location.protocol === 'file:' 
-      ? 'https://pizzaschool.maejang.com'
-      : '';
-
     // 🔐 로그인 만료 체크 및 자동 리다이렉트
     function checkAuthError(response) {
       if (response.status === 401 || response.status === 403) {
