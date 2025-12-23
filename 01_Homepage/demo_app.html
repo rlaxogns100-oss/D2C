@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>05 Foods</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="screen-container">
+    <!-- Header -->
+    <div class="page-header">
+      <div class="page-title">내 메뉴 목록</div>
+      <div style="display: flex; gap: 12px; align-items: center;">
+        <a href="08_Add_Foods.html" class="see-details" style="font-size: 14px;">메뉴 추가</a>
+        <button onclick="openCategoryModal()" class="see-details" style="font-size: 14px; background: none; border: none; color: #FF6B35; cursor: pointer; padding: 0;">카테고리 수정</button>
+      </div>
+    </div>
+
+    <!-- Category Tabs -->
+    <div class="tabs-scroll" id="categoryTabs">
+      <!-- 동적으로 로드됨 -->
+    </div>
+
+    <div class="total-count" id="totalCount">총 0개</div>
+
+    <!-- 메뉴 리스트 (동적으로 채워짐) -->
+    <div id="menuList"></div>
+
+    <!-- 카테고리 수정 모달 -->
+    <div id="categoryModal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center;">
+      <div style="background: white; border-radius: 16px; width: 90%; max-width: 500px; max-height: 80vh; overflow-y: auto; padding: 24px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+          <h2 style="font-size: 20px; font-weight: 700; margin: 0;">카테고리 관리</h2>
+          <button onclick="closeCategoryModal()" style="background: none; border: none; font-size: 24px; cursor: pointer; color: #9CA3AF;">×</button>
+        </div>
+
+        <div style="margin-bottom: 20px;">
+          <label style="font-size: 14px; font-weight: 600; color: #374151; margin-bottom: 8px; display: block;">새 카테고리 추가</label>
+          <div style="display: flex; gap: 8px;">
+            <input type="text" id="newCategoryInput" placeholder="카테고리 이름" style="flex: 1; padding: 10px 12px; border: 1px solid #E5E7EB; border-radius: 8px; font-size: 14px;">
+            <button onclick="addCategory()" style="padding: 10px 20px; background: #FF6B35; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 14px; white-space: nowrap;">추가</button>
+          </div>
+        </div>
+
+        <div>
+          <label style="font-size: 14px; font-weight: 600; color: #374151; margin-bottom: 8px; display: block;">기존 카테고리</label>
+          <div id="categoryList">
+            <!-- 동적으로 로드됨 -->
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bottom Navigation -->
+    <div class="bottom-nav">
+      <div class="nav-item" onclick="location.href='04_Orders.html'">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M4 6h16M4 12h16M4 18h16" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <div class="nav-item active" onclick="location.href='05_Foods.html'">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>
+          <polyline points="9 22 9 12 15 12 15 22"/>
+        </svg>
+      </div>
+      <div class="nav-item" onclick="location.href='06_Profile.html'">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/>
+          <circle cx="12" cy="7" r="4"/>
+        </svg>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // baseUrl 처리 (로컬 파일 테스트용)
+    const baseUrl = window.location.protocol === 'file:' 
+      ? 'https://pizzaschool.maejang.com'
+      : '';
+
+    let allMenus = [];  // 전체 메뉴 저장
+    let currentCategory = '전체';
+
+    // 🔐 로그인 만료 체크 및 자동 리다이렉트
+    function checkAuthError(response) {
+      if (response.status === 401 || response.status === 403) {
+        alert('로그인이 만료되었습니다. 다시 로그인해주세요.');
+        localStorage.removeItem('accessToken');
+        location.href = '02_Login.html';
+        return true;
+      }
+      return false;
+    }
+
+    // 카테고리 초기화 (LocalStorage)
+    function initCategories() {
+      const saved = localStorage.getItem('menuCategories');
+      if (!saved) {
+        const defaultCategories = ['전체', '아침', '점심', '저녁'];
+        localStorage.setItem('menuCategories', JSON.stringify(defaultCategories));
+        return defaultCategories;
+      }
+      return JSON.parse(saved);
+    }
+
+    // 카테고리 가져오기
+    function getCategories() {
+      return JSON.parse(localStorage.getItem('menuCategories') || '["전체"]');
+    }
+
+    // 카테고리 저장
+    function saveCategories(categories) {
+      localStorage.setItem('menuCategories', JSON.stringify(categories));
+    }
+
+    // 탭 렌더링
+    function renderCategoryTabs() {
+      const categories = getCategories();
+      const tabsContainer = document.getElementById('categoryTabs');
+      tabsContainer.innerHTML = categories.map(cat => 
+        `<div class="tab-item ${cat === currentCategory ? 'active' : ''}" onclick="filterByCategory('${cat}')">${cat}</div>`
+      ).join('');
+    }
+
+    // 카테고리 모달 열기
+    function openCategoryModal() {
+      document.getElementById('categoryModal').style.display = 'flex';
+      renderCategoryListInModal();
+    }
+
+    // 카테고리 모달 닫기
+    function closeCategoryModal() {
+      document.getElementById('categoryModal').style.display = 'none';
+    }
+
+    // 모달 내 카테고리 리스트 렌더링
+    function renderCategoryListInModal() {
+      const categories = getCategories();
+      const listContainer = document.getElementById('categoryList');
+      listContainer.innerHTML = categories.map((cat, idx) => `
+        <div style="display: flex; align-items: center; gap: 8px; padding: 12px; border: 1px solid #E5E7EB; border-radius: 8px; margin-bottom: 8px;">
+          <input type="text" value="${cat}" id="cat-${idx}" ${cat === '전체' ? 'disabled' : ''} style="flex: 1; padding: 8px; border: 1px solid #E5E7EB; border-radius: 6px; font-size: 14px; ${cat === '전체' ? 'background: #F3F4F6;' : ''}">
+          ${cat !== '전체' ? `
+            <button onclick="renameCategory(${idx})" style="padding: 8px 12px; background: #3B82F6; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 13px;">변경</button>
+            <button onclick="deleteCategory(${idx})" style="padding: 8px 12px; background: #EF4444; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 13px;">삭제</button>
+          ` : '<span style="font-size: 12px; color: #9CA3AF;">(기본 카테고리)</span>'}
+        </div>
+      `).join('');
+    }
+
+    // 카테고리 추가
+    function addCategory() {
+      const input = document.getElementById('newCategoryInput');
+      const newCat = input.value.trim();
+      
+      if (!newCat) {
+        alert('카테고리 이름을 입력하세요.');
+        return;
+      }
+      
+      const categories = getCategories();
+      if (categories.includes(newCat)) {
+        alert('이미 존재하는 카테고리입니다.');
+        return;
+      }
+      
+      categories.push(newCat);
+      saveCategories(categories);
+      input.value = '';
+      renderCategoryListInModal();
+      renderCategoryTabs();
+    }
+
+    // 카테고리 이름 변경
+    function renameCategory(idx) {
+      const newName = document.getElementById(`cat-${idx}`).value.trim();
+      
+      if (!newName) {
+        alert('카테고리 이름을 입력하세요.');
+        return;
+      }
+      
+      const categories = getCategories();
+      const oldName = categories[idx];
+      
+      if (categories.includes(newName) && newName !== oldName) {
+        alert('이미 존재하는 카테고리입니다.');
+        return;
+      }
+      
+      categories[idx] = newName;
+      saveCategories(categories);
+      
+      // 현재 카테고리가 변경된 경우
+      if (currentCategory === oldName) {
+        currentCategory = newName;
+      }
+      
+      renderCategoryListInModal();
+      renderCategoryTabs();
+      alert('카테고리 이름이 변경되었습니다.');
+    }
+
+    // 카테고리 삭제
+    function deleteCategory(idx) {
+      const categories = getCategories();
+      const catName = categories[idx];
+      
+      if (!confirm(`"${catName}" 카테고리를 삭제하시겠습니까?`)) {
+        return;
+      }
+      
+      categories.splice(idx, 1);
+      saveCategories(categories);
+      
+      // 현재 선택된 카테고리가 삭제된 경우
+      if (currentCategory === catName) {
+        currentCategory = '전체';
+        filterByCategory('전체');
+      }
+      
+      renderCategoryListInModal();
+      renderCategoryTabs();
+    }
+
+    // 페이지 로드 시 메뉴 목록 불러오기
+    document.addEventListener('DOMContentLoaded', async () => {
+      // 카테고리 초기화 및 탭 렌더링
+      initCategories();
+      renderCategoryTabs();
+      console.log('[Menu List] Page loaded, fetching menus...');
+      
+      // URL 파라미터 확인 (데모 모드)
+      const urlParams = new URLSearchParams(window.location.search);
+      const isDemo = urlParams.get('demo') === 'true';
+      const demoOwnerId = urlParams.get('ownerId');
+
+      if (isDemo && demoOwnerId) {
+        // 데모 모드일 경우 로그인 체크 스킵 및 UI 조정
+        console.log('[Demo Mode] Owner ID:', demoOwnerId);
+        
+        // 메뉴 추가/수정 버튼 숨기기 (읽기 전용)
+        document.querySelectorAll('.see-details, .menu-dots').forEach(el => el.style.display = 'none');
+        
+        try {
+          const menuResponse = await fetch(`${baseUrl}/api/v1/menu/read?ownerId=${demoOwnerId}`);
+          
+          if (!menuResponse.ok) {
+             throw new Error('메뉴 목록을 가져올 수 없습니다.');
+          }
+
+          const menuData = await menuResponse.json();
+          console.log('[Menu List] Menus:', menuData);
+
+          if (menuData.success && menuData.data) {
+            allMenus = menuData.data;
+            filterByCategory(currentCategory);
+          }
+        } catch (error) {
+          console.error('[Menu List] Error:', error);
+          // 데모 데이터가 없을 경우를 대비한 더미 데이터 (혹시 모를 에러 방지)
+          // alert('메뉴 목록을 불러오는데 실패했습니다: ' + error.message);
+        }
+        return; // 데모 모드 종료
+      }
+
+      // JWT 토큰 확인 (일반 모드)
+      const token = localStorage.getItem('accessToken');
+      if (!token) {
+        alert('로그인이 필요합니다.');
+        location.href = '02_Login.html';
+        return;
+      }
+
+      try {
+        // 1. 내 정보 가져오기 (ownerId 필요)
+        const meResponse = await fetch(`${baseUrl}/api/v1/auth/me`, {
+          method: 'POST',
+          credentials: 'include',
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+
+        if (checkAuthError(meResponse)) return;
+
+        if (!meResponse.ok) {
+          throw new Error('사용자 정보를 가져올 수 없습니다.');
+        }
+
+        const meData = await meResponse.json();
+        console.log('[Menu List] User info:', meData);
+
+        const ownerId = meData.data.userId;
+
+        // 2. 메뉴 목록 가져오기
+        const menuResponse = await fetch(`${baseUrl}/api/v1/menu/read?ownerId=${ownerId}`, {
+          credentials: 'include',
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+
+        if (checkAuthError(menuResponse)) return;
+
+        if (!menuResponse.ok) {
+          throw new Error('메뉴 목록을 가져올 수 없습니다.');
+        }
+
+        const menuData = await menuResponse.json();
+        console.log('[Menu List] Menus:', menuData);
+
+        if (menuData.success && menuData.data) {
+          allMenus = menuData.data;  // 전체 메뉴 저장
+          filterByCategory(currentCategory);  // 현재 카테고리로 필터링
+        }
+
+      } catch (error) {
+        console.error('[Menu List] Error:', error);
+        alert('메뉴 목록을 불러오는데 실패했습니다: ' + error.message);
+      }
+    });
+
+    // 카테고리별 필터링
+    function filterByCategory(category) {
+      currentCategory = category;
+      
+      // 탭 active 상태 변경
+      document.querySelectorAll('.tab-item').forEach(tab => {
+        tab.classList.remove('active');
+        if (tab.textContent.trim() === category) {
+          tab.classList.add('active');
+        }
+      });
+      
+      // 필터링
+      const filtered = category === '전체' 
+        ? allMenus 
+        : allMenus.filter(menu => menu.category === category);
+      
+      renderMenuList(filtered);
+    }
+
+    // 메뉴 리스트 렌더링
+    function renderMenuList(menus) {
+      const menuList = document.getElementById('menuList');
+      const totalCount = document.getElementById('totalCount');
+
+      totalCount.textContent = `총 ${menus.length}개`;
+
+      if (menus.length === 0) {
+        menuList.innerHTML = `
+          <div style="text-align: center; padding: 60px 24px; color: var(--text-gray);">
+            <p style="font-size: 16px; margin-bottom: 12px;">등록된 메뉴가 없습니다</p>
+            <p style="font-size: 14px;">상단의 "추가" 버튼을 눌러 메뉴를 등록하세요</p>
+          </div>
+        `;
+        return;
+      }
+
+      menuList.innerHTML = menus.map(menu => {
+        const imgStyle = menu.picture 
+          ? `background-image: url('${menu.picture}'); background-size: cover; background-position: center;` 
+          : '';
+        
+        return `
+          <div class="food-item" onclick="viewMenuDetail(${menu.menuId})" style="position: relative;">
+            <div class="order-img" style="${imgStyle}"></div>
+            <div class="order-info">
+              <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                <div class="order-name">${menu.menuName}</div>
+                <!-- 데모 모드가 아닐 때만 노출하도록 CSS/JS로 제어하거나 여기서 체크 -->
+                <div class="menu-dots" onclick="toggleMenuDropdown(event, ${menu.menuId})" style="cursor: pointer; padding: 8px; position: relative;">•••</div>
+              </div>
+              
+              <div style="margin: 8px 0;">
+                <div style="font-size: 12px; color: var(--text-gray); line-height: 1.4;">
+                  ${menu.description || '설명 없음'}
+                </div>
+              </div>
+              
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-top: auto;">
+                <div style="font-size: 12px; color: var(--text-gray);">
+                  ${menu.option || '옵션 없음'}
+                </div>
+                <div style="text-align: right;">
+                  <div class="order-price" style="margin-bottom: 0;">${menu.price.toLocaleString()}원</div>
+                </div>
+              </div>
+            </div>
+            
+            <!-- 드롭다운 메뉴 -->
+            <div id="dropdown-${menu.menuId}" class="menu-dropdown" style="display: none; position: absolute; top: 60px; right: 16px; background: white; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.15); z-index: 100; min-width: 120px;">
+              <div onclick="editMenu(event, ${menu.menuId})" style="padding: 12px 16px; cursor: pointer; font-size: 14px; border-bottom: 1px solid #E5E7EB;">수정</div>
+              <div onclick="deleteMenuConfirm(event, ${menu.menuId})" style="padding: 12px 16px; cursor: pointer; font-size: 14px; color: #EF4444;">삭제</div>
+            </div>
+          </div>
+        `;
+      }).join('');
+      
+      // 데모 모드일 경우 메뉴 렌더링 후 점 3개 숨김 처리
+      const urlParams = new URLSearchParams(window.location.search);
+      if (urlParams.get('demo') === 'true') {
+        document.querySelectorAll('.menu-dots').forEach(el => el.style.display = 'none');
+      }
+    }
+
+    // 메뉴 디테일 보기
+    function viewMenuDetail(menuId) {
+      location.href = `07_Food_Details.html?menuId=${menuId}`;
+    }
+
+    // 드롭다운 토글
+    function toggleMenuDropdown(event, menuId) {
+      event.stopPropagation();
+      
+      // 다른 모든 드롭다운 닫기
+      document.querySelectorAll('.menu-dropdown').forEach(dropdown => {
+        if (dropdown.id !== `dropdown-${menuId}`) {
+          dropdown.style.display = 'none';
+        }
+      });
+      
+      // 현재 드롭다운 토글
+      const dropdown = document.getElementById(`dropdown-${menuId}`);
+      dropdown.style.display = dropdown.style.display === 'none' ? 'block' : 'none';
+    }
+
+    // 수정 페이지로 이동
+    function editMenu(event, menuId) {
+      event.stopPropagation();
+      location.href = `09_Edit_Food.html?menuId=${menuId}`;
+    }
+
+    // 삭제 확인
+    async function deleteMenuConfirm(event, menuId) {
+      event.stopPropagation();
+      
+      if (!confirm('정말로 이 메뉴를 삭제하시겠습니까?\n삭제된 메뉴는 복구할 수 없습니다.')) {
+        return;
+      }
+
+      const token = localStorage.getItem('accessToken');
+      if (!token) {
+        alert('로그인이 필요합니다.');
+        location.href = '02_Login.html';
+        return;
+      }
+
+      try {
+        const response = await fetch(`${baseUrl}/api/v1/menu/delete/${menuId}`, {
+          method: 'DELETE',
+          credentials: 'include',
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+
+        if (checkAuthError(response)) return;
+
+        const result = await response.json();
+
+        if (response.ok && result.success) {
+          alert('메뉴가 삭제되었습니다.');
+          location.reload();
+        } else {
+          throw new Error(result.message || '메뉴 삭제에 실패했습니다.');
+        }
+      } catch (error) {
+        console.error('[Menu Delete] Error:', error);
+        alert('메뉴 삭제 실패: ' + error.message);
+      }
+    }
+
+    // 드롭다운 외부 클릭 시 닫기
+    document.addEventListener('click', () => {
+      document.querySelectorAll('.menu-dropdown').forEach(dropdown => {
+        dropdown.style.display = 'none';
+      });
+    });
+  </script>
+</body>
+</html>
+
+
