@@ -232,7 +232,41 @@
       renderCategoryTabs();
       console.log('[Menu List] Page loaded, fetching menus...');
       
-      // JWT 토큰 확인
+      // URL 파라미터 확인 (데모 모드)
+      const urlParams = new URLSearchParams(window.location.search);
+      const isDemo = urlParams.get('demo') === 'true';
+      const demoOwnerId = urlParams.get('ownerId');
+
+      if (isDemo && demoOwnerId) {
+        // 데모 모드일 경우 로그인 체크 스킵 및 UI 조정
+        console.log('[Demo Mode] Owner ID:', demoOwnerId);
+        
+        // 메뉴 추가/수정 버튼 숨기기 (읽기 전용)
+        document.querySelectorAll('.see-details, .menu-dots').forEach(el => el.style.display = 'none');
+        
+        try {
+          const menuResponse = await fetch(`${baseUrl}/api/v1/menu/read?ownerId=${demoOwnerId}`);
+          
+          if (!menuResponse.ok) {
+             throw new Error('메뉴 목록을 가져올 수 없습니다.');
+          }
+
+          const menuData = await menuResponse.json();
+          console.log('[Menu List] Menus:', menuData);
+
+          if (menuData.success && menuData.data) {
+            allMenus = menuData.data;
+            filterByCategory(currentCategory);
+          }
+        } catch (error) {
+          console.error('[Menu List] Error:', error);
+          // 데모 데이터가 없을 경우를 대비한 더미 데이터 (혹시 모를 에러 방지)
+          // alert('메뉴 목록을 불러오는데 실패했습니다: ' + error.message);
+        }
+        return; // 데모 모드 종료
+      }
+
+      // JWT 토큰 확인 (일반 모드)
       const token = localStorage.getItem('accessToken');
       if (!token) {
         alert('로그인이 필요합니다.');
@@ -337,6 +371,7 @@
             <div class="order-info">
               <div style="display: flex; justify-content: space-between; align-items: flex-start;">
                 <div class="order-name">${menu.menuName}</div>
+                <!-- 데모 모드가 아닐 때만 노출하도록 CSS/JS로 제어하거나 여기서 체크 -->
                 <div class="menu-dots" onclick="toggleMenuDropdown(event, ${menu.menuId})" style="cursor: pointer; padding: 8px; position: relative;">•••</div>
               </div>
               
@@ -364,6 +399,12 @@
           </div>
         `;
       }).join('');
+      
+      // 데모 모드일 경우 메뉴 렌더링 후 점 3개 숨김 처리
+      const urlParams = new URLSearchParams(window.location.search);
+      if (urlParams.get('demo') === 'true') {
+        document.querySelectorAll('.menu-dots').forEach(el => el.style.display = 'none');
+      }
     }
 
     // 메뉴 디테일 보기

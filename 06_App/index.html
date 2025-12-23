@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>App Main</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="screen-label">앱 메인</div>
+  
+  <div class="container">
+    <!-- Header -->
+    <header class="app-header">
+      <div class="location-selector">
+        <span>서울 강남구 역삼동 ▾</span>
+      </div>
+      <div class="header-actions">
+        <!-- Search Icon -->
+        <svg class="header-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+        </svg>
+        <!-- Bell Icon -->
+        <svg class="header-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+        </svg>
+      </div>
+    </header>
+
+    <!-- Banner Slider -->
+    <div class="banner-slider">
+      <div class="banner-content">
+        <div>🎉 오픈 기념 이벤트</div>
+        <div class="banner-subtitle">첫 주문 시 5,000원 할인 쿠폰 증정!</div>
+      </div>
+    </div>
+
+    <!-- Categories -->
+    <section class="category-section">
+      <div class="category-grid">
+        <div class="category-item">
+          <div class="category-icon">🍗</div>
+          <span class="category-name">치킨</span>
+        </div>
+        <div class="category-item">
+          <div class="category-icon">🍕</div>
+          <span class="category-name">피자</span>
+        </div>
+        <div class="category-item">
+          <div class="category-icon">🍔</div>
+          <span class="category-name">버거</span>
+        </div>
+        <div class="category-item">
+          <div class="category-icon">🥘</div>
+          <span class="category-name">한식</span>
+        </div>
+        <div class="category-item">
+          <div class="category-icon">🍣</div>
+          <span class="category-name">일식</span>
+        </div>
+        <div class="category-item">
+          <div class="category-icon">🍜</div>
+          <span class="category-name">중식</span>
+        </div>
+        <div class="category-item">
+          <div class="category-icon">🥩</div>
+          <span class="category-name">족발</span>
+        </div>
+        <div class="category-item">
+          <div class="category-icon">🥪</div>
+          <span class="category-name">분식</span>
+        </div>
+        <div class="category-item">
+          <div class="category-icon">☕</div>
+          <span class="category-name">카페</span>
+        </div>
+        <div class="category-item">
+          <div class="category-icon">🥗</div>
+          <span class="category-name">샐러드</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Store List -->
+    <section class="store-section">
+      <h3 class="section-title">
+        우리 동네 맛집
+        <span style="font-size: 14px; font-weight: normal; color: var(--primary-orange);">전체보기 ></span>
+      </h3>
+      
+      <div class="store-list">
+        <!-- Store Card 1 -->
+        <div class="store-card" onclick="location.href='../03_Customer/04_Home.html'">
+          <div class="store-image" style="background-image: url('https://images.unsplash.com/photo-1513104890138-7c749659a591?auto=format&fit=crop&w=150&q=80'); background-size: cover; background-position: center;"></div>
+          <div class="store-info">
+            <div class="store-name">피자스쿨 서울대점</div>
+            <div class="store-meta">
+              <svg class="rating-star" width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+              </svg>
+              <span class="rating-score">4.8</span>
+              <span class="review-count">(1,240)</span>
+            </div>
+            <div class="store-details">
+              <div class="detail-item">
+                <span>배달 20-30분</span>
+              </div>
+              <div class="detail-item">
+                <span>배달팁 2,000원</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Store Card 2 -->
+        <div class="store-card">
+          <div class="store-image" style="background-image: url('https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=150&q=80'); background-size: cover; background-position: center;"></div>
+          <div class="store-info">
+            <div class="store-name">버거킹 역삼역점</div>
+            <div class="store-meta">
+              <svg class="rating-star" width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+              </svg>
+              <span class="rating-score">4.6</span>
+              <span class="review-count">(5,402)</span>
+            </div>
+            <div class="store-details">
+              <div class="detail-item">
+                <span>배달 30-45분</span>
+              </div>
+              <div class="detail-item">
+                <span>배달팁 0원</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Store Card 3 -->
+        <div class="store-card">
+          <div class="store-image" style="background-image: url('https://images.unsplash.com/photo-1626082927389-6cd097cdc6ec?auto=format&fit=crop&w=150&q=80'); background-size: cover; background-position: center;"></div>
+          <div class="store-info">
+            <div class="store-name">교촌치킨 강남1호점</div>
+            <div class="store-meta">
+              <svg class="rating-star" width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+              </svg>
+              <span class="rating-score">4.9</span>
+              <span class="review-count">(3,100)</span>
+            </div>
+            <div class="store-details">
+              <div class="detail-item">
+                <span>배달 40-50분</span>
+              </div>
+              <div class="detail-item">
+                <span>배달팁 3,000원</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Store Card 4 -->
+        <div class="store-card">
+          <div class="store-image" style="background-image: url('https://images.unsplash.com/photo-1553621042-f6e147245754?auto=format&fit=crop&w=150&q=80'); background-size: cover; background-position: center;"></div>
+          <div class="store-info">
+            <div class="store-name">스타벅스 강남R점</div>
+            <div class="store-meta">
+              <svg class="rating-star" width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+              </svg>
+              <span class="rating-score">4.9</span>
+              <span class="review-count">(8,231)</span>
+            </div>
+            <div class="store-details">
+              <div class="detail-item">
+                <span>배달 15-25분</span>
+              </div>
+              <div class="detail-item">
+                <span>배달팁 1,500원</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Bottom Navigation -->
+    <nav class="bottom-nav">
+      <a href="#" class="nav-item active">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>
+          <polyline points="9 22 9 12 15 12 15 22"/>
+        </svg>
+        홈
+      </a>
+      <a href="#" class="nav-item">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="11" cy="11" r="8"/>
+          <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+        </svg>
+        검색
+      </a>
+      <a href="#" class="nav-item">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/>
+          <line x1="3" y1="6" x2="21" y2="6"/>
+          <path d="M16 10a4 4 0 01-8 0"/>
+        </svg>
+        주문내역
+      </a>
+      <a href="#" class="nav-item">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/>
+          <circle cx="12" cy="7" r="4"/>
+        </svg>
+        마이
+      </a>
+    </nav>
+  </div>
+</body>
+</html>
+
