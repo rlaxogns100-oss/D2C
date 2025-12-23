@@ -326,7 +326,17 @@
             loadingSpinner.classList.remove('hidden');
 
             // 1. 구글 시트로 데이터 전송
-            fetch(SCRIPT_URL, { method: 'POST', body: new FormData(form) })
+            // FormData를 그대로 보내지 않고 URLSearchParams로 변환해서 보냅니다 (안정성 향상)
+            const formData = new FormData(form);
+            const data = new URLSearchParams();
+            for (const pair of formData.entries()) {
+                data.append(pair[0], pair[1]);
+            }
+
+            fetch(SCRIPT_URL, { 
+                method: 'POST', 
+                body: data 
+            })
                 .then(response => {
                     // 성공 시 알림
                     alert('신청이 완료되었습니다! \n담당자가 확인 후 빠르게 연락드리겠습니다.');
