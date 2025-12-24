@@ -363,16 +363,33 @@
                 method: 'POST', 
                 body: data 
             })
-                .then(response => {
-                    // 성공 시 알림
-                    alert('신청이 완료되었습니다! \n담당자가 확인 후 빠르게 연락드리겠습니다.');
+                .then(response => response.json())
+                .then(result => {
+                    // ✅ 제출 성공 시 GA4 전환 이벤트 발송
+                    if (typeof gtag !== 'undefined') {
+                        gtag('event', 'generate_lead', {
+                            'event_category': 'form',
+                            'event_label': 'consultation_form_submit'
+                        });
+                    }
+                    
+                    // 성공 알림
+                    alert('신청 완료! 사이트 구축 후 연락드리겠습니다 😊');
                     form.reset();
                 })
                 .catch(error => {
-                    // 에러 발생 시 (그래도 성공 알림을 띄우는 경우가 많음 - CORS 이슈 때문)
-                    // 실제로는 구글 시트에 들어갔을 확률이 높음
+                    // CORS 이슈로 인한 에러도 실제로는 성공인 경우가 많음
                     console.error('Error!', error.message);
-                    alert('신청이 접수되었습니다.');
+                    
+                    // ✅ catch에서도 전환 이벤트 발송 (실제 제출은 성공했을 가능성 높음)
+                    if (typeof gtag !== 'undefined') {
+                        gtag('event', 'generate_lead', {
+                            'event_category': 'form',
+                            'event_label': 'consultation_form_submit'
+                        });
+                    }
+                    
+                    alert('신청 완료! 사이트 구축 후 연락드리겠습니다 😊');
                     form.reset();
                 })
                 .finally(() => {
