@@ -107,6 +107,11 @@
 
     // 페이지 로드 시 메뉴 정보 불러오기
     document.addEventListener('DOMContentLoaded', async () => {
+      // 1. 설정 로드 대기
+      if (window.STORE_CONFIG_LOADED) {
+        await window.STORE_CONFIG_LOADED;
+      }
+      
       console.log('[Food Details] Page loaded');
       
       // URL에서 menuId 추출
