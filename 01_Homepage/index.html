@@ -197,80 +197,31 @@
     <script>
         // 3x3 그리드 생성 스크립트
         const gridContainer = document.querySelector('.grid.grid-cols-2');
-        const TOTAL_FRAMES = 9;
         
-        // 관리자 모드 확인 (?admin=true)
-        const urlParams = new URLSearchParams(window.location.search);
-        const isAdmin = urlParams.get('admin') === 'true';
-        
-        if(isAdmin) {
-            document.getElementById('adminHint').classList.remove('hidden');
-        }
-        
-        // 저장된 이미지 불러오기
-        const savedImages = JSON.parse(localStorage.getItem('demoImages') || '{}');
+        // 고정된 이미지 파일 목록 (assets/images 폴더 내 파일명)
+        const fixedImages = [
+            '스크린샷 2025-12-24 오후 2.37.35.png',
+            '스크린샷 2025-12-24 오후 2.38.16.png',
+            '스크린샷 2025-12-24 오후 2.38.49.png',
+            '스크린샷 2025-12-24 오후 2.39.30.png',
+            '스크린샷 2025-12-24 오후 2.40.50.png',
+            '스크린샷 2025-12-24 오후 2.42.11.png',
+            '스크린샷 2025-12-24 오후 2.43.12.png',
+            '스크린샷 2025-12-24 오후 2.45.19.png',
+            '스크린샷 2025-12-24 오후 2.46.44.png'
+        ];
 
-        for (let i = 0; i < TOTAL_FRAMES; i++) {
-            const frameId = `phone-frame-${i}`;
-            const imageUrl = savedImages[frameId] || '';
-            
-            // 관리자일 때만 onclick 이벤트 바인딩
-            const clickEvent = isAdmin ? `onclick="triggerUpload('${frameId}')"` : '';
-            const cursorClass = isAdmin ? 'cursor-pointer' : '';
-            
+        fixedImages.forEach((filename, i) => {
+            const imageUrl = `./assets/images/${encodeURIComponent(filename)}`;
             const frameHtml = `
-                <div class="relative group ${cursorClass} w-full max-w-[200px]" ${clickEvent}>
+                <div class="relative w-full max-w-[200px]">
                     <div class="aspect-[9/16] bg-white rounded-[2rem] border-8 border-gray-900 overflow-hidden shadow-xl relative">
-                        <!-- 이미지 표시 영역 -->
-                        <img id="${frameId}-img" src="${imageUrl}" class="w-full h-full object-cover ${imageUrl ? '' : 'hidden'}" alt="App Screen">
-                        
-                        <!-- 빈 화면일 때 Placeholder (관리자에게만 보임) -->
-                        <div id="${frameId}-placeholder" class="absolute inset-0 flex flex-col items-center justify-center bg-gray-100 text-gray-400 ${imageUrl ? 'hidden' : ''}">
-                            ${isAdmin ? '<span class="text-3xl mb-2">+</span><span class="text-xs">이미지 업로드</span>' : '<span class="text-xs">준비중</span>'}
-                        </div>
-                        
-                        <!-- 호버 시 수정 아이콘 (관리자에게만 보임) -->
-                        ${isAdmin ? `
-                        <div class="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                            <span class="text-white text-sm font-bold">변경하기</span>
-                        </div>
-                        ` : ''}
+                        <img src="${imageUrl}" class="w-full h-full object-cover" alt="App Screen ${i+1}">
                     </div>
-                    <!-- 파일 인풋 (숨김) -->
-                    ${isAdmin ? `<input type="file" id="${frameId}-input" class="hidden" accept="image/*" onchange="handleImageUpload(event, '${frameId}')">` : ''}
                 </div>
             `;
             gridContainer.insertAdjacentHTML('beforeend', frameHtml);
-        }
-
-        // ... 기존 함수들 ...
-        function triggerUpload(frameId) {
-             if(!isAdmin) return;
-             document.getElementById(`${frameId}-input`).click();
-        }
-        
-        // ... (나머지는 동일) ...
-
-        function handleImageUpload(event, frameId) {
-            const file = event.target.files[0];
-            if (!file) return;
-
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                const imageUrl = e.target.result;
-                
-                // 이미지 표시
-                document.getElementById(`${frameId}-img`).src = imageUrl;
-                document.getElementById(`${frameId}-img`).classList.remove('hidden');
-                document.getElementById(`${frameId}-placeholder`).classList.add('hidden');
-                
-                // 로컬 스토리지에 저장
-                const currentImages = JSON.parse(localStorage.getItem('demoImages') || '{}');
-                currentImages[frameId] = imageUrl;
-                localStorage.setItem('demoImages', JSON.stringify(currentImages));
-            };
-            reader.readAsDataURL(file);
-        }
+        });
     </script>
         </div>
     </section>
@@ -422,6 +373,5 @@
                     loadingSpinner.classList.add('hidden');
                 });
         });
-    </script>
-</body>
+    </script></body>
 </html>
