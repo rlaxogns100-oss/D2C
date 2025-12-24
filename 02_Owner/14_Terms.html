@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>이용약관</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    .terms-container {
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 20px;
+      padding-bottom: 100px;
+      background: #f8f9fa;
+      min-height: 100vh;
+    }
+    
+    .terms-header {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 16px 0;
+      margin-bottom: 20px;
+    }
+    
+    .terms-header h2 {
+      font-size: 20px;
+      font-weight: 700;
+      margin: 0;
+      color: #1a1d26;
+    }
+    
+    .back-btn {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      border: none;
+      background: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+    
+    .terms-tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 24px;
+      overflow-x: auto;
+      padding-bottom: 8px;
+    }
+    
+    .terms-tab {
+      padding: 10px 16px;
+      border: none;
+      background: white;
+      border-radius: 20px;
+      font-size: 14px;
+      font-weight: 500;
+      color: #666;
+      cursor: pointer;
+      transition: all 0.2s;
+      white-space: nowrap;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
+    
+    .terms-tab.active {
+      background: #FF6B35;
+      color: white;
+    }
+    
+    .terms-content {
+      display: none;
+    }
+    
+    .terms-content.active {
+      display: block;
+    }
+    
+    .terms-card {
+      background: white;
+      border-radius: 16px;
+      padding: 24px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+    
+    .terms-section h3 {
+      font-size: 18px;
+      font-weight: 700;
+      color: #1a1d26;
+      margin-bottom: 16px;
+      padding-bottom: 12px;
+      border-bottom: 2px solid #FF6B35;
+    }
+    
+    .terms-section h4 {
+      font-size: 15px;
+      font-weight: 600;
+      color: #333;
+      margin: 20px 0 10px;
+    }
+    
+    .terms-section p, .terms-section li {
+      font-size: 14px;
+      line-height: 1.8;
+      color: #555;
+    }
+    
+    .terms-section ul {
+      padding-left: 20px;
+      margin: 8px 0;
+    }
+    
+    .terms-section li {
+      margin-bottom: 8px;
+    }
+    
+    .terms-info {
+      background: #f8f9fa;
+      padding: 16px;
+      border-radius: 12px;
+      margin-top: 12px;
+    }
+    
+    .terms-info p {
+      margin: 4px 0;
+      font-size: 13px;
+    }
+    
+    .highlight {
+      background: #fff3cd;
+      padding: 2px 6px;
+      border-radius: 4px;
+    }
+  </style>
+</head>
+<body>
+  <div class="terms-container">
+    <!-- Header -->
+    <div class="terms-header">
+      <button class="back-btn" onclick="history.back()">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#333" stroke-width="2">
+          <path d="M15 18l-6-6 6-6"/>
+        </svg>
+      </button>
+      <h2>이용약관</h2>
+    </div>
+    
+    <!-- Tabs -->
+    <div class="terms-tabs">
+      <button class="terms-tab active" onclick="switchTab('privacy')">개인정보처리방침</button>
+      <button class="terms-tab" onclick="switchTab('terms')">이용약관</button>
+      <button class="terms-tab" onclick="switchTab('refund')">환불정책</button>
+    </div>
+    
+    <!-- 개인정보처리방침 -->
+    <div id="privacy-content" class="terms-content active">
+      <div class="terms-card">
+        <div class="terms-section">
+          <h3>개인정보처리방침</h3>
+          <p>매장직결(이하 "회사")은 개인정보보호법에 따라 이용자의 개인정보 보호 및 권익을 보호하고 개인정보와 관련한 이용자의 고충을 원활하게 처리할 수 있도록 다음과 같은 처리방침을 두고 있습니다.</p>
+          
+          <h4>1. 수집하는 개인정보 항목</h4>
+          <ul>
+            <li><strong>필수항목:</strong> 이메일 주소, 비밀번호, 이름, 휴대폰 번호</li>
+            <li><strong>선택항목:</strong> 배달 주소, 결제 정보</li>
+            <li><strong>자동수집항목:</strong> 접속 IP, 쿠키, 서비스 이용 기록, 접속 로그</li>
+          </ul>
+          
+          <h4>2. 개인정보의 수집 및 이용목적</h4>
+          <ul>
+            <li>회원가입 및 관리: 회원제 서비스 제공, 본인 확인, 불량회원 부정이용 방지</li>
+            <li>서비스 제공: 주문 처리, 배달 서비스, 결제 처리</li>
+            <li>고객 지원: 문의 응대, 분쟁 조정, 공지사항 전달</li>
+          </ul>
+          
+          <h4>3. 개인정보의 보유 및 이용기간</h4>
+          <p>회원 탈퇴 시까지 보유하며, 관련 법령에 따라 일정 기간 보관이 필요한 경우 해당 기간 동안 보관합니다.</p>
+          <ul>
+            <li>계약 또는 청약철회 등에 관한 기록: 5년</li>
+            <li>대금결제 및 재화 등의 공급에 관한 기록: 5년</li>
+            <li>소비자의 불만 또는 분쟁처리에 관한 기록: 3년</li>
+          </ul>
+          
+          <h4>4. 개인정보의 제3자 제공</h4>
+          <p>회사는 원칙적으로 이용자의 개인정보를 제3자에게 제공하지 않습니다. 다만, 다음의 경우에는 예외로 합니다.</p>
+          <ul>
+            <li>이용자가 사전에 동의한 경우</li>
+            <li>법령의 규정에 의거하거나, 수사 목적으로 법령에 정해진 절차와 방법에 따라 수사기관의 요구가 있는 경우</li>
+          </ul>
+          
+          <h4>5. 개인정보 보호책임자</h4>
+          <div class="terms-info">
+            <p><strong>성명:</strong> 김태훈</p>
+            <p><strong>연락처:</strong> 010-2808-9914</p>
+            <p><strong>이메일:</strong> rlaxogns100@snu.ac.kr</p>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- 이용약관 -->
+    <div id="terms-content" class="terms-content">
+      <div class="terms-card">
+        <div class="terms-section">
+          <h3>서비스 이용약관</h3>
+          
+          <h4>제1조 (목적)</h4>
+          <p>이 약관은 매장직결(이하 "회사")이 제공하는 음식 주문 및 배달 서비스(이하 "서비스")의 이용조건 및 절차, 회원과 회사의 권리, 의무, 책임사항 등을 규정함을 목적으로 합니다.</p>
+          
+          <h4>제2조 (정의)</h4>
+          <ul>
+            <li>"서비스"란 회사가 제공하는 음식 주문, 결제, 배달 관련 일체의 서비스를 말합니다.</li>
+            <li>"회원"이란 이 약관에 동의하고 서비스를 이용하는 자를 말합니다.</li>
+            <li>"매장"이란 서비스를 통해 음식을 판매하는 사업자를 말합니다.</li>
+          </ul>
+          
+          <h4>제3조 (약관의 효력 및 변경)</h4>
+          <ul>
+            <li>이 약관은 서비스 화면에 게시하거나 기타의 방법으로 회원에게 공지함으로써 효력이 발생합니다.</li>
+            <li>회사는 필요한 경우 관련 법령을 위배하지 않는 범위에서 이 약관을 변경할 수 있습니다.</li>
+          </ul>
+          
+          <h4>제4조 (서비스의 제공)</h4>
+          <ul>
+            <li>회사는 연중무휴, 1일 24시간 서비스를 제공함을 원칙으로 합니다.</li>
+            <li>다만, 시스템 점검 등의 필요에 의해 서비스가 일시 중단될 수 있습니다.</li>
+          </ul>
+          
+          <h4>제5조 (회원의 의무)</h4>
+          <ul>
+            <li>회원은 서비스 이용 시 관련 법령과 이 약관을 준수해야 합니다.</li>
+            <li>회원은 자신의 계정 정보를 타인에게 양도하거나 공유할 수 없습니다.</li>
+            <li>회원은 허위 정보를 등록하거나 타인의 정보를 도용해서는 안 됩니다.</li>
+          </ul>
+          
+          <h4>제6조 (회사의 의무)</h4>
+          <ul>
+            <li>회사는 관련 법령과 이 약관에서 정하는 바에 따라 지속적이고 안정적으로 서비스를 제공합니다.</li>
+            <li>회사는 회원의 개인정보를 보호하기 위해 보안 시스템을 유지합니다.</li>
+          </ul>
+          
+          <h4>제7조 (면책조항)</h4>
+          <ul>
+            <li>회사는 매장이 제공하는 음식의 품질, 위생 등에 대해 직접적인 책임을 지지 않습니다.</li>
+            <li>천재지변, 전쟁, 기타 불가항력적인 사유로 서비스를 제공할 수 없는 경우 책임이 면제됩니다.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    
+    <!-- 환불정책 -->
+    <div id="refund-content" class="terms-content">
+      <div class="terms-card">
+        <div class="terms-section">
+          <h3>환불 정책</h3>
+          
+          <h4>1. 주문 취소 및 환불 규정</h4>
+          <ul>
+            <li>고객은 주문 접수 후 매장에서 <span class="highlight">'주문 수락'을 하기 전</span>까지는 언제든지 주문을 취소할 수 있습니다.</li>
+            <li>매장이 주문을 수락하여 '조리 중' 상태가 된 이후에는 단순 변심에 의한 취소가 불가능합니다.</li>
+            <li>배달이 시작된 이후에는 취소 및 환불이 불가능합니다.</li>
+          </ul>
+          
+          <h4>2. 환불 가능 사유</h4>
+          <ul>
+            <li>주문한 메뉴와 다른 메뉴가 배달된 경우</li>
+            <li>음식에 이물질이 혼입되거나 변질된 경우</li>
+            <li>배달이 예정 시간보다 현저히 지연되어 음식의 상태가 손상된 경우 (매장 확인 필요)</li>
+            <li>주요 구성품이 누락된 경우 (누락된 부분에 대한 부분 환불 또는 재배달)</li>
+          </ul>
+          
+          <h4>3. 환불 절차</h4>
+          <ul>
+            <li>문제가 발생한 경우 <span class="highlight">즉시(수령 후 3시간 이내)</span> 고객센터 또는 매장으로 연락주시기 바랍니다.</li>
+            <li>환불 사유 확인을 위해 사진 촬영을 요청드릴 수 있습니다.</li>
+            <li>환불 승인 시 결제하신 수단으로 <strong>3~5 영업일 이내</strong>에 환불 처리됩니다.</li>
+          </ul>
+          
+          <h4>4. 고객센터 연락처</h4>
+          <div class="terms-info">
+            <p><strong>전화:</strong> 010-2808-9914</p>
+            <p><strong>이메일:</strong> rlaxogns100@snu.ac.kr</p>
+            <p><strong>운영시간:</strong> 평일 10:00 ~ 18:00 (주말/공휴일 휴무)</p>
+          </div>
+          
+          <h4>5. 기타</h4>
+          <p>본 정책은 관련 법령 및 소비자 분쟁 해결 기준을 따릅니다.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <script>
+    function switchTab(tabName) {
+      // 모든 탭 비활성화
+      document.querySelectorAll('.terms-tab').forEach(tab => {
+        tab.classList.remove('active');
+      });
+      
+      // 클릭한 탭 활성화
+      event.target.classList.add('active');
+      
+      // 모든 콘텐츠 숨기기
+      document.querySelectorAll('.terms-content').forEach(content => {
+        content.classList.remove('active');
+      });
+      
+      // 해당 콘텐츠 표시
+      document.getElementById(tabName + '-content').classList.add('active');
+    }
+  </script>
+</body>
+</html>
+
