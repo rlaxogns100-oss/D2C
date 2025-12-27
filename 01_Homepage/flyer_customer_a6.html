@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>고객 감사 카드 (고급형)</title>
+    <!-- 폰트: 나눔명조 & Pretendard -->
+    <link href="https://fonts.googleapis.com/css2?family=Nanum+Myeongjo:wght@400;700;800&family=Pretendard:wght@300;400;600&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        serif: ['"Nanum Myeongjo"', 'serif'],
+                        sans: ['Pretendard', 'sans-serif'],
+                    },
+                    colors: {
+                        paper: '#fdfbf7', // 따뜻한 미색
+                        ink: '#2c2c2c',   // 먹색
+                        warm: '#8c7b6c',  // 브라운 계열
+                        gold: '#d97706'   // 차분한 골드/오렌지
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @page {
+            size: A6;
+            margin: 0;
+        }
+        @media print {
+            html, body {
+                width: 105mm;
+                height: 148mm;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+            .no-print {
+                display: none !important;
+            }
+        }
+        body {
+            margin: 0;
+            padding: 0;
+            width: 105mm;
+            min-height: 148mm;
+            background: #eee;
+            box-sizing: border-box;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .card {
+            width: 105mm;
+            height: 148mm;
+            background-color: #fdfbf7;
+            position: relative;
+            box-sizing: border-box;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            border: 1px solid #e5e5e5;
+        }
+        @media print {
+            body { background: none; }
+            .card { border: none; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="card p-6 text-ink items-center text-center justify-between">
+        
+        <!-- 테두리 장식 (고급감) -->
+        <div class="absolute top-4 left-4 right-4 bottom-4 border border-warm/20 pointer-events-none"></div>
+
+        <!-- 상단: 혜택 강조 (가장 먼저) -->
+        <header class="mt-6 w-full relative z-10 border-b border-warm/30 pb-4 mb-2 w-4/5 mx-auto">
+            <p class="font-sans text-[11px] text-warm mb-1 tracking-tight font-bold">매장 공식 페이지에서 주문 시</p>
+            <h1 class="font-serif font-extrabold text-2xl text-gold tracking-tight">
+                모든 결제 금액 30% 적립
+            </h1>
+        </header>
+
+        <!-- 중단: 편지글 (폰트 키움, 여백 축소) -->
+        <main class="w-full px-2 relative z-10 pt-2 pb-2">
+            <div class="font-serif text-[13px] leading-relaxed text-gray-700 space-y-4 break-keep opacity-90">
+                <p>
+                    높은 <b>배달앱 수수료</b>는<br>
+                    저희 같은 소상공인에게 큰 부담이 됩니다.
+                </p>
+                <p>
+                    수수료를 아껴 고객님께 돌려드리고 싶어<br>
+                    작은 공간을 마련했습니다.
+                </p>
+            </div>
+        </main>
+
+        <!-- 하단: QR 코드 (위로 올림) -->
+        <footer class="mb-6 relative z-10 w-full flex flex-col items-center">
+            <div class="bg-white p-2 rounded shadow-sm border border-gray-100 mb-2">
+                 <!-- QR 크기 확대 (w-36 = 144px = 약 3.8cm) -->
+                <img src="https://api.qrserver.com/v1/create-qr-code/?size=400x400&data=https%3A%2F%2Fmaejang.com%2F%3Futm_source%3Doffline%26utm_medium%3Dflyer_customer%26utm_campaign%3Dcoupon_20percent_luxury" 
+                     alt="주문 QR" 
+                     class="w-36 h-36 block opacity-90">
+            </div>
+            
+            <div class="text-center mb-2">
+                <p class="font-serif text-[11px] text-ink font-bold">매장 공식 주문 페이지</p>
+                <p class="font-sans text-[9px] text-gray-400">(maejang.com)</p>
+            </div>
+
+            <div class="mt-auto pt-4">
+                <p class="font-serif text-[10px] text-warm mb-3">
+                    더 좋은 재료, 더 푸짐한 양으로 보답하겠습니다.
+                </p>
+                
+                <!-- 로고 (심플 & 감성) -->
+                <div class="flex items-center justify-center gap-1 opacity-40 grayscale">
+                    <div class="w-3 h-3 bg-ink rounded-sm flex items-center justify-center text-paper font-serif font-bold text-[8px]">M</div>
+                    <span class="font-serif text-[9px] text-ink tracking-widest">매장직결</span>
+                </div>
+            </div>
+        </footer>
+
+    </div>
+
+    <!-- 인쇄 버튼 -->
+    <div class="fixed bottom-4 right-4 bg-gray-900 text-white px-5 py-3 rounded-full shadow-xl z-50 print:hidden no-print flex gap-3 items-center">
+        <span class="text-xs font-medium text-gray-300">A6 고급형 디자인</span>
+        <button onclick="window.print()" class="bg-warm hover:bg-yellow-700 text-white px-4 py-1.5 rounded-full text-xs font-bold transition">
+            인쇄하기
+        </button>
+    </div>
+
+</body>
+</html>

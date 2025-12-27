@@ -58,7 +58,7 @@
         }
         .a4-container {
             width: 210mm;
-            min-height: 297mm;
+            height: 296mm; /* 정확한 높이 지정 */
             position: relative;
             background: white;
             overflow: hidden;
@@ -112,62 +112,53 @@
         </div>
 
         <!-- 2. 비교 분석 - 2열 레이아웃 -->
-        <section class="px-8 py-2 flex gap-8 items-start">
+        <section class="px-8 py-2 flex gap-8 items-start grow">
             
             <!-- 왼쪽 단: 다이어그램 + 표 -->
             <div class="w-1/2 flex flex-col justify-start h-full pt-0">
                 
-                <!-- 포인트 적립 다이어그램 -->
+                <!-- 포인트 적립 다이어그램 (2열로 변경) -->
                 <div class="mb-4 p-3 bg-gray-50 rounded-lg border border-gray-200" style="font-family: 'Nanum Myeongjo', serif;">
-                    <p class="text-xs text-gray-500 mb-2 text-center font-bold">30% 적립해도 실제 지출은 10%?</p>
+                    <p class="text-xs text-gray-500 mb-3 text-center font-bold">30% 적립해도 실제 지출은 10%?</p>
                     
-                    <!-- 단계별 플로우 -->
-                    <div class="flex items-center justify-between text-center text-[10px] gap-1">
-                        <!-- Step 1 -->
-                        <div class="flex flex-col items-center flex-1">
-                            <div class="w-10 h-10 bg-brand-100 rounded-full flex items-center justify-center mb-1">
-                                <span class="text-brand-700 font-bold text-[9px]">주문</span>
+                    <div class="grid grid-cols-2 gap-y-4 gap-x-2">
+                        <!-- Step 1 & 2 -->
+                        <div class="flex items-center justify-between gap-2 px-2">
+                            <div class="flex flex-col items-center">
+                                <div class="w-12 h-12 bg-brand-100 rounded-full flex items-center justify-center mb-1">
+                                    <span class="text-brand-700 font-bold text-xs">주문</span>
+                                </div>
+                                <p class="text-gray-700 font-bold text-xs">30,000원</p>
                             </div>
-                            <p class="text-gray-700 font-bold">30,000원</p>
-                            <p class="text-gray-400 text-[9px]">주문</p>
+                            <span class="text-gray-400 font-bold">→</span>
+                            <div class="flex flex-col items-center">
+                                <div class="w-12 h-12 bg-amber-100 rounded-full flex items-center justify-center mb-1">
+                                    <span class="text-amber-700 font-bold text-xs">적립</span>
+                                </div>
+                                <p class="text-gray-700 font-bold text-xs">9,000원</p>
+                            </div>
                         </div>
-                        
-                        <span class="text-gray-400">→</span>
-                        
-                        <!-- Step 2 -->
-                        <div class="flex flex-col items-center flex-1">
-                            <div class="w-10 h-10 bg-amber-100 rounded-full flex items-center justify-center mb-1">
-                                <span class="text-amber-700 font-bold text-[9px]">적립</span>
+
+                        <!-- Step 3 & 4 -->
+                        <div class="flex items-center justify-between gap-2 px-2 border-l border-gray-200 pl-4">
+                            <div class="flex flex-col items-center">
+                                <div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mb-1">
+                                    <span class="text-green-700 font-bold text-xs">사용</span>
+                                </div>
+                                <p class="text-gray-700 font-bold text-xs">9,000원</p>
                             </div>
-                            <p class="text-gray-700 font-bold">9,000원</p>
-                            <p class="text-gray-400 text-[9px]">포인트 적립</p>
-                        </div>
-                        
-                        <span class="text-gray-400">→</span>
-                        
-                        <!-- Step 3 -->
-                        <div class="flex flex-col items-center flex-1">
-                            <div class="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center mb-1">
-                                <span class="text-green-700 font-bold text-[9px]">사용</span>
+                            <span class="text-gray-400 font-bold">→</span>
+                            <div class="flex flex-col items-center">
+                                <div class="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center mb-1">
+                                    <span class="text-red-700 font-bold text-xs">원가</span>
+                                </div>
+                                <p class="text-gray-700 font-bold text-xs">3,150원</p>
                             </div>
-                            <p class="text-gray-700 font-bold">9,000원</p>
-                            <p class="text-gray-400 text-[9px]">포인트로 주문</p>
-                        </div>
-                        
-                        <span class="text-gray-400">→</span>
-                        
-                        <!-- Step 4 -->
-                        <div class="flex flex-col items-center flex-1">
-                            <div class="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center mb-1">
-                                <span class="text-red-700 font-bold text-[9px]">원가</span>
-                            </div>
-                            <p class="text-gray-700 font-bold">3,150원</p>
-                            <p class="text-gray-400 text-[9px]">실제 지출</p>
                         </div>
                     </div>
                     
-                    <p class="text-[10px] text-gray-500 text-center mt-2 border-t border-gray-200 pt-2">
-                        원가율 35% 기준 → <span class="text-brand-600 font-bold">실제 지출 약 10%</span>
+                    <p class="text-[11px] text-gray-500 text-center mt-3 border-t border-gray-200 pt-2 font-medium">
+                        원가율 35% 기준 → <span class="text-brand-600 font-bold text-xs">실제 지출 약 10%</span>
                     </p>
                 </div>
 
@@ -217,12 +208,12 @@
                 </div>
             </div>
 
-            <!-- 오른쪽 단: A6 카드 목업 (원본과 동일) -->
-            <div class="w-1/2 flex flex-col justify-start items-center relative h-full">
-                <!-- A6 카드 디자인 (원본 flyer_customer_a6.html 구조 그대로) -->
-                <div class="relative transform scale-[0.72] origin-top border border-gray-200 shadow-xl bg-[#fdfbf7] flex flex-col p-6 text-[#2c2c2c] w-[105mm] h-[148mm] shrink-0 items-center text-center justify-between mb-[-40px]" style="font-family: 'Nanum Myeongjo', serif;">
+            <!-- 오른쪽 단: A6 카드 목업 (확대됨) -->
+            <div class="w-1/2 flex flex-col justify-start items-center relative h-full pt-4">
+                <!-- A6 카드 디자인 -->
+                <div class="relative transform scale-[0.85] origin-top border border-gray-200 shadow-xl bg-[#fdfbf7] flex flex-col p-6 text-[#2c2c2c] w-[105mm] h-[148mm] shrink-0 items-center text-center justify-between mb-[-20px]" style="font-family: 'Nanum Myeongjo', serif;">
                     
-                    <!-- 테두리 장식 (고급감) -->
+                    <!-- 테두리 장식 -->
                     <div class="absolute top-4 left-4 right-4 bottom-4 border border-[#8c7b6c]/20 pointer-events-none"></div>
 
                     <!-- 상단: 혜택 강조 -->
@@ -357,3 +348,4 @@
 
 </body>
 </html>
+
