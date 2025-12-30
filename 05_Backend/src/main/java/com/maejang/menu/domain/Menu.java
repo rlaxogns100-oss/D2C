@@ -1,5 +1,6 @@
 package com.maejang.menu.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.maejang.user.domain.User;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -31,6 +32,7 @@ public class Menu {
     /**
      * OWNER 유저 (스키마 정의대로 user_id로만 연결)
      */
+    @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User owner;

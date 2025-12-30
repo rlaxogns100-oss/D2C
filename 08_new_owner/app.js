@@ -268,18 +268,23 @@ function createOrderCard(order, compact = false) {
   // 디버깅: 전체 주문 데이터 확인
   console.log('📦 주문 데이터:', order);
   
-  // 주문 메뉴 목록 생성
-  const items = order.items || order.orderItems || [];
+  // 주문 메뉴 목록 생성 (orderMenus 필드 사용)
+  const items = order.orderMenus || order.items || order.orderItems || [];
   const itemsHtml = items.length > 0 
     ? `<div class="order-items">
-        ${items.map(item => `
-          <div class="order-item-row">
-            <span class="item-name">${item.menuName || item.name || '메뉴'}</span>
-            <span class="item-qty">x${item.count || item.quantity || 1}</span>
-          </div>
-        `).join('')}
+        ${items.map(item => {
+          const menuName = item.menu?.menuName || item.menuName || item.name || '메뉴';
+          const count = item.count || item.quantity || 1;
+          const option = item.option ? ` (${item.option})` : '';
+          return `
+            <div class="order-item-row">
+              <span class="item-name">${menuName}${option}</span>
+              <span class="item-qty">x${count}</span>
+            </div>
+          `;
+        }).join('')}
        </div>`
-    : '';
+    : '<div class="order-items"><div class="order-item-row"><span class="item-name">메뉴 정보 없음</span></div></div>';
   
   if (compact) {
     return `

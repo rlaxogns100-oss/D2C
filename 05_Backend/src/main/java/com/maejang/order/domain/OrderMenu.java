@@ -1,5 +1,6 @@
 package com.maejang.order.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.maejang.menu.domain.Menu;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -30,6 +31,7 @@ public class OrderMenu {
     @JoinColumn(name = "menu_id", nullable = false)
     private Menu menu;
 
+    @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "order_id", nullable = false)
     private Order order;

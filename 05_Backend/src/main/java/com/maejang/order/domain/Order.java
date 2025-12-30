@@ -2,6 +2,7 @@ package com.maejang.order.domain;
 
 import com.maejang.store.domain.Store;
 import com.maejang.user.domain.User;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -12,8 +13,11 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import lombok.Builder;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -29,6 +33,9 @@ public class Order {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "order_id")
     private Long id;
+
+    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<OrderMenu> orderMenus = new ArrayList<>();
 
     /**
      * CUSTOMER (또는 OWNER가 직접 주문하는 케이스까지 포함 가능)
