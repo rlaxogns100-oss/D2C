@@ -161,13 +161,46 @@ function toggleShopStatus() {
 }
 
 // ========================================
-// ORDERS
+// ORDERS (API 연동)
 // ========================================
-function renderRecentOrders() {
+let allOrders = []; // 전역 주문 데이터
+
+async function loadOrders() {
+  try {
+    const result = await OrderApi.getList();
+    if (result.success && result.data) {
+      allOrders = result.data;
+      console.log('📦 주문 데이터 로드:', allOrders.length, '건');
+    }
+    return allOrders;
+  } catch (error) {
+    console.error('주문 로드 실패:', error);
+    return [];
+  }
+}
+
+function getOrdersByCondition(condition) {
+  switch (condition) {
+    case 'new':
+      return allOrders.filter(o => o.condition === 'ORDERED');
+    case 'cooking':
+      return allOrders.filter(o => o.condition === 'COOKING');
+    case 'done':
+      return allOrders.filter(o => ['DELIVERING', 'DELIVERED', 'REJECTED', 'CANCELLED'].includes(o.condition));
+    default:
+      return allOrders;
+  }
+}
+
+async function renderRecentOrders() {
   const container = document.getElementById('recent-orders-list');
   if (!container) return;
   
-  const recentOrders = [...MockData.orders.new, ...MockData.orders.cooking].slice(0, 3);
+  container.innerHTML = '<p class="empty-text">주문을 불러오는 중...</p>';
+  
+  await loadOrders();
+  
+  const recentOrders = [...getOrdersByCondition('new'), ...getOrdersByCondition('cooking')].slice(0, 3);
   
   if (recentOrders.length === 0) {
     container.innerHTML = '<p class="empty-text">새 주문이 없습니다</p>';
@@ -177,27 +210,39 @@ function renderRecentOrders() {
   container.innerHTML = recentOrders.map(order => createOrderCard(order, true)).join('');
 }
 
-function renderOrdersList() {
+async function renderOrdersList() {
   const container = document.getElementById('orders-list');
   if (!container) return;
+  
+  container.innerHTML = '<div class="loading-spinner">주문을 불러오는 중...</div>';
+  
+  await loadOrders();
+  
+  const newOrders = getOrdersByCondition('new');
+  const cookingOrders = getOrdersByCondition('cooking');
+  const doneOrders = getOrdersByCondition('done');
+  
+  // Update counts
+  const countNew = document.getElementById('count-new');
+  const countCooking = document.getElementById('count-cooking');
+  const countDone = document.getElementById('count-done');
+  
+  if (countNew) countNew.textContent = newOrders.length;
+  if (countCooking) countCooking.textContent = cookingOrders.length;
+  if (countDone) countDone.textContent = doneOrders.length;
   
   let orders = [];
   switch (AppState.currentOrderTab) {
     case 'new':
-      orders = MockData.orders.new;
+      orders = newOrders;
       break;
     case 'cooking':
-      orders = MockData.orders.cooking;
+      orders = cookingOrders;
       break;
     case 'done':
-      orders = MockData.orders.done;
+      orders = doneOrders;
       break;
   }
-  
-  // Update counts
-  document.getElementById('count-new').textContent = MockData.orders.new.length;
-  document.getElementById('count-cooking').textContent = MockData.orders.cooking.length;
-  document.getElementById('count-done').textContent = MockData.orders.done.length;
   
   if (orders.length === 0) {
     container.innerHTML = `
@@ -213,8 +258,9 @@ function renderOrdersList() {
 }
 
 function createOrderCard(order, compact = false) {
-  const statusText = getStatusText(order.status);
-  const statusClass = getStatusClass(order.status);
+  const statusText = getStatusText(order.condition);
+  const statusClass = getStatusClass(order.condition);
+  const orderTime = formatOrderTime(order.orderAt);
   
   if (compact) {
     return `
@@ -222,23 +268,25 @@ function createOrderCard(order, compact = false) {
         <div class="order-card-header">
           <div>
             <div class="order-id">#${order.id}</div>
-            <div class="order-time">${order.time}</div>
+            <div class="order-time">${orderTime}</div>
           </div>
           <span class="order-status ${statusClass}">${statusText}</span>
         </div>
-        <div class="order-total">${order.total.toLocaleString()}원</div>
+        <div class="order-total">${(order.price || 0).toLocaleString()}원</div>
       </div>
     `;
   }
   
-  const showActions = order.status === 'new' || order.status === 'cooking';
+  const showAcceptReject = order.condition === 'ORDERED';
+  const showComplete = order.condition === 'COOKING';
+  const showDeliver = order.condition === 'DELIVERING';
   
   return `
     <div class="order-card">
       <div class="order-card-header">
         <div>
           <div class="order-id">#${order.id}</div>
-          <div class="order-time">${order.time}</div>
+          <div class="order-time">${orderTime}</div>
         </div>
         <span class="order-status ${statusClass}">${statusText}</span>
       </div>
@@ -246,53 +294,77 @@ function createOrderCard(order, compact = false) {
       <div class="order-customer">
         <div class="customer-row">
           <span class="customer-label">고객명</span>
-          <span class="customer-value">${order.customer}</span>
+          <span class="customer-value">${order.user?.name || '정보 없음'}</span>
         </div>
         <div class="customer-row">
           <span class="customer-label">연락처</span>
-          <span class="customer-value">${order.phone}</span>
+          <span class="customer-value">${order.user?.email || '정보 없음'}</span>
         </div>
       </div>
       
-      <div class="order-total">${order.total.toLocaleString()}원</div>
+      <div class="order-total">${(order.price || 0).toLocaleString()}원</div>
       
       ${order.request ? `<div class="order-request"><strong>요청:</strong> ${order.request}</div>` : ''}
       
-      ${showActions ? `
+      ${showAcceptReject ? `
         <div class="order-actions">
-          ${order.status === 'new' ? `
-            <button class="btn btn-primary btn-sm" onclick="acceptOrder(${order.id})">✓ 수락</button>
-            <button class="btn btn-outline btn-sm" onclick="rejectOrder(${order.id})">✗ 거절</button>
-          ` : ''}
-          ${order.status === 'cooking' ? `
-            <button class="btn btn-primary btn-sm btn-full" onclick="completeOrder(${order.id})">🚚 조리 완료</button>
-          ` : ''}
+          <button class="btn btn-primary btn-sm" onclick="acceptOrder(${order.id})">✓ 수락</button>
+          <button class="btn btn-outline btn-sm" onclick="rejectOrder(${order.id})">✗ 거절</button>
+        </div>
+      ` : ''}
+      ${showComplete ? `
+        <div class="order-actions">
+          <button class="btn btn-primary btn-sm btn-full" onclick="completeOrder(${order.id})">🚚 조리 완료</button>
+        </div>
+      ` : ''}
+      ${showDeliver ? `
+        <div class="order-actions">
+          <button class="btn btn-primary btn-sm btn-full" onclick="deliverOrder(${order.id})">✓ 배달 완료</button>
         </div>
       ` : ''}
     </div>
   `;
 }
 
-function getStatusText(status) {
-  const map = {
-    'new': '새 주문',
-    'cooking': '조리 중',
-    'delivering': '배달 중',
-    'delivered': '배달 완료',
-    'cancelled': '취소됨'
-  };
-  return map[status] || status;
+function formatOrderTime(orderAt) {
+  if (!orderAt) return '';
+  const date = new Date(orderAt);
+  const now = new Date();
+  const diffMinutes = Math.floor((now - date) / 1000 / 60);
+  
+  if (diffMinutes < 1) return '방금 전';
+  if (diffMinutes < 60) return `${diffMinutes}분 전`;
+  
+  const month = date.getMonth() + 1;
+  const day = date.getDate();
+  const hours = String(date.getHours()).padStart(2, '0');
+  const minutes = String(date.getMinutes()).padStart(2, '0');
+  
+  return `${month}월 ${day}일 ${hours}:${minutes}`;
 }
 
-function getStatusClass(status) {
+function getStatusText(condition) {
   const map = {
-    'new': 'status-new',
-    'cooking': 'status-cooking',
-    'delivering': 'status-delivering',
-    'delivered': 'status-delivered',
-    'cancelled': 'status-cancelled'
+    'ORDERED': '새 주문',
+    'COOKING': '조리 중',
+    'DELIVERING': '배달 중',
+    'DELIVERED': '배달 완료',
+    'REJECTED': '거절됨',
+    'CANCELLED': '취소됨'
   };
-  return map[status] || '';
+  return map[condition] || condition;
+}
+
+function getStatusClass(condition) {
+  const map = {
+    'ORDERED': 'status-new',
+    'COOKING': 'status-cooking',
+    'DELIVERING': 'status-delivering',
+    'DELIVERED': 'status-delivered',
+    'REJECTED': 'status-cancelled',
+    'CANCELLED': 'status-cancelled'
+  };
+  return map[condition] || '';
 }
 
 function switchOrderTab(tab) {
@@ -308,52 +380,78 @@ function switchOrderTab(tab) {
   renderOrdersList();
 }
 
-function acceptOrder(orderId) {
+async function acceptOrder(orderId) {
   if (!confirm('주문을 수락하시겠습니까?')) return;
   
-  const orderIndex = MockData.orders.new.findIndex(o => o.id === orderId);
-  if (orderIndex > -1) {
-    const order = MockData.orders.new.splice(orderIndex, 1)[0];
-    order.status = 'cooking';
-    order.time = '방금 전';
-    MockData.orders.cooking.push(order);
+  try {
+    const result = await OrderApi.accept(orderId);
+    if (result.success) {
+      showToast('주문을 수락했습니다!');
+      await renderOrdersList();
+      updateOrderBadge();
+    } else {
+      showToast(result.message || '주문 수락에 실패했습니다.');
+    }
+  } catch (error) {
+    console.error('주문 수락 실패:', error);
+    showToast('주문 수락 중 오류가 발생했습니다.');
   }
-  
-  showToast('주문을 수락했습니다!');
-  renderOrdersList();
-  updateOrderBadge();
 }
 
-function rejectOrder(orderId) {
+async function rejectOrder(orderId) {
   if (!confirm('주문을 거절하시겠습니까?\n이 작업은 취소할 수 없습니다.')) return;
   
-  const orderIndex = MockData.orders.new.findIndex(o => o.id === orderId);
-  if (orderIndex > -1) {
-    MockData.orders.new.splice(orderIndex, 1);
+  try {
+    const result = await OrderApi.reject(orderId);
+    if (result.success) {
+      showToast('주문을 거절했습니다.');
+      await renderOrdersList();
+      updateOrderBadge();
+    } else {
+      showToast(result.message || '주문 거절에 실패했습니다.');
+    }
+  } catch (error) {
+    console.error('주문 거절 실패:', error);
+    showToast('주문 거절 중 오류가 발생했습니다.');
   }
-  
-  showToast('주문을 거절했습니다.');
-  renderOrdersList();
-  updateOrderBadge();
 }
 
-function completeOrder(orderId) {
+async function completeOrder(orderId) {
   if (!confirm('조리를 완료하고 배달을 시작하시겠습니까?')) return;
   
-  const orderIndex = MockData.orders.cooking.findIndex(o => o.id === orderId);
-  if (orderIndex > -1) {
-    const order = MockData.orders.cooking.splice(orderIndex, 1)[0];
-    order.status = 'delivered';
-    order.time = '방금 전';
-    MockData.orders.done.unshift(order);
+  try {
+    const result = await OrderApi.complete(orderId);
+    if (result.success) {
+      showToast('조리가 완료되었습니다!');
+      await renderOrdersList();
+    } else {
+      showToast(result.message || '조리 완료 처리에 실패했습니다.');
+    }
+  } catch (error) {
+    console.error('조리 완료 실패:', error);
+    showToast('조리 완료 처리 중 오류가 발생했습니다.');
   }
+}
+
+async function deliverOrder(orderId) {
+  if (!confirm('배달을 완료하시겠습니까?')) return;
   
-  showToast('조리가 완료되었습니다!');
-  renderOrdersList();
+  try {
+    const result = await OrderApi.deliver(orderId);
+    if (result.success) {
+      showToast('배달이 완료되었습니다!');
+      await renderOrdersList();
+    } else {
+      showToast(result.message || '배달 완료 처리에 실패했습니다.');
+    }
+  } catch (error) {
+    console.error('배달 완료 실패:', error);
+    showToast('배달 완료 처리 중 오류가 발생했습니다.');
+  }
 }
 
 function updateOrderBadge() {
-  const count = MockData.orders.new.length;
+  const count = getOrdersByCondition('new').length;
   const badge = document.getElementById('mobile-order-badge');
   if (badge) {
     badge.textContent = count;
@@ -362,21 +460,75 @@ function updateOrderBadge() {
 }
 
 // ========================================
-// MENUS
+// MENUS (API 연동)
 // ========================================
-function renderMenuGrid(category = 'all') {
+let allMenus = []; // 전역 메뉴 데이터
+
+async function loadMenus() {
+  try {
+    const result = await MenuApi.getList();
+    if (result.success && result.data) {
+      allMenus = result.data.map(menu => ({
+        id: menu.menuId,
+        name: menu.menuName,
+        price: menu.price,
+        category: menu.category?.toLowerCase() || 'main',
+        description: menu.description || '',
+        picture: menu.picture,
+        emoji: getMenuEmoji(menu.category)
+      }));
+      console.log('🍽️ 메뉴 데이터 로드:', allMenus.length, '개');
+    }
+    return allMenus;
+  } catch (error) {
+    console.error('메뉴 로드 실패:', error);
+    return [];
+  }
+}
+
+function getMenuEmoji(category) {
+  const map = {
+    'main': '🍽️', 'side': '🍟', 'drink': '🥤', 'dessert': '🍰',
+    'pizza': '🍕', 'chicken': '🍗', 'pasta': '🍝'
+  };
+  return map[category?.toLowerCase()] || '🍽️';
+}
+
+async function renderMenuGrid(category = 'all') {
   const grid = document.getElementById('menu-grid');
   if (!grid) return;
   
-  let menus = MockData.menus;
+  grid.innerHTML = '<div class="loading-spinner" style="grid-column: 1/-1; text-align: center; padding: 40px;">메뉴를 불러오는 중...</div>';
+  
+  // 메뉴 로드
+  if (allMenus.length === 0) {
+    await loadMenus();
+  }
+  
+  // 카테고리 탭 업데이트
+  updateMenuCategoryTabs();
+  
+  let menus = allMenus;
   if (category !== 'all') {
     menus = menus.filter(m => m.category === category);
+  }
+  
+  if (menus.length === 0) {
+    grid.innerHTML = `
+      <div style="text-align: center; padding: 60px 24px; color: var(--text-muted); grid-column: 1/-1;">
+        <p style="font-size: 3rem; margin-bottom: 16px;">🍽️</p>
+        <p>등록된 메뉴가 없습니다</p>
+      </div>
+    `;
+    return;
   }
   
   grid.innerHTML = menus.map(menu => `
     <div class="menu-card">
       <button class="menu-more-btn" onclick="toggleMenuDropdown(${menu.id}, event)">•••</button>
-      <div class="menu-card-image">${menu.emoji}</div>
+      <div class="menu-card-image">
+        ${menu.picture ? `<img src="${menu.picture}" alt="${menu.name}" style="width:100%;height:100%;object-fit:cover;">` : menu.emoji}
+      </div>
       <div class="menu-card-content">
         <h4 class="menu-card-name">${menu.name}</h4>
         <div class="menu-card-price">${menu.price.toLocaleString()}원</div>
@@ -387,6 +539,28 @@ function renderMenuGrid(category = 'all') {
       </div>
     </div>
   `).join('');
+}
+
+function updateMenuCategoryTabs() {
+  const tabsContainer = document.getElementById('menu-category-tabs');
+  if (!tabsContainer || allMenus.length === 0) return;
+  
+  // 카테고리 추출
+  const categories = [...new Set(allMenus.map(m => m.category))];
+  const categoryNames = {
+    'all': '전체', 'main': '메인', 'side': '사이드', 'drink': '음료',
+    'dessert': '디저트', 'pizza': '피자', 'chicken': '치킨', 'pasta': '파스타'
+  };
+  
+  tabsContainer.innerHTML = `
+    <button class="tab active" data-category="all">전체</button>
+    ${categories.map(cat => 
+      `<button class="tab" data-category="${cat}">${categoryNames[cat] || cat}</button>`
+    ).join('')}
+  `;
+  
+  // 이벤트 재설정
+  setupMenuCategoryTabs();
 }
 
 function setupMenuCategoryTabs() {
@@ -402,31 +576,44 @@ function setupMenuCategoryTabs() {
 
 function editMenu(menuId) {
   // Store menu id for editing
-  localStorage.setItem('editMenuId', menuId);
+  localStorage.setItem('editMenuId', menuId.toString());
   navigateTo('page-add-menu');
   
-  // Fill form with menu data
-  const menu = MockData.menus.find(m => m.id === menuId);
+  // Fill form with menu data (전역 allMenus 사용)
+  const menu = allMenus.find(m => m.id === menuId);
   if (menu) {
-    document.getElementById('menu-name').value = menu.name;
-    document.getElementById('menu-price').value = menu.price;
-    document.getElementById('menu-category').value = menu.category;
-    document.getElementById('menu-description').value = menu.description || '';
+    const nameInput = document.getElementById('menu-name');
+    const priceInput = document.getElementById('menu-price');
+    const categoryInput = document.getElementById('menu-category');
+    const descInput = document.getElementById('menu-description');
     
-    document.querySelector('#page-add-menu .page-header h1').textContent = '메뉴 수정';
+    if (nameInput) nameInput.value = menu.name;
+    if (priceInput) priceInput.value = menu.price;
+    if (categoryInput) categoryInput.value = menu.category;
+    if (descInput) descInput.value = menu.description || '';
+    
+    const header = document.querySelector('#page-add-menu .page-header h1');
+    if (header) header.textContent = '메뉴 수정';
   }
 }
 
-function deleteMenu(menuId) {
+async function deleteMenu(menuId) {
   if (!confirm('이 메뉴를 삭제하시겠습니까?\n삭제된 메뉴는 복구할 수 없습니다.')) return;
   
-  const index = MockData.menus.findIndex(m => m.id === menuId);
-  if (index > -1) {
-    MockData.menus.splice(index, 1);
+  try {
+    const result = await MenuApi.delete(menuId);
+    if (result.success) {
+      showToast('메뉴가 삭제되었습니다.');
+      // 로컬 데이터도 업데이트
+      allMenus = allMenus.filter(m => m.id !== menuId);
+      renderMenuGrid();
+    } else {
+      showToast(result.message || '메뉴 삭제에 실패했습니다.');
+    }
+  } catch (error) {
+    console.error('메뉴 삭제 실패:', error);
+    showToast('메뉴 삭제 중 오류가 발생했습니다.');
   }
-  
-  showToast('메뉴가 삭제되었습니다.');
-  renderMenuGrid();
 }
 
 function toggleMenuDropdown(menuId, event) {
@@ -435,17 +622,17 @@ function toggleMenuDropdown(menuId, event) {
 }
 
 // ========================================
-// MENU FORM
+// MENU FORM (API 연동)
 // ========================================
 function setupMenuForm() {
   const form = document.getElementById('menu-form');
   if (!form) return;
   
-  form.addEventListener('submit', (e) => {
+  form.addEventListener('submit', async (e) => {
     e.preventDefault();
     
     const name = document.getElementById('menu-name').value;
-    const price = document.getElementById('menu-price').value;
+    const price = parseInt(document.getElementById('menu-price').value);
     const category = document.getElementById('menu-category').value;
     const description = document.getElementById('menu-description').value;
     
@@ -454,8 +641,52 @@ function setupMenuForm() {
       return;
     }
     
-    showToast('메뉴가 저장되었습니다!');
-    navigateTo('page-menus');
+    const submitBtn = form.querySelector('button[type="submit"]');
+    if (submitBtn) {
+      submitBtn.disabled = true;
+      submitBtn.textContent = '저장 중...';
+    }
+    
+    try {
+      const editId = localStorage.getItem('editMenuId');
+      let result;
+      
+      if (editId) {
+        // 수정
+        result = await MenuApi.update({
+          menuId: parseInt(editId),
+          menuName: name,
+          price: price,
+          category: category.toUpperCase(),
+          description: description
+        });
+      } else {
+        // 신규 등록
+        result = await MenuApi.create({
+          menuName: name,
+          price: price,
+          category: category.toUpperCase(),
+          description: description
+        });
+      }
+      
+      if (result.success) {
+        showToast(editId ? '메뉴가 수정되었습니다!' : '메뉴가 등록되었습니다!');
+        localStorage.removeItem('editMenuId');
+        allMenus = []; // 다음에 새로 로드
+        navigateTo('page-menus');
+      } else {
+        showToast(result.message || '메뉴 저장에 실패했습니다.');
+      }
+    } catch (error) {
+      console.error('메뉴 저장 실패:', error);
+      showToast('메뉴 저장 중 오류가 발생했습니다.');
+    } finally {
+      if (submitBtn) {
+        submitBtn.disabled = false;
+        submitBtn.textContent = '저장하기';
+      }
+    }
   });
 }
 
@@ -922,6 +1153,7 @@ window.switchOrderTab = switchOrderTab;
 window.acceptOrder = acceptOrder;
 window.rejectOrder = rejectOrder;
 window.completeOrder = completeOrder;
+window.deliverOrder = deliverOrder;
 window.editMenu = editMenu;
 window.deleteMenu = deleteMenu;
 window.toggleMenuDropdown = toggleMenuDropdown;
