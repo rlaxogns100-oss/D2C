@@ -262,6 +262,18 @@ function createOrderCard(order, compact = false) {
   const statusClass = getStatusClass(order.condition);
   // orderAt 또는 createdAt 사용
   const orderTime = formatOrderTime(order.orderAt || order.createdAt);
+  // price 또는 totalPrice 사용
+  const orderPrice = order.price || order.totalPrice || 0;
+  
+  // 디버깅: 주문 데이터 확인
+  console.log('📦 주문 데이터:', {
+    id: order.id,
+    condition: order.condition,
+    orderAt: order.orderAt,
+    createdAt: order.createdAt,
+    price: order.price,
+    totalPrice: order.totalPrice
+  });
   
   if (compact) {
     return `
@@ -273,7 +285,7 @@ function createOrderCard(order, compact = false) {
           </div>
           <span class="order-status ${statusClass}">${statusText}</span>
         </div>
-        <div class="order-total">${(order.price || 0).toLocaleString()}원</div>
+        <div class="order-total">${orderPrice.toLocaleString()}원</div>
       </div>
     `;
   }
@@ -303,7 +315,7 @@ function createOrderCard(order, compact = false) {
         </div>
       </div>
       
-      <div class="order-total">${(order.price || 0).toLocaleString()}원</div>
+      <div class="order-total">${orderPrice.toLocaleString()}원</div>
       
       ${order.request ? `<div class="order-request"><strong>요청:</strong> ${order.request}</div>` : ''}
       

@@ -717,19 +717,32 @@ async function renderOngoingOrders() {
           return;
         }
         
-        container.innerHTML = orders.map(order => `
+        container.innerHTML = orders.map(order => {
+          const orderPrice = order.price || order.totalPrice || 0;
+          const orderDate = order.orderAt || order.createdAt;
+          
+          console.log('📦 [고객] 주문 데이터:', {
+            id: order.id,
+            condition: order.condition,
+            orderAt: order.orderAt,
+            createdAt: order.createdAt,
+            price: order.price,
+            totalPrice: order.totalPrice
+          });
+          
+          return `
           <div class="order-card">
             <div class="order-header">
               <div>
                 <p class="order-id">주문번호: #${order.id}</p>
-                <p class="order-date">${formatOrderDate(order.orderAt)}</p>
+                <p class="order-date">${formatOrderDate(orderDate)}</p>
               </div>
               <span class="order-status status-${order.condition?.toLowerCase()}">${getStatusText(order.condition)}</span>
             </div>
-            <p class="order-total">${(order.price || 0).toLocaleString()}원</p>
+            <p class="order-total">${orderPrice.toLocaleString()}원</p>
             ${order.request ? `<p class="order-request">💬 ${order.request}</p>` : ''}
           </div>
-        `).join('');
+        `}).join('');
         
         return;
       }
@@ -763,18 +776,22 @@ async function renderCompletedOrders() {
           return;
         }
         
-        container.innerHTML = orders.map(order => `
+        container.innerHTML = orders.map(order => {
+          const orderPrice = order.price || order.totalPrice || 0;
+          const orderDate = order.orderAt || order.createdAt;
+          
+          return `
           <div class="order-card">
             <div class="order-header">
               <div>
                 <p class="order-id">주문번호: #${order.id}</p>
-                <p class="order-date">${formatOrderDate(order.orderAt)}</p>
+                <p class="order-date">${formatOrderDate(orderDate)}</p>
               </div>
               <span class="order-status status-${order.condition?.toLowerCase()}">${getStatusText(order.condition)}</span>
             </div>
-            <p class="order-total">${(order.price || 0).toLocaleString()}원</p>
+            <p class="order-total">${orderPrice.toLocaleString()}원</p>
           </div>
-        `).join('');
+        `}).join('');
         
         return;
       }
@@ -787,8 +804,15 @@ async function renderCompletedOrders() {
 }
 
 function formatOrderDate(orderAt) {
-  if (!orderAt) return '';
+  if (!orderAt) return '날짜 없음';
   const date = new Date(orderAt);
+  
+  // 유효하지 않은 날짜 체크
+  if (isNaN(date.getTime())) {
+    console.warn('유효하지 않은 날짜:', orderAt);
+    return '날짜 오류';
+  }
+  
   return date.toLocaleDateString('ko-KR', {
     month: '2-digit',
     day: '2-digit',
@@ -799,6 +823,14 @@ function formatOrderDate(orderAt) {
 
 function getStatusText(status) {
   const statusMap = {
+    // 실제 백엔드 상태값
+    'ORDERED': '승인 대기',
+    'COOKING': '조리 중',
+    'DELIVERING': '배달 중',
+    'DELIVERED': '배달 완료',
+    'REJECTED': '거절됨',
+    'CANCELLED': '취소됨',
+    // 예비 상태값
     'PENDING': '주문 접수',
     'CONFIRMED': '주문 확인',
     'PREPARING': '조리 중',
@@ -1162,6 +1194,18 @@ async function initPaymentPage() {
   const pointInput = document.getElementById('point-amount');
   if (pointInput) pointInput.max = availablePoints;
   
+  // 요청사항 글자수 카운트
+  const requestInput = document.getElementById('order-request');
+  const charCountEl = document.getElementById('request-char-count');
+  if (requestInput && charCountEl) {
+    requestInput.value = ''; // 초기화
+    charCountEl.textContent = '0';
+    
+    requestInput.addEventListener('input', () => {
+      charCountEl.textContent = requestInput.value.length;
+    });
+  }
+  
   // 토스페이먼츠 위젯 초기화
   initTossPayments(total);
 }
@@ -1314,9 +1358,12 @@ async function submitPayment() {
   
   try {
     // 1. 주문 생성
+    const requestInput = document.getElementById('order-request');
+    const requestText = requestInput ? requestInput.value.trim() : '';
+    
     const orderData = {
       addressId: AppState.selectedAddressId,
-      request: '',
+      request: requestText,
       items: cartItems.map(item => ({
         menuId: item.menuId,
         option: item.option || null,
