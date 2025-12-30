@@ -503,8 +503,14 @@ const ImageApi = {
       const data = await response.json();
       console.log('📷 이미지 업로드 성공:', data);
       
-      // 응답에서 URL 추출 (data.data.url 또는 data.url)
-      const imageUrl = data.data?.url || data.url || data.data;
+      // 응답에서 URL 추출 (data.data.imageUrl 또는 data.data.url 또는 data.data)
+      let imageUrl = data.data?.imageUrl || data.data?.url || data.url;
+      
+      // data.data가 문자열인 경우 (직접 URL)
+      if (!imageUrl && typeof data.data === 'string') {
+        imageUrl = data.data;
+      }
+      
       return { success: true, url: imageUrl };
     } catch (error) {
       console.error('이미지 업로드 실패:', error);
