@@ -29,7 +29,7 @@ public class BillingController {
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @RequestBody BillingIssueRequest request
     ) {
-        Map<String, Object> result = billingService.issueBillingKey(userDetails.getId(), request);
+        Map<String, Object> result = billingService.issueBillingKey(userDetails.getUserId(), request);
         return ResponseEntity.ok(JSONResponse.success(result));
     }
 
@@ -38,7 +38,7 @@ public class BillingController {
     public ResponseEntity<JSONResponse<List<BillingResponse>>> getCards(
             @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
-        List<BillingResponse> cards = billingService.getCards(userDetails.getId());
+        List<BillingResponse> cards = billingService.getCards(userDetails.getUserId());
         return ResponseEntity.ok(JSONResponse.success(cards));
     }
 
@@ -48,7 +48,7 @@ public class BillingController {
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @PathVariable Long billingId
     ) {
-        billingService.deleteCard(userDetails.getId(), billingId);
+        billingService.deleteCard(userDetails.getUserId(), billingId);
         return ResponseEntity.ok(JSONResponse.success(null));
     }
 }
