@@ -1064,6 +1064,36 @@ input, textarea, select {
   font-size: 0.875rem;
 }
 
+.order-items {
+  background: var(--bg-elevated);
+  padding: var(--spacing-md);
+  border-radius: var(--radius-md);
+  margin-bottom: var(--spacing-md);
+}
+
+.order-item-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--spacing-xs) 0;
+  border-bottom: 1px solid var(--bg-secondary);
+}
+
+.order-item-row:last-child {
+  border-bottom: none;
+}
+
+.item-name {
+  color: var(--text-primary);
+  font-size: 0.875rem;
+}
+
+.item-qty {
+  color: var(--text-muted);
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
 .order-actions {
   display: flex;
   gap: var(--spacing-sm);

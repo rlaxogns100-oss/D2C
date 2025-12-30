@@ -805,7 +805,15 @@ async function renderCompletedOrders() {
 
 function formatOrderDate(orderAt) {
   if (!orderAt) return '날짜 없음';
-  const date = new Date(orderAt);
+  
+  // UTC 시간을 KST로 변환 (서버에서 UTC로 저장되었을 경우)
+  let dateStr = orderAt;
+  // ISO 문자열에 timezone 정보가 없으면 UTC로 간주하고 Z 추가
+  if (typeof dateStr === 'string' && !dateStr.includes('+') && !dateStr.includes('Z')) {
+    dateStr = dateStr + 'Z'; // UTC로 파싱되게 함
+  }
+  
+  const date = new Date(dateStr);
   
   // 유효하지 않은 날짜 체크
   if (isNaN(date.getTime())) {

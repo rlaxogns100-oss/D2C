@@ -265,15 +265,21 @@ function createOrderCard(order, compact = false) {
   // price 또는 totalPrice 사용
   const orderPrice = order.price || order.totalPrice || 0;
   
-  // 디버깅: 주문 데이터 확인
-  console.log('📦 주문 데이터:', {
-    id: order.id,
-    condition: order.condition,
-    orderAt: order.orderAt,
-    createdAt: order.createdAt,
-    price: order.price,
-    totalPrice: order.totalPrice
-  });
+  // 디버깅: 전체 주문 데이터 확인
+  console.log('📦 주문 데이터:', order);
+  
+  // 주문 메뉴 목록 생성
+  const items = order.items || order.orderItems || [];
+  const itemsHtml = items.length > 0 
+    ? `<div class="order-items">
+        ${items.map(item => `
+          <div class="order-item-row">
+            <span class="item-name">${item.menuName || item.name || '메뉴'}</span>
+            <span class="item-qty">x${item.count || item.quantity || 1}</span>
+          </div>
+        `).join('')}
+       </div>`
+    : '';
   
   if (compact) {
     return `
@@ -315,9 +321,11 @@ function createOrderCard(order, compact = false) {
         </div>
       </div>
       
+      ${itemsHtml}
+      
       <div class="order-total">${orderPrice.toLocaleString()}원</div>
       
-      ${order.request ? `<div class="order-request"><strong>요청:</strong> ${order.request}</div>` : ''}
+      ${order.request ? `<div class="order-request"><strong>요청사항:</strong> ${order.request}</div>` : ''}
       
       ${showAcceptReject ? `
         <div class="order-actions">
@@ -342,7 +350,14 @@ function createOrderCard(order, compact = false) {
 function formatOrderTime(orderAt) {
   if (!orderAt) return '날짜 없음';
   
-  const date = new Date(orderAt);
+  // UTC 시간을 KST로 변환 (서버에서 UTC로 저장되었을 경우)
+  let dateStr = orderAt;
+  // ISO 문자열에 timezone 정보가 없으면 UTC로 간주하고 +09:00 추가
+  if (typeof dateStr === 'string' && !dateStr.includes('+') && !dateStr.includes('Z')) {
+    dateStr = dateStr + 'Z'; // UTC로 파싱되게 함
+  }
+  
+  const date = new Date(dateStr);
   
   // 유효하지 않은 날짜 체크
   if (isNaN(date.getTime())) {
@@ -353,10 +368,12 @@ function formatOrderTime(orderAt) {
   const now = new Date();
   const diffMinutes = Math.floor((now - date) / 1000 / 60);
   
+  if (diffMinutes < 0) return '방금 전'; // 미래 시간이면 방금 전으로 표시
   if (diffMinutes < 1) return '방금 전';
   if (diffMinutes < 60) return `${diffMinutes}분 전`;
   if (diffMinutes < 1440) return `${Math.floor(diffMinutes / 60)}시간 전`; // 24시간 이내
   
+  // 한국 시간으로 표시
   const month = date.getMonth() + 1;
   const day = date.getDate();
   const hours = String(date.getHours()).padStart(2, '0');
