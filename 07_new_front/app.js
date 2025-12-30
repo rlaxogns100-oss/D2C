@@ -1467,6 +1467,18 @@ async function registerNewCard() {
   }
 }
 
+function deleteCard(index) {
+  if (confirm('이 카드를 삭제하시겠습니까?')) {
+    // TODO: 실제로 카드 삭제 API 호출 필요
+    showToast('카드가 삭제되었습니다.');
+    // 현재는 UI에서만 제거 (새로고침하면 다시 나타남)
+    const cards = document.querySelectorAll('.card-item');
+    if (cards[index]) {
+      cards[index].remove();
+    }
+  }
+}
+
 function copyBankAccount() {
   const account = document.getElementById('bank-account')?.textContent || '';
   navigator.clipboard.writeText(account).then(() => {
@@ -1855,7 +1867,15 @@ async function initSplash() {
       setTimeout(() => {
         splash.classList.remove('active');
         splash.style.display = 'none';
-        navigateTo('page-home');
+        
+        // 결제 성공 후 주문 내역으로 이동해야 하는 경우
+        const pendingNavigation = localStorage.getItem('navigateTo');
+        if (pendingNavigation) {
+          localStorage.removeItem('navigateTo');
+          navigateTo(pendingNavigation);
+        } else {
+          navigateTo('page-home');
+        }
       }, 500);
     }
   }, 2000);
@@ -1905,3 +1925,4 @@ window.updatePointUsage = updatePointUsage;
 window.useAllPoints = useAllPoints;
 window.handlePaymentSuccess = handlePaymentSuccess;
 window.registerNewCard = registerNewCard;
+window.deleteCard = deleteCard;
