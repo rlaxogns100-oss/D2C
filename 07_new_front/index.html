@@ -937,6 +937,16 @@
                   <path d="M9 18l6-6-6-6"/>
                 </svg>
               </a>
+              <a href="#" class="profile-menu-item" onclick="navigateTo('page-payment-methods'); return false;">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <rect x="1" y="4" width="22" height="16" rx="2" ry="2"/>
+                  <line x1="1" y1="10" x2="23" y2="10"/>
+                </svg>
+                <span>결제수단 관리</span>
+                <svg class="arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M9 18l6-6-6-6"/>
+                </svg>
+              </a>
               <a href="#" class="profile-menu-item" onclick="navigateTo('page-terms'); return false;">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
@@ -965,7 +975,52 @@
       </section>
 
       <!-- ========================================
-           PAGE 12: TERMS
+           PAGE 12: PAYMENT METHODS (결제수단 관리)
+      ======================================== -->
+      <section id="page-payment-methods" class="page">
+        <div class="payment-methods-container">
+          <header class="page-header">
+            <button class="back-btn" onclick="navigateTo('page-profile')">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M15 18l-6-6 6-6"/>
+              </svg>
+            </button>
+            <h1>결제수단 관리</h1>
+            <div class="header-spacer"></div>
+          </header>
+          
+          <div class="payment-methods-content">
+            <!-- 안내 문구 -->
+            <div class="info-card">
+              <div class="info-icon">💳</div>
+              <p>자주 사용하는 카드를 등록하면 다음 결제 시 더 빠르게 결제할 수 있습니다.</p>
+            </div>
+            
+            <!-- 등록된 카드 목록 -->
+            <div class="cards-list" id="registered-cards">
+              <p class="empty-message">등록된 카드가 없습니다.</p>
+            </div>
+            
+            <!-- 카드 등록 버튼 -->
+            <button class="btn btn-primary btn-full" id="add-card-btn" onclick="registerNewCard()">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20">
+                <line x1="12" y1="5" x2="12" y2="19"/>
+                <line x1="5" y1="12" x2="19" y2="12"/>
+              </svg>
+              새 카드 등록
+            </button>
+            
+            <!-- 토스페이먼츠 계약 안내 -->
+            <div class="notice-card">
+              <p><strong>토스페이먼츠 계약 체결 중입니다.</strong></p>
+              <p style="margin-top: 8px;">계좌이체로 부탁드려요 😭</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ========================================
+           PAGE 13: TERMS
       ======================================== -->
       <section id="page-terms" class="page">
         <div class="terms-container">

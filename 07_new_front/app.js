@@ -1439,6 +1439,34 @@ function handlePaymentSuccess(orderId) {
   setTimeout(() => navigateTo('page-orders'), 1500);
 }
 
+// ========================================
+// CARD REGISTRATION (결제수단 관리)
+// ========================================
+async function registerNewCard() {
+  // 토스페이먼츠 빌링 결제창
+  const clientKey = "test_ck_vZnjEJeQVxePJdEMyexZrPmOoBN0"; // 빌링용 테스트 키
+  const customerKey = 'CUSTOMER_' + Date.now();
+  
+  try {
+    if (typeof TossPayments === 'undefined') {
+      showToast('결제 모듈을 로드할 수 없습니다.');
+      return;
+    }
+    
+    const tossPayments = TossPayments(clientKey);
+    const payment = tossPayments.payment({ customerKey });
+    
+    await payment.requestBillingAuth({
+      method: "CARD",
+      successUrl: window.location.origin + "/billing_success.html",
+      failUrl: window.location.origin + "/billing_fail.html",
+    });
+  } catch (error) {
+    console.error("카드 등록 에러:", error);
+    showToast(`카드 등록 실패: ${error.message}`);
+  }
+}
+
 function copyBankAccount() {
   const account = document.getElementById('bank-account')?.textContent || '';
   navigator.clipboard.writeText(account).then(() => {
@@ -1876,3 +1904,4 @@ window.togglePointUsage = togglePointUsage;
 window.updatePointUsage = updatePointUsage;
 window.useAllPoints = useAllPoints;
 window.handlePaymentSuccess = handlePaymentSuccess;
+window.registerNewCard = registerNewCard;

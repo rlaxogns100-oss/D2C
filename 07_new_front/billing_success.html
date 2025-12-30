@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>결제 완료 | 매장직결</title>
+  <title>카드 등록 완료 | 매장직결</title>
   <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css" />
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -44,7 +44,7 @@
     }
     h1 {
       color: #fff;
-      font-size: 28px;
+      font-size: 24px;
       font-weight: 700;
       margin-bottom: 12px;
     }
@@ -53,23 +53,6 @@
       font-size: 16px;
       line-height: 1.6;
       margin-bottom: 24px;
-    }
-    .order-id {
-      background: #2a2a3d;
-      padding: 16px;
-      border-radius: 12px;
-      margin-bottom: 32px;
-    }
-    .order-id span {
-      color: #666;
-      font-size: 12px;
-      display: block;
-      margin-bottom: 4px;
-    }
-    .order-id strong {
-      color: #C45C26;
-      font-size: 18px;
-      font-weight: 600;
     }
     .btn {
       display: inline-block;
@@ -81,53 +64,28 @@
       font-weight: 600;
       font-size: 16px;
       transition: transform 0.2s;
+      border: none;
+      cursor: pointer;
     }
     .btn:hover {
       transform: translateY(-2px);
-    }
-    .reward-info {
-      margin-top: 24px;
-      padding: 16px;
-      background: rgba(241, 196, 15, 0.1);
-      border-radius: 12px;
-      color: #f1c40f;
-      font-size: 14px;
     }
   </style>
 </head>
 <body>
   <div class="container">
-    <div class="icon">✓</div>
-    <h1>결제가 완료되었습니다!</h1>
-    <p>주문이 접수되었습니다.<br>맛있는 음식을 빠르게 준비하겠습니다.</p>
+    <div class="icon">💳</div>
+    <h1>카드 등록 완료!</h1>
+    <p>결제수단이 성공적으로 등록되었습니다.<br>이제 더 빠르게 결제하실 수 있습니다.</p>
     
-    <div class="order-id">
-      <span>주문번호</span>
-      <strong id="order-id">-</strong>
-    </div>
-    
-    <a href="index.html" class="btn">주문 내역 보기</a>
-    
-    <div class="reward-info" id="reward-info" style="display:none;">
-      🎁 <span id="reward-points">0</span>P 적립 완료!
-    </div>
+    <a href="index.html" class="btn">돌아가기</a>
   </div>
   
   <script>
-    // URL에서 orderId 추출
-    const params = new URLSearchParams(window.location.search);
-    const orderId = params.get('orderId');
-    
-    if (orderId) {
-      document.getElementById('order-id').textContent = orderId;
-    }
-    
-    // 장바구니 비우기 (결제 성공 후)
-    localStorage.removeItem('cart');
-    
-    // 적립금 표시
-    const rewardRate = parseInt(localStorage.getItem('rewardRate') || '40');
-    // 실제로는 서버에서 적립금 정보를 받아와야 함
+    // 3초 후 자동으로 돌아가기
+    setTimeout(() => {
+      window.location.href = 'index.html';
+    }, 3000);
   </script>
 </body>
 </html>
