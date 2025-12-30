@@ -61,7 +61,8 @@ async function loadStoreConfigByOwner() {
       throw new Error('점주 계정이 아닙니다.');
     }
     
-    OWNER_ID = OWNER_USER.id;
+    // userId를 ownerId로 사용 (기존 API 구조)
+    OWNER_ID = OWNER_USER.userId;
     
     // 2. 점주의 매장 정보 조회 (me 응답에 storeId가 있으면 사용)
     if (OWNER_USER.storeId) {
@@ -356,10 +357,16 @@ const MenuApi = {
    * 메뉴 목록 조회 - /api/v1/menu/read?ownerId=
    */
   async getList() {
-    await window.STORE_CONFIG_LOADED;
+    // window.OWNER_ID 사용 (로그인 후 설정됨)
+    const ownerId = window.OWNER_ID || OWNER_ID;
+    
+    if (!ownerId) {
+      console.error('❌ OWNER_ID가 설정되지 않았습니다. 로그인이 필요합니다.');
+      return { success: false, data: [], message: 'OWNER_ID가 없습니다.' };
+    }
     
     try {
-      const response = await fetch(`${baseUrl}/api/v1/menu/read?ownerId=${OWNER_ID}`, {
+      const response = await fetch(`${baseUrl}/api/v1/menu/read?ownerId=${ownerId}`, {
         credentials: 'include'
       });
       
@@ -382,10 +389,11 @@ const MenuApi = {
    * 메뉴 추가 - /api/v1/menu/create
    */
   async create(menuData) {
-    await window.STORE_CONFIG_LOADED;
+    const ownerId = window.OWNER_ID || OWNER_ID;
+    if (!ownerId) return { success: false, message: 'OWNER_ID가 없습니다.' };
     
     const token = AuthToken.get();
-    if (!token) return { success: false };
+    if (!token) return { success: false, message: '로그인이 필요합니다.' };
     
     try {
       const response = await fetch(`${baseUrl}/api/v1/menu/create`, {
@@ -396,7 +404,7 @@ const MenuApi = {
         },
         body: JSON.stringify({
           ...menuData,
-          ownerId: OWNER_ID
+          ownerId: ownerId
         })
       });
       
