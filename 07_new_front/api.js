@@ -1,45 +1,76 @@
 /**
  * ============================================================================
- * 📡 API SERVICE MODULE - 중앙화된 API 연동
+ * 📡 API SERVICE MODULE - 기존 백엔드와 100% 호환
  * ============================================================================
  * 
- * 모든 API 호출을 일관성 있게 처리합니다.
- * - 인증 토큰 자동 첨부
- * - 에러 핸들링 통합
- * - 서브도메인 기반 매장 정보 자동 로드
+ * 기존 03_Customer 코드의 API 호출 방식을 그대로 사용합니다.
  * 
  * ============================================================================
  */
 
 // ============================================================================
-// 🔧 기본 설정
+// 🔧 기본 설정 (config.js 호환)
 // ============================================================================
 
-const ApiConfig = {
-  // 서브도메인 감지
-  hostname: window.location.hostname,
-  subdomain: window.location.hostname.split('.')[0],
-  
-  // baseUrl 처리 (로컬 파일 테스트 또는 localhost)
-  get baseUrl() {
-    const protocol = window.location.protocol;
-    const hostname = window.location.hostname;
+const hostname = window.location.hostname;
+const subdomain = hostname.split('.')[0];
+
+// baseUrl 처리 (로컬 파일 테스트용)
+const baseUrl = window.location.protocol === 'file:' 
+  ? 'https://pizzaschool.maejang.com'
+  : '';
+
+// 전역 변수 (다른 스크립트에서 사용)
+let OWNER_ID = null;
+let STORE_ID = null;
+let STORE_NAME = null;
+let STORE_INFO = null;
+
+// ============================================================================
+// 🏪 매장 정보 로드 (config.js와 동일)
+// ============================================================================
+
+async function loadStoreConfig() {
+  try {
+    // localhost는 pizzaschool로 기본 처리
+    const targetSubdomain = (subdomain === 'localhost' || subdomain === '127') 
+      ? 'pizzaschool' 
+      : subdomain;
     
-    // 파일 프로토콜이거나 localhost인 경우
-    if (protocol === 'file:' || hostname === 'localhost' || hostname === '127.0.0.1') {
-      return 'https://pizzaschool.maejang.com';
+    console.log('🏪 [API] 서브도메인 감지:', targetSubdomain);
+    
+    const response = await fetch(`${baseUrl}/api/v1/store/by-subdomain?subdomain=${targetSubdomain}`);
+    
+    if (!response.ok) {
+      throw new Error('매장을 찾을 수 없습니다.');
     }
     
-    // 실제 도메인에서는 같은 도메인 사용
-    return '';
-  },
-  
-  // 매장 정보 (동적 로드)
-  storeInfo: null,
-  ownerId: null,
-  storeId: null,
-  storeName: null
-};
+    const result = await response.json();
+    
+    if (!result.success || !result.data) {
+      throw new Error('매장 정보가 없습니다.');
+    }
+    
+    STORE_INFO = result.data;
+    OWNER_ID = STORE_INFO.ownerId;
+    STORE_ID = STORE_INFO.storeId;
+    STORE_NAME = STORE_INFO.storeName;
+    
+    console.log('✅ [API] 매장 정보 로드 완료');
+    console.log('   - OWNER_ID:', OWNER_ID);
+    console.log('   - STORE_ID:', STORE_ID);
+    console.log('   - STORE_NAME:', STORE_NAME);
+    
+    return STORE_INFO;
+    
+  } catch (error) {
+    console.error('❌ [API] 매장 정보 로드 실패:', error);
+    throw error;
+  }
+}
+
+// 페이지 로드 시 자동 실행
+window.STORE_CONFIG_LOADED = loadStoreConfig();
 
 // ============================================================================
 // 🔐 인증 토큰 관리
@@ -62,193 +93,109 @@ const AuthToken = {
   
   exists() {
     return !!this.get();
-  },
-  
-  // JWT 페이로드 추출 (만료 체크용)
-  getPayload() {
-    const token = this.get();
-    if (!token) return null;
-    
-    try {
-      const base64Url = token.split('.')[1];
-      const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-      return JSON.parse(window.atob(base64));
-    } catch (e) {
-      console.error('토큰 파싱 실패:', e);
-      return null;
-    }
-  },
-  
-  // 토큰 만료 체크
-  isExpired() {
-    const payload = this.getPayload();
-    if (!payload || !payload.exp) return true;
-    
-    // 만료 시간 - 현재 시간 (5분 여유)
-    return (payload.exp * 1000) < (Date.now() + 5 * 60 * 1000);
   }
 };
 
-// ============================================================================
-// 📡 API 호출 기본 함수
-// ============================================================================
-
-/**
- * API 호출 기본 함수
- * @param {string} endpoint - API 엔드포인트 (예: '/api/v1/menu/list')
- * @param {object} options - fetch 옵션
- * @returns {Promise<object>} API 응답
- */
-async function apiCall(endpoint, options = {}) {
-  const url = `${ApiConfig.baseUrl}${endpoint}`;
-  
-  // 기본 헤더 설정
-  const headers = {
-    'Content-Type': 'application/json',
-    ...options.headers
-  };
-  
-  // 인증 토큰 자동 첨부
-  if (AuthToken.exists()) {
-    headers['Authorization'] = `Bearer ${AuthToken.get()}`;
+// 인증 에러 체크 (기존 코드와 동일)
+function checkAuthError(response) {
+  if (response.status === 401 || response.status === 403) {
+    console.warn('🔐 인증 만료 또는 권한 없음');
+    AuthToken.remove();
+    return true;
   }
-  
-  try {
-    const response = await fetch(url, {
-      ...options,
-      headers,
-      credentials: 'include'
-    });
-    
-    // 인증 에러 처리
-    if (response.status === 401 || response.status === 403) {
-      console.warn('🔐 인증 만료 또는 권한 없음');
-      AuthToken.remove();
-      
-      // 로그인 페이지로 리다이렉트 여부는 호출자가 결정
-      return {
-        success: false,
-        error: 'AUTH_ERROR',
-        message: '로그인이 필요합니다.',
-        status: response.status
-      };
-    }
-    
-    // JSON 파싱
-    const data = await response.json();
-    
-    // API 응답 형식 통일
-    return {
-      success: response.ok && data.success !== false,
-      data: data.data || data,
-      message: data.message || '',
-      status: response.status
-    };
-    
-  } catch (error) {
-    console.error(`❌ API 호출 실패 [${endpoint}]:`, error);
-    return {
-      success: false,
-      error: 'NETWORK_ERROR',
-      message: error.message || '네트워크 오류가 발생했습니다.',
-      status: 0
-    };
-  }
-}
-
-// GET 요청 헬퍼
-async function apiGet(endpoint) {
-  return apiCall(endpoint, { method: 'GET' });
-}
-
-// POST 요청 헬퍼
-async function apiPost(endpoint, body) {
-  return apiCall(endpoint, {
-    method: 'POST',
-    body: JSON.stringify(body)
-  });
-}
-
-// PUT 요청 헬퍼
-async function apiPut(endpoint, body) {
-  return apiCall(endpoint, {
-    method: 'PUT',
-    body: JSON.stringify(body)
-  });
-}
-
-// DELETE 요청 헬퍼
-async function apiDelete(endpoint) {
-  return apiCall(endpoint, { method: 'DELETE' });
+  return false;
 }
 
 // ============================================================================
-// 🏪 매장 정보 로드
-// ============================================================================
-
-/**
- * 서브도메인 기반 매장 정보 로드
- * 앱 초기화 시 반드시 호출 필요
- */
-async function loadStoreConfig() {
-  try {
-    // localhost는 pizzaschool로 기본 처리
-    const targetSubdomain = (ApiConfig.subdomain === 'localhost' || ApiConfig.subdomain === '127') 
-      ? 'pizzaschool' 
-      : ApiConfig.subdomain;
-    
-    console.log('🏪 [API] 서브도메인 감지:', targetSubdomain);
-    
-    const result = await apiGet(`/api/v1/store/by-subdomain?subdomain=${targetSubdomain}`);
-    
-    if (!result.success || !result.data) {
-      throw new Error('매장을 찾을 수 없습니다.');
-    }
-    
-    ApiConfig.storeInfo = result.data;
-    ApiConfig.ownerId = result.data.ownerId;
-    ApiConfig.storeId = result.data.storeId;
-    ApiConfig.storeName = result.data.storeName;
-    
-    console.log('✅ [API] 매장 정보 로드 완료');
-    console.log('   - OWNER_ID:', ApiConfig.ownerId);
-    console.log('   - STORE_ID:', ApiConfig.storeId);
-    console.log('   - STORE_NAME:', ApiConfig.storeName);
-    
-    return ApiConfig.storeInfo;
-    
-  } catch (error) {
-    console.error('❌ [API] 매장 정보 로드 실패:', error);
-    throw error;
-  }
-}
-
-// 매장 정보 로드 Promise (다른 API 호출 전 대기용)
-window.STORE_CONFIG_LOADED = null;
-
-// ============================================================================
-// 👤 인증 API
+// 👤 인증 API (기존 02_Login.html, 03_Sign_Up.html과 동일)
 // ============================================================================
 
 const AuthApi = {
   /**
-   * 로그인
+   * 로그인 - /api/v1/auth/login (토큰은 헤더에서 추출)
    */
   async login(email, password) {
-    const result = await apiPost('/api/v1/user/login', { email, password });
-    
-    if (result.success && result.data?.token) {
-      AuthToken.set(result.data.token);
+    try {
+      const response = await fetch(`${baseUrl}/api/v1/auth/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password })
+      });
+      
+      if (response.ok) {
+        // 토큰은 응답 헤더에서 추출 (Bearer 제거)
+        const authHeader = response.headers.get('Authorization');
+        if (authHeader) {
+          const token = authHeader.replace('Bearer ', '');
+          AuthToken.set(token);
+        }
+        
+        const data = await response.json();
+        return { success: true, data };
+      } else {
+        const errorData = await response.json().catch(() => ({}));
+        return { 
+          success: false, 
+          message: errorData.message || '아이디 또는 비밀번호를 확인해주세요'
+        };
+      }
+    } catch (error) {
+      console.error('로그인 오류:', error);
+      return { success: false, message: error.message };
     }
-    
-    return result;
   },
   
   /**
-   * 회원가입
+   * 회원가입 - /api/v1/users/sign_in
    */
   async signup(userData) {
-    return apiPost('/api/v1/user/customer/signup', userData);
+    try {
+      const response = await fetch(`${baseUrl}/api/v1/users/sign_in`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: userData.email,
+          password: userData.password,
+          name: userData.name,
+          role: 'CUSTOMER'
+        })
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        return { success: true, data };
+      } else {
+        const errorData = await response.json().catch(() => ({}));
+        return { success: false, message: errorData.message || '회원가입에 실패했습니다.' };
+      }
+    } catch (error) {
+      return { success: false, message: error.message };
+    }
+  },
+  
+  /**
+   * 내 정보 조회 - /api/v1/auth/me (POST)
+   */
+  async getProfile() {
+    try {
+      const token = AuthToken.get();
+      if (!token) return { success: false, message: '로그인 필요' };
+      
+      const response = await fetch(`${baseUrl}/api/v1/auth/me`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        return { success: true, data: data.data || data };
+      }
+      return { success: false };
+    } catch (error) {
+      return { success: false, message: error.message };
+    }
   },
   
   /**
@@ -261,230 +208,253 @@ const AuthApi = {
   },
   
   /**
-   * 내 정보 조회
-   */
-  async getProfile() {
-    return apiGet('/api/v1/user/me');
-  },
-  
-  /**
    * 로그인 상태 확인
    */
   isLoggedIn() {
-    return AuthToken.exists() && !AuthToken.isExpired();
+    return AuthToken.exists();
   }
 };
 
 // ============================================================================
-// 🍽️ 메뉴 API
+// 🍽️ 메뉴 API (기존 04_Home.html과 동일)
 // ============================================================================
 
 const MenuApi = {
   /**
-   * 메뉴 목록 조회
+   * 메뉴 목록 조회 - /api/v1/menu/read?ownerId=
+   * 인증 불필요
    */
   async getList() {
     await window.STORE_CONFIG_LOADED;
-    return apiGet(`/api/v1/menu/list?ownerId=${ApiConfig.ownerId}`);
+    
+    try {
+      const response = await fetch(`${baseUrl}/api/v1/menu/read?ownerId=${OWNER_ID}`, {
+        credentials: 'include'
+      });
+      
+      if (!response.ok) {
+        throw new Error('메뉴 목록을 가져올 수 없습니다.');
+      }
+      
+      const data = await response.json();
+      
+      if (data.success && data.data) {
+        return { success: true, data: data.data };
+      }
+      return { success: false, data: [] };
+    } catch (error) {
+      console.error('메뉴 로드 오류:', error);
+      return { success: false, data: [], message: error.message };
+    }
   },
   
   /**
    * 메뉴 상세 조회
    */
   async getDetail(menuId) {
-    return apiGet(`/api/v1/menu/${menuId}`);
-  },
-  
-  /**
-   * 카테고리별 메뉴 조회
-   */
-  async getByCategory(category) {
-    await window.STORE_CONFIG_LOADED;
-    return apiGet(`/api/v1/menu/list?ownerId=${ApiConfig.ownerId}&category=${category}`);
+    try {
+      const response = await fetch(`${baseUrl}/api/v1/menu/${menuId}`);
+      if (response.ok) {
+        const data = await response.json();
+        return { success: true, data: data.data || data };
+      }
+      return { success: false };
+    } catch (error) {
+      return { success: false, message: error.message };
+    }
   }
 };
 
 // ============================================================================
-// 🛒 장바구니 (LocalStorage 기반 - API 연동 준비)
-// ============================================================================
-
-const CartApi = {
-  CART_KEY: 'maejang_cart',
-  
-  /**
-   * 장바구니 조회
-   */
-  getAll() {
-    const cart = localStorage.getItem(this.CART_KEY);
-    return cart ? JSON.parse(cart) : [];
-  },
-  
-  /**
-   * 장바구니에 상품 추가
-   */
-  addItem(item) {
-    const cart = this.getAll();
-    
-    // 같은 상품+옵션이 있는지 확인
-    const existingIndex = cart.findIndex(
-      i => i.menuId === item.menuId && i.option === item.option
-    );
-    
-    if (existingIndex > -1) {
-      cart[existingIndex].quantity += item.quantity;
-      cart[existingIndex].totalPrice = cart[existingIndex].price * cart[existingIndex].quantity;
-    } else {
-      cart.push({
-        ...item,
-        id: Date.now(),
-        addedAt: new Date().toISOString()
-      });
-    }
-    
-    this.save(cart);
-    return cart;
-  },
-  
-  /**
-   * 수량 변경
-   */
-  updateQuantity(itemId, quantity) {
-    const cart = this.getAll();
-    const item = cart.find(i => i.id === itemId);
-    
-    if (item) {
-      item.quantity = Math.max(1, quantity);
-      item.totalPrice = item.price * item.quantity;
-      this.save(cart);
-    }
-    
-    return cart;
-  },
-  
-  /**
-   * 아이템 삭제
-   */
-  removeItem(itemId) {
-    let cart = this.getAll();
-    cart = cart.filter(item => item.id !== itemId);
-    this.save(cart);
-    return cart;
-  },
-  
-  /**
-   * 장바구니 비우기
-   */
-  clear() {
-    localStorage.removeItem(this.CART_KEY);
-  },
-  
-  /**
-   * 저장
-   */
-  save(cart) {
-    localStorage.setItem(this.CART_KEY, JSON.stringify(cart));
-  },
-  
-  /**
-   * 총 금액
-   */
-  getTotal() {
-    return this.getAll().reduce((sum, item) => sum + item.totalPrice, 0);
-  },
-  
-  /**
-   * 총 수량
-   */
-  getCount() {
-    return this.getAll().reduce((count, item) => count + item.quantity, 0);
-  }
-};
-
-// ============================================================================
-// 📦 주문 API
+// 📦 주문 API (기존 07_Cart.html, 08_My_Orders.html과 동일)
 // ============================================================================
 
 const OrderApi = {
   /**
-   * 주문 생성
-   * ⚠️ 고위험: 결제와 연동됨
+   * 주문 생성 - /api/v1/order/create
    */
   async create(orderData) {
     await window.STORE_CONFIG_LOADED;
     
-    // storeId 자동 첨부
-    const order = {
-      storeId: ApiConfig.storeId,
-      ...orderData
-    };
+    const token = AuthToken.get();
+    if (!token) return { success: false, message: '로그인이 필요합니다.' };
     
-    console.log('🛒 [OrderApi] 주문 생성:', order);
-    
-    return apiPost('/api/v1/order/create', order);
+    try {
+      const response = await fetch(`${baseUrl}/api/v1/order/create`, {
+        method: 'POST',
+        credentials: 'include',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          storeId: STORE_ID,
+          ...orderData
+        })
+      });
+      
+      if (checkAuthError(response)) {
+        return { success: false, error: 'AUTH_ERROR', message: '로그인이 필요합니다.' };
+      }
+      
+      const data = await response.json();
+      
+      if (response.ok && data.success) {
+        return { success: true, data: data.data };
+      }
+      return { success: false, message: data.message || '주문 생성에 실패했습니다.' };
+    } catch (error) {
+      return { success: false, message: error.message };
+    }
   },
   
   /**
-   * 주문 목록 조회
+   * 주문 내역 조회 - /api/v1/order/history
    */
   async getList() {
-    return apiGet('/api/v1/order/list');
+    const token = AuthToken.get();
+    if (!token) return { success: false, message: '로그인이 필요합니다.', data: [] };
+    
+    try {
+      const response = await fetch(`${baseUrl}/api/v1/order/history`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      
+      if (checkAuthError(response)) {
+        return { success: false, error: 'AUTH_ERROR', data: [] };
+      }
+      
+      if (!response.ok) {
+        throw new Error('주문 내역을 불러올 수 없습니다.');
+      }
+      
+      const data = await response.json();
+      
+      if (data.success && data.data) {
+        return { success: true, data: data.data };
+      }
+      return { success: false, data: [] };
+    } catch (error) {
+      return { success: false, message: error.message, data: [] };
+    }
   },
   
   /**
-   * 주문 상세 조회
-   */
-  async getDetail(orderId) {
-    return apiGet(`/api/v1/order/${orderId}`);
-  },
-  
-  /**
-   * 주문 취소
+   * 주문 취소 - /api/v1/order/delete?orderId=
    */
   async cancel(orderId) {
-    return apiPost(`/api/v1/order/${orderId}/cancel`);
+    const token = AuthToken.get();
+    if (!token) return { success: false, message: '로그인이 필요합니다.' };
+    
+    try {
+      const response = await fetch(`${baseUrl}/api/v1/order/delete?orderId=${orderId}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      
+      if (checkAuthError(response)) {
+        return { success: false, error: 'AUTH_ERROR' };
+      }
+      
+      return { success: response.ok };
+    } catch (error) {
+      return { success: false, message: error.message };
+    }
   }
 };
 
 // ============================================================================
-// 📍 주소 API
+// 📍 주소 API (기존 09_Address.html, 10_Add_Address.html과 동일)
 // ============================================================================
 
 const AddressApi = {
   /**
-   * 주소 목록 조회
+   * 주소 목록 조회 - /api/v1/address/read
    */
   async getList() {
-    return apiGet('/api/v1/address/read');
+    const token = AuthToken.get();
+    if (!token) return { success: false, data: [] };
+    
+    try {
+      const response = await fetch(`${baseUrl}/api/v1/address/read`, {
+        method: 'GET',
+        credentials: 'include',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      
+      if (checkAuthError(response)) {
+        return { success: false, error: 'AUTH_ERROR', data: [] };
+      }
+      
+      if (!response.ok) {
+        throw new Error('주소 목록을 불러올 수 없습니다.');
+      }
+      
+      const data = await response.json();
+      if (data.success && data.data) {
+        return { success: true, data: data.data };
+      }
+      return { success: false, data: [] };
+    } catch (error) {
+      return { success: false, data: [], message: error.message };
+    }
   },
   
   /**
-   * 주소 추가
-   * ⚠️ 고위험: 배달 권역 체크 필요
+   * 주소 추가 - /api/v1/address/create
    */
   async create(addressData) {
-    console.log('📍 [AddressApi] 주소 추가:', addressData);
-    return apiPost('/api/v1/address/create', addressData);
-  },
-  
-  /**
-   * 주소 수정
-   */
-  async update(addressId, addressData) {
-    return apiPut(`/api/v1/address/${addressId}`, addressData);
+    const token = AuthToken.get();
+    if (!token) return { success: false, error: 'AUTH_ERROR' };
+    
+    try {
+      const response = await fetch(`${baseUrl}/api/v1/address/create`, {
+        method: 'POST',
+        credentials: 'include',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(addressData)
+      });
+      
+      if (checkAuthError(response)) {
+        return { success: false, error: 'AUTH_ERROR' };
+      }
+      
+      const data = await response.json();
+      return { success: response.ok && data.success, data: data.data, message: data.message };
+    } catch (error) {
+      return { success: false, message: error.message };
+    }
   },
   
   /**
    * 주소 삭제
    */
   async delete(addressId) {
-    return apiDelete(`/api/v1/address/${addressId}`);
-  },
-  
-  /**
-   * 기본 주소 설정
-   */
-  async setDefault(addressId) {
-    return apiPost(`/api/v1/address/${addressId}/default`);
+    const token = AuthToken.get();
+    if (!token) return { success: false };
+    
+    try {
+      const response = await fetch(`${baseUrl}/api/v1/address/${addressId}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      
+      return { success: response.ok };
+    } catch (error) {
+      return { success: false, message: error.message };
+    }
   }
 };
 
@@ -498,28 +468,38 @@ const StoreApi = {
    */
   async getInfo() {
     await window.STORE_CONFIG_LOADED;
-    return apiGet(`/api/v1/store/${ApiConfig.storeId}`);
+    
+    try {
+      const response = await fetch(`${baseUrl}/api/v1/store/${STORE_ID}`);
+      
+      if (response.ok) {
+        const data = await response.json();
+        if (data.success && data.data) {
+          return { success: true, data: data.data };
+        }
+      }
+      return { success: false };
+    } catch (error) {
+      return { success: false, message: error.message };
+    }
   },
   
   /**
-   * 배달 가능 여부 확인
-   * @param {number} lat 위도
-   * @param {number} lng 경도
+   * 배달 가능 여부 확인 (Haversine 공식)
    */
   async checkDelivery(lat, lng) {
     await window.STORE_CONFIG_LOADED;
     
-    // 가게 정보에서 배달 반경 가져오기
     const storeResult = await this.getInfo();
     if (!storeResult.success) return { success: false, isAvailable: false };
     
     const store = storeResult.data;
     if (!store.latitude || !store.longitude || !store.deliveryRadius) {
-      return { success: true, isAvailable: true }; // 제한 없음
+      return { success: true, isAvailable: true };
     }
     
     // Haversine 공식으로 거리 계산
-    const R = 6371; // 지구 반경 (km)
+    const R = 6371;
     const dLat = (store.latitude - lat) * Math.PI / 180;
     const dLon = (store.longitude - lng) * Math.PI / 180;
     const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
@@ -538,29 +518,69 @@ const StoreApi = {
 };
 
 // ============================================================================
-// 💳 결제 관련 유틸리티
+// 🛒 장바구니 (LocalStorage 기반 - 기존과 동일)
 // ============================================================================
 
-const PaymentUtils = {
-  /**
-   * 랜덤 문자열 생성 (주문번호용)
-   */
-  generateOrderId() {
-    return 'ORD' + Date.now() + Math.random().toString(36).substr(2, 9).toUpperCase();
+const CartApi = {
+  CART_KEY: 'cart',
+  
+  getAll() {
+    return JSON.parse(localStorage.getItem(this.CART_KEY) || '[]');
   },
   
-  /**
-   * 결제 성공 URL
-   */
-  getSuccessUrl() {
-    return window.location.origin + '/payment_success.html';
+  addItem(item) {
+    const cart = this.getAll();
+    
+    // 같은 상품+옵션이 있는지 확인
+    const existingIndex = cart.findIndex(
+      i => i.menuId === item.menuId && i.option === item.option
+    );
+    
+    if (existingIndex > -1) {
+      cart[existingIndex].quantity += item.quantity;
+      cart[existingIndex].totalPrice = (cart[existingIndex].price + (cart[existingIndex].additionalPrice || 0)) * cart[existingIndex].quantity;
+    } else {
+      cart.push({
+        ...item,
+        addedAt: new Date().toISOString()
+      });
+    }
+    
+    this.save(cart);
+    return cart;
   },
   
-  /**
-   * 결제 실패 URL
-   */
-  getFailUrl() {
-    return window.location.origin + '/payment_fail.html';
+  updateQuantity(index, quantity) {
+    const cart = this.getAll();
+    if (cart[index]) {
+      cart[index].quantity = Math.max(1, quantity);
+      cart[index].totalPrice = (cart[index].price + (cart[index].additionalPrice || 0)) * cart[index].quantity;
+      this.save(cart);
+    }
+    return cart;
+  },
+  
+  removeItem(index) {
+    const cart = this.getAll();
+    cart.splice(index, 1);
+    this.save(cart);
+    return cart;
+  },
+  
+  clear() {
+    localStorage.removeItem(this.CART_KEY);
+  },
+  
+  save(cart) {
+    localStorage.setItem(this.CART_KEY, JSON.stringify(cart));
+  },
+  
+  getTotal() {
+    return this.getAll().reduce((sum, item) => sum + item.totalPrice, 0);
+  },
+  
+  getCount() {
+    return this.getAll().reduce((count, item) => count + item.quantity, 0);
   }
 };
 
@@ -569,71 +589,51 @@ const PaymentUtils = {
 // ============================================================================
 
 const PointsApi = {
-  /**
-   * 적립률 조회 (점주 설정값)
-   */
   getRewardRate() {
     return parseInt(localStorage.getItem('rewardRate') || '40');
   },
   
-  /**
-   * 적립금 계산
-   */
   calculateReward(amount) {
     const rate = this.getRewardRate();
     return Math.floor(amount * rate / 100);
   },
   
-  /**
-   * 사용 가능 포인트 조회 (TODO: 실제 API 연동 필요)
-   */
   getAvailablePoints() {
     return parseInt(localStorage.getItem('userPoints') || '0');
   },
   
-  /**
-   * 포인트 설정 (TODO: 실제 API 연동 필요)
-   */
   setPoints(points) {
     localStorage.setItem('userPoints', points.toString());
   }
 };
 
 // ============================================================================
-// 🚀 초기화
+// 💳 결제 유틸리티
 // ============================================================================
 
-/**
- * API 모듈 초기화
- * 앱 시작 시 호출 필요
- */
-async function initApi() {
-  console.log('🚀 [API] 초기화 시작...');
-  
-  try {
-    window.STORE_CONFIG_LOADED = loadStoreConfig();
-    await window.STORE_CONFIG_LOADED;
-    console.log('✅ [API] 초기화 완료');
-    return true;
-  } catch (error) {
-    console.error('❌ [API] 초기화 실패:', error);
-    return false;
+const PaymentUtils = {
+  generateOrderId() {
+    return 'ORD' + Date.now() + Math.random().toString(36).substr(2, 9).toUpperCase();
   }
-}
+};
 
 // ============================================================================
 // 전역 내보내기
 // ============================================================================
 
-window.ApiConfig = ApiConfig;
+window.baseUrl = baseUrl;
+window.OWNER_ID = OWNER_ID;
+window.STORE_ID = STORE_ID;
+window.STORE_NAME = STORE_NAME;
+window.STORE_INFO = STORE_INFO;
+
 window.AuthToken = AuthToken;
 window.AuthApi = AuthApi;
 window.MenuApi = MenuApi;
-window.CartApi = CartApi;
 window.OrderApi = OrderApi;
 window.AddressApi = AddressApi;
 window.StoreApi = StoreApi;
-window.PaymentUtils = PaymentUtils;
+window.CartApi = CartApi;
 window.PointsApi = PointsApi;
-window.initApi = initApi;
-
+window.PaymentUtils = PaymentUtils;
+window.checkAuthError = checkAuthError;

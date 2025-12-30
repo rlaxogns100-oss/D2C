@@ -1,6 +1,10 @@
 /**
  * ============================================================================
- * 📡 OWNER API SERVICE MODULE - 점주용 API 연동
+ * 📡 OWNER API SERVICE MODULE - 기존 백엔드와 100% 호환
+ * ============================================================================
+ * 
+ * 기존 02_Owner 코드의 API 호출 방식을 그대로 사용합니다.
+ * 
  * ============================================================================
  */
 
@@ -8,32 +12,68 @@
 // 🔧 기본 설정
 // ============================================================================
 
-const ApiConfig = {
-  hostname: window.location.hostname,
-  subdomain: window.location.hostname.split('.')[0],
-  
-  get baseUrl() {
-    const protocol = window.location.protocol;
-    const hostname = window.location.hostname;
+const hostname = window.location.hostname;
+const subdomain = hostname.split('.')[0];
+
+const baseUrl = window.location.protocol === 'file:' 
+  ? 'https://pizzaschool.maejang.com'
+  : '';
+
+let OWNER_ID = null;
+let STORE_ID = null;
+let STORE_NAME = null;
+let STORE_INFO = null;
+
+// ============================================================================
+// 🏪 매장 정보 로드
+// ============================================================================
+
+async function loadStoreConfig() {
+  try {
+    const targetSubdomain = (subdomain === 'localhost' || subdomain === '127') 
+      ? 'pizzaschool' 
+      : subdomain;
     
-    if (protocol === 'file:' || hostname === 'localhost' || hostname === '127.0.0.1') {
-      return 'https://pizzaschool.maejang.com';
+    console.log('🏪 [Owner API] 서브도메인 감지:', targetSubdomain);
+    
+    const response = await fetch(`${baseUrl}/api/v1/store/by-subdomain?subdomain=${targetSubdomain}`);
+    
+    if (!response.ok) {
+      throw new Error('매장을 찾을 수 없습니다.');
     }
-    return '';
-  },
-  
-  storeInfo: null,
-  ownerId: null,
-  storeId: null,
-  storeName: null
-};
+    
+    const result = await response.json();
+    
+    if (!result.success || !result.data) {
+      throw new Error('매장 정보가 없습니다.');
+    }
+    
+    STORE_INFO = result.data;
+    OWNER_ID = STORE_INFO.ownerId;
+    STORE_ID = STORE_INFO.storeId;
+    STORE_NAME = STORE_INFO.storeName;
+    
+    console.log('✅ [Owner API] 매장 정보 로드 완료');
+    console.log('   - OWNER_ID:', OWNER_ID);
+    console.log('   - STORE_ID:', STORE_ID);
+    console.log('   - STORE_NAME:', STORE_NAME);
+    
+    return STORE_INFO;
+    
+  } catch (error) {
+    console.error('❌ [Owner API] 매장 정보 로드 실패:', error);
+    throw error;
+  }
+}
+
+window.STORE_CONFIG_LOADED = loadStoreConfig();
 
 // ============================================================================
 // 🔐 인증 토큰 관리
 // ============================================================================
 
 const AuthToken = {
-  KEY: 'ownerAccessToken',
+  KEY: 'accessToken',
   
   get() {
     return localStorage.getItem(this.KEY);
@@ -52,142 +92,80 @@ const AuthToken = {
   }
 };
 
-// ============================================================================
-// 📡 API 호출 기본 함수
-// ============================================================================
-
-async function apiCall(endpoint, options = {}) {
-  const url = `${ApiConfig.baseUrl}${endpoint}`;
-  
-  const headers = {
-    'Content-Type': 'application/json',
-    ...options.headers
-  };
-  
-  if (AuthToken.exists()) {
-    headers['Authorization'] = `Bearer ${AuthToken.get()}`;
+function checkAuthError(response) {
+  if (response.status === 401 || response.status === 403) {
+    console.warn('🔐 인증 만료 또는 권한 없음');
+    AuthToken.remove();
+    return true;
   }
-  
-  try {
-    const response = await fetch(url, {
-      ...options,
-      headers,
-      credentials: 'include'
-    });
-    
-    if (response.status === 401 || response.status === 403) {
-      console.warn('🔐 인증 만료');
-      AuthToken.remove();
-      return {
-        success: false,
-        error: 'AUTH_ERROR',
-        message: '로그인이 필요합니다.',
-        status: response.status
-      };
-    }
-    
-    const data = await response.json();
-    
-    return {
-      success: response.ok && data.success !== false,
-      data: data.data || data,
-      message: data.message || '',
-      status: response.status
-    };
-    
-  } catch (error) {
-    console.error(`❌ API 호출 실패 [${endpoint}]:`, error);
-    return {
-      success: false,
-      error: 'NETWORK_ERROR',
-      message: error.message || '네트워크 오류',
-      status: 0
-    };
-  }
-}
-
-async function apiGet(endpoint) {
-  return apiCall(endpoint, { method: 'GET' });
-}
-
-async function apiPost(endpoint, body) {
-  return apiCall(endpoint, {
-    method: 'POST',
-    body: JSON.stringify(body)
-  });
-}
-
-async function apiPut(endpoint, body) {
-  return apiCall(endpoint, {
-    method: 'PUT',
-    body: JSON.stringify(body)
-  });
-}
-
-async function apiDelete(endpoint) {
-  return apiCall(endpoint, { method: 'DELETE' });
+  return false;
 }
 
 // ============================================================================
-// 🏪 매장 정보 로드
+// 👤 인증 API
 // ============================================================================
 
-async function loadStoreConfig() {
-  try {
-    const targetSubdomain = (ApiConfig.subdomain === 'localhost' || ApiConfig.subdomain === '127') 
-      ? 'pizzaschool' 
-      : ApiConfig.subdomain;
-    
-    console.log('🏪 [Owner API] 서브도메인:', targetSubdomain);
-    
-    const result = await apiGet(`/api/v1/store/by-subdomain?subdomain=${targetSubdomain}`);
-    
-    if (!result.success || !result.data) {
-      throw new Error('매장을 찾을 수 없습니다.');
-    }
-    
-    ApiConfig.storeInfo = result.data;
-    ApiConfig.ownerId = result.data.ownerId;
-    ApiConfig.storeId = result.data.storeId;
-    ApiConfig.storeName = result.data.storeName;
-    
-    console.log('✅ [Owner API] 매장 정보 로드 완료');
-    console.log('   - STORE_ID:', ApiConfig.storeId);
-    console.log('   - STORE_NAME:', ApiConfig.storeName);
-    
-    return ApiConfig.storeInfo;
-    
-  } catch (error) {
-    console.error('❌ [Owner API] 매장 정보 로드 실패:', error);
-    throw error;
-  }
-}
-
-window.STORE_CONFIG_LOADED = null;
-
-// ============================================================================
-// 👤 점주 인증 API
-// ============================================================================
-
-const OwnerAuthApi = {
+const AuthApi = {
+  /**
+   * 로그인 - /api/v1/auth/login
+   */
   async login(email, password) {
-    const result = await apiPost('/api/v1/user/login', { email, password });
-    
-    if (result.success && result.data?.token) {
-      AuthToken.set(result.data.token);
+    try {
+      const response = await fetch(`${baseUrl}/api/v1/auth/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password })
+      });
+      
+      if (response.ok) {
+        const authHeader = response.headers.get('Authorization');
+        if (authHeader) {
+          const token = authHeader.replace('Bearer ', '');
+          AuthToken.set(token);
+        }
+        
+        const data = await response.json();
+        return { success: true, data };
+      } else {
+        const errorData = await response.json().catch(() => ({}));
+        return { 
+          success: false, 
+          message: errorData.message || '아이디 또는 비밀번호를 확인해주세요'
+        };
+      }
+    } catch (error) {
+      return { success: false, message: error.message };
     }
-    
-    return result;
+  },
+  
+  /**
+   * 내 정보 조회 - /api/v1/auth/me (POST)
+   */
+  async getProfile() {
+    try {
+      const token = AuthToken.get();
+      if (!token) return { success: false };
+      
+      const response = await fetch(`${baseUrl}/api/v1/auth/me`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        return { success: true, data: data.data || data };
+      }
+      return { success: false };
+    } catch (error) {
+      return { success: false, message: error.message };
+    }
   },
   
   logout() {
     AuthToken.remove();
-    localStorage.removeItem('owner');
     return { success: true };
-  },
-  
-  async getProfile() {
-    return apiGet('/api/v1/user/me');
   },
   
   isLoggedIn() {
@@ -196,165 +174,318 @@ const OwnerAuthApi = {
 };
 
 // ============================================================================
-// 🍽️ 메뉴 관리 API
+// 📦 주문 API (기존 04_Orders.html과 동일)
 // ============================================================================
 
-const OwnerMenuApi = {
+const OrderApi = {
+  /**
+   * 주문 목록 조회 - /api/v1/order/check
+   */
+  async getList() {
+    const token = AuthToken.get();
+    if (!token) return { success: false, data: [] };
+    
+    try {
+      const response = await fetch(`${baseUrl}/api/v1/order/check`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+      
+      if (checkAuthError(response)) {
+        return { success: false, error: 'AUTH_ERROR', data: [] };
+      }
+      
+      if (!response.ok) {
+        throw new Error('주문 목록을 불러올 수 없습니다.');
+      }
+      
+      const result = await response.json();
+      return { success: true, data: result.data || [] };
+    } catch (error) {
+      return { success: false, data: [], message: error.message };
+    }
+  },
+  
+  /**
+   * 주문 수락 - /api/v1/order/ok?orderId=
+   */
+  async accept(orderId) {
+    const token = AuthToken.get();
+    if (!token) return { success: false };
+    
+    try {
+      const response = await fetch(`${baseUrl}/api/v1/order/ok?orderId=${orderId}`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+      
+      if (checkAuthError(response)) return { success: false, error: 'AUTH_ERROR' };
+      return { success: response.ok };
+    } catch (error) {
+      return { success: false, message: error.message };
+    }
+  },
+  
+  /**
+   * 주문 거절 - /api/v1/order/cancel?orderId=
+   */
+  async reject(orderId) {
+    const token = AuthToken.get();
+    if (!token) return { success: false };
+    
+    try {
+      const response = await fetch(`${baseUrl}/api/v1/order/cancel?orderId=${orderId}`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+      
+      if (checkAuthError(response)) return { success: false, error: 'AUTH_ERROR' };
+      return { success: response.ok };
+    } catch (error) {
+      return { success: false, message: error.message };
+    }
+  },
+  
+  /**
+   * 조리 완료 - /api/v1/order/complete?orderId=
+   */
+  async complete(orderId) {
+    const token = AuthToken.get();
+    if (!token) return { success: false };
+    
+    try {
+      const response = await fetch(`${baseUrl}/api/v1/order/complete?orderId=${orderId}`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+      
+      if (checkAuthError(response)) return { success: false, error: 'AUTH_ERROR' };
+      return { success: response.ok };
+    } catch (error) {
+      return { success: false, message: error.message };
+    }
+  },
+  
+  /**
+   * 배달 완료 - /api/v1/order/deliver?orderId=
+   */
+  async deliver(orderId) {
+    const token = AuthToken.get();
+    if (!token) return { success: false };
+    
+    try {
+      const response = await fetch(`${baseUrl}/api/v1/order/deliver?orderId=${orderId}`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+      
+      if (checkAuthError(response)) return { success: false, error: 'AUTH_ERROR' };
+      return { success: response.ok };
+    } catch (error) {
+      return { success: false, message: error.message };
+    }
+  }
+};
+
+// ============================================================================
+// 🍽️ 메뉴 API (기존 05_Foods.html, 08_Add_Foods.html과 동일)
+// ============================================================================
+
+const MenuApi = {
+  /**
+   * 메뉴 목록 조회 - /api/v1/menu/read?ownerId=
+   */
   async getList() {
     await window.STORE_CONFIG_LOADED;
-    return apiGet(`/api/v1/menu/list?ownerId=${ApiConfig.ownerId}`);
-  },
-  
-  async getDetail(menuId) {
-    return apiGet(`/api/v1/menu/${menuId}`);
-  },
-  
-  async create(menuData) {
-    return apiPost('/api/v1/menu/create', menuData);
-  },
-  
-  async update(menuId, menuData) {
-    return apiPut(`/api/v1/menu/${menuId}`, menuData);
-  },
-  
-  async delete(menuId) {
-    return apiDelete(`/api/v1/menu/${menuId}`);
-  },
-  
-  async toggleAvailability(menuId, isAvailable) {
-    return apiPut(`/api/v1/menu/${menuId}/availability`, { isAvailable });
-  }
-};
-
-// ============================================================================
-// 📦 주문 관리 API
-// ============================================================================
-
-const OwnerOrderApi = {
-  async getList(status = null) {
-    await window.STORE_CONFIG_LOADED;
-    let endpoint = `/api/v1/order/store/${ApiConfig.storeId}`;
-    if (status) {
-      endpoint += `?status=${status}`;
+    
+    try {
+      const response = await fetch(`${baseUrl}/api/v1/menu/read?ownerId=${OWNER_ID}`, {
+        credentials: 'include'
+      });
+      
+      if (!response.ok) {
+        throw new Error('메뉴 목록을 가져올 수 없습니다.');
+      }
+      
+      const data = await response.json();
+      
+      if (data.success && data.data) {
+        return { success: true, data: data.data };
+      }
+      return { success: false, data: [] };
+    } catch (error) {
+      return { success: false, data: [], message: error.message };
     }
-    return apiGet(endpoint);
   },
   
-  async getDetail(orderId) {
-    return apiGet(`/api/v1/order/${orderId}`);
+  /**
+   * 메뉴 추가 - /api/v1/menu/create
+   */
+  async create(menuData) {
+    await window.STORE_CONFIG_LOADED;
+    
+    const token = AuthToken.get();
+    if (!token) return { success: false };
+    
+    try {
+      const response = await fetch(`${baseUrl}/api/v1/menu/create`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          ...menuData,
+          ownerId: OWNER_ID
+        })
+      });
+      
+      if (checkAuthError(response)) return { success: false, error: 'AUTH_ERROR' };
+      
+      const data = await response.json();
+      return { success: response.ok && data.success, data: data.data };
+    } catch (error) {
+      return { success: false, message: error.message };
+    }
   },
   
-  async updateStatus(orderId, status) {
-    return apiPut(`/api/v1/order/${orderId}/status`, { status });
+  /**
+   * 메뉴 수정 - /api/v1/menu/update
+   */
+  async update(menuData) {
+    const token = AuthToken.get();
+    if (!token) return { success: false };
+    
+    try {
+      const response = await fetch(`${baseUrl}/api/v1/menu/update`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(menuData)
+      });
+      
+      if (checkAuthError(response)) return { success: false, error: 'AUTH_ERROR' };
+      
+      const data = await response.json();
+      return { success: response.ok && data.success };
+    } catch (error) {
+      return { success: false, message: error.message };
+    }
   },
   
-  async accept(orderId) {
-    return this.updateStatus(orderId, 'CONFIRMED');
-  },
-  
-  async startCooking(orderId) {
-    return this.updateStatus(orderId, 'PREPARING');
-  },
-  
-  async startDelivery(orderId) {
-    return this.updateStatus(orderId, 'DELIVERING');
-  },
-  
-  async complete(orderId) {
-    return this.updateStatus(orderId, 'COMPLETED');
-  },
-  
-  async cancel(orderId, reason) {
-    return apiPost(`/api/v1/order/${orderId}/cancel`, { reason });
+  /**
+   * 메뉴 삭제 - /api/v1/menu/delete?menuId=
+   */
+  async delete(menuId) {
+    const token = AuthToken.get();
+    if (!token) return { success: false };
+    
+    try {
+      const response = await fetch(`${baseUrl}/api/v1/menu/delete?menuId=${menuId}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      
+      if (checkAuthError(response)) return { success: false, error: 'AUTH_ERROR' };
+      return { success: response.ok };
+    } catch (error) {
+      return { success: false, message: error.message };
+    }
   }
 };
 
 // ============================================================================
-// 🏪 매장 정보 관리 API
+// 🏪 가게 설정 API
 // ============================================================================
 
-const OwnerStoreApi = {
+const StoreApi = {
+  /**
+   * 가게 정보 조회
+   */
   async getInfo() {
     await window.STORE_CONFIG_LOADED;
-    return apiGet(`/api/v1/store/${ApiConfig.storeId}`);
+    return { success: true, data: STORE_INFO };
   },
   
+  /**
+   * 가게 정보 수정 - /api/v1/store/update
+   */
   async update(storeData) {
     await window.STORE_CONFIG_LOADED;
-    return apiPut(`/api/v1/store/${ApiConfig.storeId}`, storeData);
-  },
-  
-  async updateBusinessHours(hours) {
-    await window.STORE_CONFIG_LOADED;
-    return apiPut(`/api/v1/store/${ApiConfig.storeId}/hours`, hours);
-  },
-  
-  async toggleOpen(isOpen) {
-    await window.STORE_CONFIG_LOADED;
-    return apiPut(`/api/v1/store/${ApiConfig.storeId}/status`, { isOpen });
+    
+    const token = AuthToken.get();
+    if (!token) return { success: false };
+    
+    try {
+      const response = await fetch(`${baseUrl}/api/v1/store/update`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          ...storeData,
+          storeId: STORE_ID
+        })
+      });
+      
+      if (checkAuthError(response)) return { success: false, error: 'AUTH_ERROR' };
+      
+      const data = await response.json();
+      return { success: response.ok && data.success };
+    } catch (error) {
+      return { success: false, message: error.message };
+    }
   }
 };
 
 // ============================================================================
-// 🎯 설정 관리 (LocalStorage)
+// 🎯 포인트/적립 관리 (LocalStorage)
 // ============================================================================
 
-const OwnerSettings = {
-  KEYS: {
-    REWARD_RATE: 'rewardRate',
-    CATEGORIES: 'menuCategories'
-  },
-  
+const PointsApi = {
   getRewardRate() {
-    return parseInt(localStorage.getItem(this.KEYS.REWARD_RATE) || '40');
+    return parseInt(localStorage.getItem('rewardRate') || '40');
   },
   
   setRewardRate(rate) {
-    localStorage.setItem(this.KEYS.REWARD_RATE, rate.toString());
-    // 고객 페이지와 동기화
-    if (window.opener && typeof window.opener.updateRewardRate === 'function') {
-      window.opener.updateRewardRate(rate);
-    }
-  },
-  
-  getCategories() {
-    const saved = localStorage.getItem(this.KEYS.CATEGORIES);
-    return saved ? JSON.parse(saved) : ['전체', '메인', '사이드', '음료', '디저트'];
-  },
-  
-  setCategories(categories) {
-    localStorage.setItem(this.KEYS.CATEGORIES, JSON.stringify(categories));
+    localStorage.setItem('rewardRate', rate.toString());
   }
 };
-
-// ============================================================================
-// 🚀 초기화
-// ============================================================================
-
-async function initOwnerApi() {
-  console.log('🚀 [Owner API] 초기화 시작...');
-  
-  try {
-    window.STORE_CONFIG_LOADED = loadStoreConfig();
-    await window.STORE_CONFIG_LOADED;
-    console.log('✅ [Owner API] 초기화 완료');
-    return true;
-  } catch (error) {
-    console.error('❌ [Owner API] 초기화 실패:', error);
-    return false;
-  }
-}
 
 // ============================================================================
 // 전역 내보내기
 // ============================================================================
 
-window.ApiConfig = ApiConfig;
-window.AuthToken = AuthToken;
-window.OwnerAuthApi = OwnerAuthApi;
-window.OwnerMenuApi = OwnerMenuApi;
-window.OwnerOrderApi = OwnerOrderApi;
-window.OwnerStoreApi = OwnerStoreApi;
-window.OwnerSettings = OwnerSettings;
-window.initOwnerApi = initOwnerApi;
+window.baseUrl = baseUrl;
+window.OWNER_ID = OWNER_ID;
+window.STORE_ID = STORE_ID;
+window.STORE_NAME = STORE_NAME;
+window.STORE_INFO = STORE_INFO;
 
+window.AuthToken = AuthToken;
+window.AuthApi = AuthApi;
+window.OrderApi = OrderApi;
+window.MenuApi = MenuApi;
+window.StoreApi = StoreApi;
+window.PointsApi = PointsApi;
+window.checkAuthError = checkAuthError;
