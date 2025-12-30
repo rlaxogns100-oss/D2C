@@ -724,14 +724,18 @@ async function renderOngoingOrders() {
           const orderPrice = order.price || order.totalPrice || 0;
           const orderDate = order.orderAt || order.createdAt;
           
-          console.log('📦 [고객] 주문 데이터:', {
-            id: order.id,
-            condition: order.condition,
-            orderAt: order.orderAt,
-            createdAt: order.createdAt,
-            price: order.price,
-            totalPrice: order.totalPrice
-          });
+          // 주문 메뉴 목록
+          const items = order.orderMenus || order.items || [];
+          const itemsHtml = items.length > 0 
+            ? `<div class="order-items-list">
+                ${items.map(item => {
+                  const menuName = item.menu?.menuName || item.menuName || '메뉴';
+                  const count = item.count || 1;
+                  const option = item.option ? ` (${item.option})` : '';
+                  return `<span class="order-item">${menuName}${option} x${count}</span>`;
+                }).join('')}
+               </div>`
+            : '';
           
           return `
           <div class="order-card">
@@ -742,6 +746,7 @@ async function renderOngoingOrders() {
               </div>
               <span class="order-status status-${order.condition?.toLowerCase()}">${getStatusText(order.condition)}</span>
             </div>
+            ${itemsHtml}
             <p class="order-total">${orderPrice.toLocaleString()}원</p>
             ${order.request ? `<p class="order-request">💬 ${order.request}</p>` : ''}
           </div>
@@ -783,6 +788,19 @@ async function renderCompletedOrders() {
           const orderPrice = order.price || order.totalPrice || 0;
           const orderDate = order.orderAt || order.createdAt;
           
+          // 주문 메뉴 목록
+          const items = order.orderMenus || order.items || [];
+          const itemsHtml = items.length > 0 
+            ? `<div class="order-items-list">
+                ${items.map(item => {
+                  const menuName = item.menu?.menuName || item.menuName || '메뉴';
+                  const count = item.count || 1;
+                  const option = item.option ? ` (${item.option})` : '';
+                  return `<span class="order-item">${menuName}${option} x${count}</span>`;
+                }).join('')}
+               </div>`
+            : '';
+          
           return `
           <div class="order-card">
             <div class="order-header">
@@ -792,6 +810,7 @@ async function renderCompletedOrders() {
               </div>
               <span class="order-status status-${order.condition?.toLowerCase()}">${getStatusText(order.condition)}</span>
             </div>
+            ${itemsHtml}
             <p class="order-total">${orderPrice.toLocaleString()}원</p>
           </div>
         `}).join('');
