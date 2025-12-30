@@ -592,6 +592,16 @@ function editMenu(menuId) {
     if (categoryInput) categoryInput.value = menu.category;
     if (descInput) descInput.value = menu.description || '';
     
+    // 기존 이미지가 있으면 미리보기에 표시
+    const preview = document.getElementById('menu-image-preview');
+    const placeholder = document.querySelector('.upload-placeholder');
+    if (menu.picture && preview) {
+      const img = preview.querySelector('img');
+      if (img) img.src = menu.picture;
+      preview.classList.remove('hidden');
+      if (placeholder) placeholder.classList.add('hidden');
+    }
+    
     const header = document.querySelector('#page-add-menu .page-header h1');
     if (header) header.textContent = '메뉴 수정';
   }
@@ -648,26 +658,52 @@ function setupMenuForm() {
     }
     
     try {
+      // 1. 이미지 업로드 (선택된 파일이 있으면)
+      let pictureUrl = null;
+      const fileInput = document.getElementById('menu-image-file');
+      if (fileInput && fileInput.files[0]) {
+        showToast('이미지 업로드 중...');
+        const uploadResult = await ImageApi.upload(fileInput.files[0]);
+        if (uploadResult.success) {
+          pictureUrl = uploadResult.url;
+          console.log('📷 이미지 업로드 완료:', pictureUrl);
+        } else {
+          showToast('이미지 업로드 실패: ' + (uploadResult.message || ''));
+          // 이미지 없이 계속 진행
+        }
+      }
+      
+      // 2. 옵션 수집
+      const optionInputs = document.querySelectorAll('#options-list input');
+      const options = Array.from(optionInputs)
+        .map(input => input.value.trim())
+        .filter(val => val)
+        .join(',');
+      
       const editId = localStorage.getItem('editMenuId');
       let result;
       
+      // 3. 메뉴 데이터 구성
+      const menuData = {
+        menuName: name,
+        price: price,
+        category: category.toUpperCase(),
+        description: description || null,
+        option: options || null
+      };
+      
+      // 이미지가 있으면 추가
+      if (pictureUrl) {
+        menuData.picture = pictureUrl;
+      }
+      
       if (editId) {
         // 수정
-        result = await MenuApi.update({
-          menuId: parseInt(editId),
-          menuName: name,
-          price: price,
-          category: category.toUpperCase(),
-          description: description
-        });
+        menuData.menuId = parseInt(editId);
+        result = await MenuApi.update(menuData);
       } else {
         // 신규 등록
-        result = await MenuApi.create({
-          menuName: name,
-          price: price,
-          category: category.toUpperCase(),
-          description: description
-        });
+        result = await MenuApi.create(menuData);
       }
       
       if (result.success) {

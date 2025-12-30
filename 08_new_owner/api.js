@@ -418,15 +418,17 @@ const MenuApi = {
   },
   
   /**
-   * 메뉴 수정 - /api/v1/menu/update
+   * 메뉴 수정 - PATCH /api/v1/menu/update/${menuId}
    */
   async update(menuData) {
     const token = AuthToken.get();
-    if (!token) return { success: false };
+    if (!token) return { success: false, message: '로그인이 필요합니다.' };
+    
+    if (!menuData.menuId) return { success: false, message: 'menuId가 필요합니다.' };
     
     try {
-      const response = await fetch(`${baseUrl}/api/v1/menu/update`, {
-        method: 'POST',
+      const response = await fetch(`${baseUrl}/api/v1/menu/update/${menuData.menuId}`, {
+        method: 'PATCH',
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
@@ -444,14 +446,14 @@ const MenuApi = {
   },
   
   /**
-   * 메뉴 삭제 - /api/v1/menu/delete?menuId=
+   * 메뉴 삭제 - DELETE /api/v1/menu/delete/${menuId}
    */
   async delete(menuId) {
     const token = AuthToken.get();
     if (!token) return { success: false };
     
     try {
-      const response = await fetch(`${baseUrl}/api/v1/menu/delete?menuId=${menuId}`, {
+      const response = await fetch(`${baseUrl}/api/v1/menu/delete/${menuId}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`
@@ -461,6 +463,47 @@ const MenuApi = {
       if (checkAuthError(response)) return { success: false, error: 'AUTH_ERROR' };
       return { success: response.ok };
     } catch (error) {
+      return { success: false, message: error.message };
+    }
+  }
+};
+
+// ============================================================================
+// 📷 이미지 업로드 API
+// ============================================================================
+
+const ImageApi = {
+  /**
+   * 이미지 업로드 - POST /api/v1/images/upload
+   */
+  async upload(file) {
+    const token = AuthToken.get();
+    if (!token) return { success: false, message: '로그인이 필요합니다.' };
+    
+    const formData = new FormData();
+    formData.append('file', file);
+    
+    try {
+      const response = await fetch(`${baseUrl}/api/v1/images/upload`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        },
+        body: formData
+      });
+      
+      if (!response.ok) {
+        throw new Error('이미지 업로드 실패');
+      }
+      
+      const data = await response.json();
+      console.log('📷 이미지 업로드 성공:', data);
+      
+      // 응답에서 URL 추출 (data.data.url 또는 data.url)
+      const imageUrl = data.data?.url || data.url || data.data;
+      return { success: true, url: imageUrl };
+    } catch (error) {
+      console.error('이미지 업로드 실패:', error);
       return { success: false, message: error.message };
     }
   }
@@ -539,6 +582,7 @@ window.AuthToken = AuthToken;
 window.AuthApi = AuthApi;
 window.OrderApi = OrderApi;
 window.MenuApi = MenuApi;
+window.ImageApi = ImageApi;
 window.StoreApi = StoreApi;
 window.PointsApi = PointsApi;
 window.loadStoreConfigByOwner = loadStoreConfigByOwner;
