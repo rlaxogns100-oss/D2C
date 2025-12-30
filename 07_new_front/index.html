@@ -56,7 +56,7 @@
             </svg>
             <span class="cart-badge">3</span>
           </button>
-          <button class="login-btn" onclick="navigateTo('page-login')">로그인</button>
+          <button class="login-btn" id="header-login-btn" onclick="handleHeaderLoginClick()">로그인</button>
         </div>
       </div>
     </header>
@@ -455,9 +455,17 @@
       <section id="page-delivery" class="page">
         <div class="delivery-container">
           <!-- Reward Banner -->
-          <div class="reward-banner">
-            <div class="reward-badge">🎁 <span id="reward-rate-display">40%</span> 적립</div>
-            <span class="reward-text">주문금액의 <strong id="reward-rate-display-2">40%</strong>가 포인트로 적립됩니다!</span>
+          <div class="reward-banner-premium">
+            <div class="reward-banner-icon">🎁</div>
+            <div class="reward-banner-content">
+              <div class="reward-banner-highlight">
+                <span class="reward-rate" id="reward-rate-display">40</span><span class="reward-percent">%</span>
+                <span class="reward-label">포인트 적립</span>
+              </div>
+              <p class="reward-banner-desc">
+                구매하신 금액의 <strong id="reward-rate-display-2">40%</strong>를 현금처럼 사용 가능한 포인트로 적립해 드립니다
+              </p>
+            </div>
           </div>
           
           <!-- Category Tabs (동적으로 생성됨) -->

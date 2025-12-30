@@ -426,14 +426,18 @@ const MenuApi = {
     
     if (!menuData.menuId) return { success: false, message: 'menuId가 필요합니다.' };
     
+    // URL에 menuId 포함, body에서는 제거
+    const { menuId, ...bodyData } = menuData;
+    
     try {
-      const response = await fetch(`${baseUrl}/api/v1/menu/update/${menuData.menuId}`, {
+      const response = await fetch(`${baseUrl}/api/v1/menu/update/${menuId}`, {
         method: 'PATCH',
+        credentials: 'include',
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify(menuData)
+        body: JSON.stringify(bodyData)
       });
       
       if (checkAuthError(response)) return { success: false, error: 'AUTH_ERROR' };

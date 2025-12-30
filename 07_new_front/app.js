@@ -1421,11 +1421,48 @@ function handleLoginLogout() {
       AppState.user = null;
       showToast('로그아웃되었습니다.');
       updateProfilePage();
+      updateHeaderLoginButton();
       navigateFromTab('page-home');
     }
   } else {
     // 로그인 페이지로 이동
     navigateTo('page-login');
+  }
+}
+
+function handleHeaderLoginClick() {
+  if (AuthApi?.isLoggedIn()) {
+    // 로그아웃
+    if (confirm('로그아웃 하시겠습니까?')) {
+      AuthApi.logout();
+      AppState.isLoggedIn = false;
+      AppState.user = null;
+      showToast('로그아웃되었습니다.');
+      updateProfilePage();
+      updateHeaderLoginButton();
+    }
+  } else {
+    // 로그인 페이지로 이동
+    navigateTo('page-login');
+  }
+}
+
+function updateHeaderLoginButton() {
+  const headerBtn = document.getElementById('header-login-btn');
+  if (headerBtn) {
+    if (AuthApi?.isLoggedIn()) {
+      // 로그인 상태: 로그아웃 버튼으로 변경
+      headerBtn.textContent = '로그아웃';
+      headerBtn.style.background = 'transparent';
+      headerBtn.style.border = '1px solid var(--primary-color)';
+      headerBtn.style.color = 'var(--primary-color)';
+    } else {
+      // 비로그인 상태: 로그인 버튼
+      headerBtn.textContent = '로그인';
+      headerBtn.style.background = 'var(--primary-color)';
+      headerBtn.style.border = 'none';
+      headerBtn.style.color = 'white';
+    }
   }
 }
 
@@ -1454,6 +1491,10 @@ function setupAuthForms() {
           AppState.isLoggedIn = true;
           AppState.user = result.data?.user || { email };
           localStorage.setItem('user', JSON.stringify(AppState.user));
+          
+          // 헤더 로그인 버튼 상태 업데이트
+          updateHeaderLoginButton();
+          updateProfilePage();
           
           showToast('로그인 되었습니다.');
           setTimeout(() => navigateTo('page-home'), 500);
@@ -1709,6 +1750,9 @@ async function initSplash() {
     if (savedUser && AuthToken?.exists()) {
       AppState.user = JSON.parse(savedUser);
       AppState.isLoggedIn = true;
+      
+      // 헤더 로그인 버튼 상태 업데이트
+      updateHeaderLoginButton();
     }
     
     // 장바구니 카운트 업데이트
@@ -1769,6 +1813,7 @@ window.openAddressSearch = openAddressSearch;
 window.submitPayment = submitPayment;
 window.copyBankAccount = copyBankAccount;
 window.handleLoginLogout = handleLoginLogout;
+window.handleHeaderLoginClick = handleHeaderLoginClick;
 window.nextSlide = nextSlide;
 window.prevSlide = prevSlide;
 window.togglePassword = togglePassword;

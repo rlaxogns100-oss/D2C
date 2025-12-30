@@ -130,8 +130,16 @@ const AuthApi = {
           AuthToken.set(token);
         }
         
-        const data = await response.json();
-        return { success: true, data };
+        // 로그인 후 사용자 정보 조회
+        const meResult = await this.me();
+        if (meResult.success) {
+          return { 
+            success: true, 
+            data: { user: meResult.data } 
+          };
+        }
+        
+        return { success: true, data: { user: { email } } };
       } else {
         const errorData = await response.json().catch(() => ({}));
         return { 
