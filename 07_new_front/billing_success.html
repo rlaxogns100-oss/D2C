@@ -3,89 +3,190 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>카드 등록 완료 | 매장직결</title>
-  <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css" />
+  <title>카드 등록 완료 - 매장직결</title>
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
-      font-family: 'Pretendard Variable', sans-serif;
-      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      background: #f4f4f9;
       min-height: 100vh;
       display: flex;
       align-items: center;
       justify-content: center;
-      padding: 20px;
+      margin: 0;
     }
-    .container {
-      background: #1e1e2d;
-      border-radius: 24px;
-      padding: 48px 32px;
-      max-width: 400px;
+    .card {
+      background: #ffffff;
+      border-radius: 16px;
+      padding: 32px 28px;
+      box-shadow: 0 12px 32px rgba(0,0,0,0.12);
+      max-width: 480px;
       width: 100%;
-      text-align: center;
-      box-shadow: 0 20px 60px rgba(0,0,0,0.5);
-    }
-    .icon {
-      width: 100px;
-      height: 100px;
-      background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin: 0 auto 24px;
-      font-size: 48px;
-      animation: bounceIn 0.6s ease;
-    }
-    @keyframes bounceIn {
-      0% { transform: scale(0); }
-      50% { transform: scale(1.2); }
-      100% { transform: scale(1); }
     }
     h1 {
-      color: #fff;
-      font-size: 24px;
-      font-weight: 700;
-      margin-bottom: 12px;
+      font-size: 22px;
+      margin-bottom: 8px;
+      color: #111827;
     }
     p {
-      color: #a0a0a0;
-      font-size: 16px;
+      font-size: 14px;
+      color: #4b5563;
       line-height: 1.6;
-      margin-bottom: 24px;
+      margin: 4px 0;
+    }
+    pre {
+      background: #f3f4f6;
+      padding: 12px;
+      border-radius: 8px;
+      font-size: 12px;
+      overflow-x: auto;
+      max-height: 220px;
+    }
+    .badge {
+      display: inline-block;
+      padding: 4px 10px;
+      background: #10b981;
+      color: #ecfdf5;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+    .badge.processing {
+      background: #f59e0b;
+      color: #fffbeb;
+    }
+    .badge.error {
+      background: #ef4444;
+      color: #fef2f2;
     }
     .btn {
-      display: inline-block;
-      padding: 16px 32px;
-      background: linear-gradient(135deg, #C45C26 0%, #E07B45 100%);
-      color: white;
-      text-decoration: none;
-      border-radius: 12px;
-      font-weight: 600;
-      font-size: 16px;
-      transition: transform 0.2s;
+      margin-top: 18px;
+      padding: 10px 16px;
+      border-radius: 999px;
       border: none;
+      font-size: 14px;
+      font-weight: 600;
       cursor: pointer;
     }
-    .btn:hover {
-      transform: translateY(-2px);
+    .btn-primary {
+      background: linear-gradient(135deg,#C45C26,#E07B45);
+      color: #fff;
+      box-shadow: 0 8px 18px rgba(196,92,38,0.4);
+    }
+    .btn-secondary {
+      background: #e5e7eb;
+      color: #111827;
+      margin-left: 8px;
+    }
+    .status {
+      font-size: 13px;
+      margin-top: 10px;
+      color: #374151;
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <div class="icon">💳</div>
-    <h1>카드 등록 완료!</h1>
-    <p>결제수단이 성공적으로 등록되었습니다.<br>이제 더 빠르게 결제하실 수 있습니다.</p>
-    
-    <a href="index.html" class="btn">돌아가기</a>
+  <div class="card">
+    <div class="badge processing" id="badge">카드 등록 처리 중</div>
+    <h1>매장직결 자동결제 카드 등록</h1>
+    <p>잠시만 기다려 주세요. 카드 등록 정보를 확인하고 있습니다.</p>
+    <p>이 환경에서는 <strong>테스트 키</strong>만 사용되므로 실제로 과금되지 않습니다.</p>
+    <p class="status" id="statusText">빌링키를 발급하고 있습니다...</p>
+    <pre id="resultBox" aria-live="polite"></pre>
+    <div>
+      <button class="btn btn-primary" id="backBtn" style="display:none;">결제수단 관리로 돌아가기</button>
+      <button class="btn btn-secondary" id="closeBtn">창 닫기</button>
+    </div>
   </div>
-  
+
   <script>
-    // 3초 후 자동으로 돌아가기
-    setTimeout(() => {
-      window.location.href = 'index.html';
-    }, 3000);
+    const urlParams = new URLSearchParams(window.location.search);
+    const authKey = urlParams.get('authKey');
+    const customerKey = urlParams.get('customerKey');
+
+    const badge = document.getElementById('badge');
+    const statusText = document.getElementById('statusText');
+    const resultBox = document.getElementById('resultBox');
+    const backBtn = document.getElementById('backBtn');
+    const closeBtn = document.getElementById('closeBtn');
+
+    closeBtn.addEventListener('click', function () {
+      // 결제수단 관리로 돌아가기
+      localStorage.setItem('navigateTo', 'page-payment-methods');
+      window.location.href = 'index.html#page-payment-methods';
+    });
+
+    backBtn.addEventListener('click', function () {
+      localStorage.setItem('navigateTo', 'page-payment-methods');
+      window.location.href = 'index.html#page-payment-methods';
+    });
+
+    async function issueBillingKey() {
+      if (!authKey || !customerKey) {
+        badge.textContent = '오류';
+        badge.className = 'badge error';
+        statusText.textContent = '필수 파라미터(authKey, customerKey)를 찾을 수 없습니다.';
+        return;
+      }
+
+      try {
+        statusText.textContent = '빌링키 발급 중...';
+
+        // 백엔드 API 호출
+        const res = await fetch('/api/v1/billing/issue', {
+          method: 'POST',
+          headers: { 
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('accessToken') || ''}`
+          },
+          body: JSON.stringify({ authKey, customerKey })
+        });
+        const json = await res.json();
+
+        if (!res.ok || !json.success) {
+          badge.textContent = '카드 등록 실패';
+          badge.className = 'badge error';
+          statusText.textContent = '카드 등록(빌링키 발급)에 실패했습니다.';
+          resultBox.textContent = JSON.stringify(json, null, 2);
+          backBtn.style.display = 'inline-block';
+          return;
+        }
+
+        // 성공
+        badge.textContent = '카드 등록 완료';
+        badge.className = 'badge';
+        statusText.textContent = '카드 등록이 완료되었습니다. 결제수단 관리 페이지로 돌아가세요.';
+        resultBox.textContent = JSON.stringify(json, null, 2);
+        backBtn.style.display = 'inline-block';
+
+        // 카드 정보 localStorage에도 저장 (표시용)
+        if (json.data && json.data.card) {
+          const cards = JSON.parse(localStorage.getItem('registeredCards') || '[]');
+          const cardInfo = json.data.card;
+          cards.push({
+            id: Date.now(),
+            customerKey: customerKey,
+            billingKey: json.data.billingKey,
+            cardName: cardInfo.cardCompany || '등록된 카드',
+            cardNumber: cardInfo.number || ('**** **** **** ' + (cardInfo.last4 || '****')),
+            expiry: cardInfo.expiryYear ? `${cardInfo.expiryMonth}/${cardInfo.expiryYear.slice(-2)}` : '-',
+            color: '#3B5998',
+            registeredAt: new Date().toISOString()
+          });
+          localStorage.setItem('registeredCards', JSON.stringify(cards));
+        }
+
+      } catch (e) {
+        console.error(e);
+        badge.textContent = '오류 발생';
+        badge.className = 'badge error';
+        statusText.textContent = '카드 등록 처리 중 오류가 발생했습니다.';
+        resultBox.textContent = e?.message || String(e);
+        backBtn.style.display = 'inline-block';
+      }
+    }
+
+    issueBillingKey();
   </script>
 </body>
 </html>

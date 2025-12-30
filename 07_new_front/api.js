@@ -626,6 +626,63 @@ const PaymentUtils = {
 };
 
 // ============================================================================
+// 💳 빌링(카드 등록) API
+// ============================================================================
+
+const BillingApi = {
+  /**
+   * 등록된 카드 목록 조회
+   */
+  async getCards() {
+    const token = AuthToken.get();
+    if (!token) {
+      return [];
+    }
+    
+    const response = await fetch(`${baseUrl}/api/v1/billing/cards`, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      }
+    });
+    
+    if (!response.ok) {
+      console.error('카드 목록 조회 실패:', response.status);
+      return [];
+    }
+    
+    const result = await response.json();
+    return result.data || [];
+  },
+  
+  /**
+   * 카드 삭제
+   */
+  async deleteCard(billingId) {
+    const token = AuthToken.get();
+    if (!token) {
+      throw new Error('로그인이 필요합니다.');
+    }
+    
+    const response = await fetch(`${baseUrl}/api/v1/billing/cards/${billingId}`, {
+      method: 'DELETE',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      }
+    });
+    
+    if (!response.ok) {
+      const result = await response.json().catch(() => ({}));
+      throw new Error(result.message || '카드 삭제에 실패했습니다.');
+    }
+    
+    return true;
+  }
+};
+
+// ============================================================================
 // 전역 내보내기
 // ============================================================================
 
@@ -644,4 +701,5 @@ window.StoreApi = StoreApi;
 window.CartApi = CartApi;
 window.PointsApi = PointsApi;
 window.PaymentUtils = PaymentUtils;
+window.BillingApi = BillingApi;
 window.checkAuthError = checkAuthError;

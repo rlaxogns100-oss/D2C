@@ -998,37 +998,8 @@
             
             <!-- 등록된 카드 목록 -->
             <div class="cards-list" id="registered-cards">
-              <!-- 카드 1 -->
-              <div class="card-item">
-                <div class="card-icon" style="background: #3B5998;">💳</div>
-                <div class="card-info">
-                  <div class="card-name">신한카드 Deep Dream</div>
-                  <div class="card-number">**** **** **** 1234</div>
-                  <div class="card-expiry">만료일: 12/25</div>
-                </div>
-                <button class="card-delete-btn" onclick="deleteCard(0)">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20">
-                    <polyline points="3 6 5 6 21 6"/>
-                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
-                  </svg>
-                </button>
-              </div>
-              
-              <!-- 카드 2 -->
-              <div class="card-item">
-                <div class="card-icon" style="background: #FFC107;">💳</div>
-                <div class="card-info">
-                  <div class="card-name">국민카드 My WE:SH</div>
-                  <div class="card-number">**** **** **** 5678</div>
-                  <div class="card-expiry">만료일: 08/26</div>
-                </div>
-                <button class="card-delete-btn" onclick="deleteCard(1)">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20">
-                    <polyline points="3 6 5 6 21 6"/>
-                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
-                  </svg>
-                </button>
-              </div>
+              <!-- 카드 목록은 JS에서 동적으로 렌더링됩니다 -->
+              <p class="empty-message">등록된 카드가 없습니다.</p>
             </div>
             
             <!-- 카드 등록 버튼 -->

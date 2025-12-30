@@ -152,6 +152,9 @@ function initPageContent(pageId) {
     case 'page-profile':
       updateProfilePage();
       break;
+    case 'page-payment-methods':
+      renderRegisteredCards();
+      break;
   }
 }
 
@@ -1467,15 +1470,54 @@ async function registerNewCard() {
   }
 }
 
-function deleteCard(index) {
+async function deleteCard(billingId) {
   if (confirm('이 카드를 삭제하시겠습니까?')) {
-    // TODO: 실제로 카드 삭제 API 호출 필요
-    showToast('카드가 삭제되었습니다.');
-    // 현재는 UI에서만 제거 (새로고침하면 다시 나타남)
-    const cards = document.querySelectorAll('.card-item');
-    if (cards[index]) {
-      cards[index].remove();
+    try {
+      await BillingApi.deleteCard(billingId);
+      showToast('카드가 삭제되었습니다.');
+      renderRegisteredCards();
+    } catch (error) {
+      console.error('카드 삭제 실패:', error);
+      showToast('카드 삭제에 실패했습니다.');
     }
+  }
+}
+
+async function renderRegisteredCards() {
+  const container = document.getElementById('registered-cards');
+  if (!container) return;
+  
+  // 로딩 표시
+  container.innerHTML = '<p class="loading-message">카드 목록 불러오는 중...</p>';
+  
+  try {
+    // 백엔드 API로 카드 목록 조회
+    const cards = await BillingApi.getCards();
+    
+    if (!cards || cards.length === 0) {
+      container.innerHTML = '<p class="empty-message">등록된 카드가 없습니다.</p>';
+      return;
+    }
+    
+    container.innerHTML = cards.map(card => `
+      <div class="card-item">
+        <div class="card-icon" style="background: #3B5998;">💳</div>
+        <div class="card-info">
+          <div class="card-name">${card.cardCompany || '등록된 카드'}</div>
+          <div class="card-number">${card.cardNumber || '**** **** **** ****'}</div>
+          <div class="card-type">${card.cardType || ''}</div>
+        </div>
+        <button class="card-delete-btn" onclick="deleteCard(${card.id})">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20">
+            <polyline points="3 6 5 6 21 6"/>
+            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+          </svg>
+        </button>
+      </div>
+    `).join('');
+  } catch (error) {
+    console.error('카드 목록 조회 실패:', error);
+    container.innerHTML = '<p class="error-message">카드 목록을 불러올 수 없습니다.</p>';
   }
 }
 
@@ -1926,3 +1968,4 @@ window.useAllPoints = useAllPoints;
 window.handlePaymentSuccess = handlePaymentSuccess;
 window.registerNewCard = registerNewCard;
 window.deleteCard = deleteCard;
+window.renderRegisteredCards = renderRegisteredCards;
