@@ -260,7 +260,8 @@ async function renderOrdersList() {
 function createOrderCard(order, compact = false) {
   const statusText = getStatusText(order.condition);
   const statusClass = getStatusClass(order.condition);
-  const orderTime = formatOrderTime(order.orderAt);
+  // orderAt 또는 createdAt 사용
+  const orderTime = formatOrderTime(order.orderAt || order.createdAt);
   
   if (compact) {
     return `
@@ -327,13 +328,22 @@ function createOrderCard(order, compact = false) {
 }
 
 function formatOrderTime(orderAt) {
-  if (!orderAt) return '';
+  if (!orderAt) return '날짜 없음';
+  
   const date = new Date(orderAt);
+  
+  // 유효하지 않은 날짜 체크
+  if (isNaN(date.getTime())) {
+    console.warn('유효하지 않은 날짜:', orderAt);
+    return '날짜 오류';
+  }
+  
   const now = new Date();
   const diffMinutes = Math.floor((now - date) / 1000 / 60);
   
   if (diffMinutes < 1) return '방금 전';
   if (diffMinutes < 60) return `${diffMinutes}분 전`;
+  if (diffMinutes < 1440) return `${Math.floor(diffMinutes / 60)}시간 전`; // 24시간 이내
   
   const month = date.getMonth() + 1;
   const day = date.getDate();
@@ -525,7 +535,6 @@ async function renderMenuGrid(category = 'all') {
   
   grid.innerHTML = menus.map(menu => `
     <div class="menu-card">
-      <button class="menu-more-btn" onclick="toggleMenuDropdown(${menu.id}, event)">•••</button>
       <div class="menu-card-image">
         ${menu.picture ? `<img src="${menu.picture}" alt="${menu.name}" style="width:100%;height:100%;object-fit:cover;">` : menu.emoji}
       </div>
