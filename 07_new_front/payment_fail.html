@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>결제 실패 | 매장직결</title>
+  <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css" />
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Pretendard Variable', sans-serif;
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .container {
+      background: #1e1e2d;
+      border-radius: 24px;
+      padding: 48px 32px;
+      max-width: 400px;
+      width: 100%;
+      text-align: center;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+    }
+    .icon {
+      width: 100px;
+      height: 100px;
+      background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 24px;
+      font-size: 48px;
+      animation: shake 0.5s ease;
+    }
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-10px); }
+      75% { transform: translateX(10px); }
+    }
+    h1 {
+      color: #fff;
+      font-size: 28px;
+      font-weight: 700;
+      margin-bottom: 12px;
+    }
+    p {
+      color: #a0a0a0;
+      font-size: 16px;
+      line-height: 1.6;
+      margin-bottom: 24px;
+    }
+    .error-code {
+      background: #2a2a3d;
+      padding: 16px;
+      border-radius: 12px;
+      margin-bottom: 32px;
+      font-size: 14px;
+      color: #e74c3c;
+    }
+    .btn-group {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .btn {
+      display: inline-block;
+      padding: 16px 32px;
+      text-decoration: none;
+      border-radius: 12px;
+      font-weight: 600;
+      font-size: 16px;
+      transition: transform 0.2s;
+      border: none;
+      cursor: pointer;
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, #C45C26 0%, #E07B45 100%);
+      color: white;
+    }
+    .btn-secondary {
+      background: #2a2a3d;
+      color: #a0a0a0;
+    }
+    .btn:hover {
+      transform: translateY(-2px);
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="icon">✕</div>
+    <h1>결제에 실패했습니다</h1>
+    <p>결제 처리 중 문제가 발생했습니다.<br>다시 시도해 주세요.</p>
+    
+    <div class="error-code" id="error-code">
+      오류 정보를 확인할 수 없습니다.
+    </div>
+    
+    <div class="btn-group">
+      <a href="index.html" class="btn btn-primary">다시 결제하기</a>
+      <a href="index.html" class="btn btn-secondary">장바구니로 돌아가기</a>
+    </div>
+  </div>
+  
+  <script>
+    // URL에서 에러 정보 추출
+    const params = new URLSearchParams(window.location.search);
+    const errorCode = params.get('code');
+    const errorMessage = params.get('message');
+    
+    if (errorCode || errorMessage) {
+      const errorEl = document.getElementById('error-code');
+      errorEl.innerHTML = `
+        ${errorCode ? `<div>오류 코드: ${errorCode}</div>` : ''}
+        ${errorMessage ? `<div>${decodeURIComponent(errorMessage)}</div>` : ''}
+      `;
+    }
+  </script>
+</body>
+</html>
+

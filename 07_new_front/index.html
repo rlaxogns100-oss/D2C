@@ -14,6 +14,13 @@
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
   
   <link rel="stylesheet" href="style.css">
+  
+  <!-- 카카오 맵 & 주소 검색 API -->
+  <script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=18d5884d5326027cfa1a256d516a78ec&libraries=services"></script>
+  <script src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
+  
+  <!-- 토스페이먼츠 결제위젯 SDK v2 -->
+  <script src="https://js.tosspayments.com/v2/standard"></script>
 </head>
 <body>
   <!-- ========================================
@@ -706,7 +713,7 @@
       </section>
 
       <!-- ========================================
-           PAGE 9: ADD ADDRESS
+           PAGE 9: ADD ADDRESS (카카오맵 연동)
       ======================================== -->
       <section id="page-add-address" class="page">
         <div class="add-address-container">
@@ -720,25 +727,38 @@
             <div class="header-spacer"></div>
           </header>
           
-          <!-- Map Placeholder -->
-          <div class="map-container">
-            <div class="map-placeholder">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" width="48" height="48">
-                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
-                <circle cx="12" cy="10" r="3"/>
-              </svg>
-              <span>지도 영역</span>
-            </div>
+          <!-- 카카오맵 실제 지도 -->
+          <div class="map-container" id="kakao-map">
+            <!-- 카카오맵이 여기에 렌더링됩니다 -->
+          </div>
+          
+          <!-- 주소 미리보기 -->
+          <div class="address-preview" id="address-preview" style="display: none;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20">
+              <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+              <circle cx="12" cy="10" r="3"/>
+            </svg>
+            <span id="address-preview-text"></span>
+          </div>
+          
+          <!-- 배달 가능 여부 안내 -->
+          <div class="delivery-check-result" id="delivery-check-result" style="display: none;">
+            <span class="icon"></span>
+            <span class="text"></span>
           </div>
           
           <!-- Address Form -->
-          <form class="address-form" onsubmit="saveAddress(event)">
+          <form class="address-form" id="address-form" onsubmit="submitAddress(event)">
             <div class="input-group">
               <label>도로명 주소</label>
               <div class="input-row">
-                <input type="text" id="street-address" placeholder="주소 검색 버튼을 클릭하세요" readonly>
-                <button type="button" class="btn btn-secondary">주소 검색</button>
+                <input type="text" id="street-address" placeholder="주소 검색 버튼을 클릭하세요" readonly required>
+                <button type="button" class="btn btn-secondary" onclick="openAddressSearch()">주소 검색</button>
               </div>
+              <!-- 좌표 저장용 hidden inputs -->
+              <input type="hidden" id="address-lat">
+              <input type="hidden" id="address-lng">
+              <input type="hidden" id="address-postcode">
             </div>
             
             <div class="input-group">
@@ -748,12 +768,13 @@
             
             <div class="input-group">
               <label>주소 별칭</label>
-              <div class="label-buttons">
-                <button type="button" class="label-btn active">집</button>
-                <button type="button" class="label-btn">회사</button>
-                <button type="button" class="label-btn">학교</button>
-                <button type="button" class="label-btn">기타</button>
+              <div class="label-buttons" id="address-labels">
+                <button type="button" class="label-btn active" data-label="집">집</button>
+                <button type="button" class="label-btn" data-label="회사">회사</button>
+                <button type="button" class="label-btn" data-label="학교">학교</button>
+                <button type="button" class="label-btn" data-label="기타">기타</button>
               </div>
+              <input type="text" id="custom-label" class="custom-label-input" placeholder="주소 별칭 입력" style="display: none;">
             </div>
             
             <button type="submit" class="btn btn-primary btn-full">주소 저장</button>
@@ -762,7 +783,7 @@
       </section>
 
       <!-- ========================================
-           PAGE 10: PAYMENT
+           PAGE 10: PAYMENT (토스페이먼츠 연동)
       ======================================== -->
       <section id="page-payment" class="page">
         <div class="payment-container">
@@ -780,6 +801,7 @@
           <div class="payment-amount-card">
             <span class="amount-label">결제 금액</span>
             <span class="amount-value" id="payment-total">29,200원</span>
+            <span class="amount-sub" id="payment-sub">(배송비 2,500원 포함)</span>
           </div>
           
           <!-- Point Usage -->
@@ -789,7 +811,7 @@
                 <span class="point-icon">🪙</span>
                 <div>
                   <div class="point-title">포인트 사용</div>
-                  <div class="point-available">사용 가능: <strong id="available-points">15,000P</strong></div>
+                  <div class="point-available">사용 가능: <strong id="available-points">0P</strong></div>
                 </div>
               </div>
               <label class="point-toggle">
@@ -799,14 +821,14 @@
             </div>
             <div class="point-details" id="point-details" style="display: none;">
               <div class="point-input-row">
-                <input type="number" id="point-amount" placeholder="사용할 포인트" min="0" max="15000" oninput="updatePointUsage()">
-                <button class="btn btn-sm btn-secondary" onclick="useAllPoints()">전액 사용</button>
+                <input type="number" id="point-amount" placeholder="사용할 포인트" min="0" oninput="updatePointUsage()">
+                <button type="button" class="btn btn-sm btn-secondary" onclick="useAllPoints()">전액 사용</button>
               </div>
               <p class="point-notice">※ 최소 결제금액 5,000원 이상 시 포인트 전액 사용 가능</p>
               <div class="point-calculation">
                 <div class="calc-row">
                   <span>원래 금액</span>
-                  <span id="original-amount">29,200원</span>
+                  <span id="original-amount">0원</span>
                 </div>
                 <div class="calc-row point-discount">
                   <span>포인트 할인</span>
@@ -814,7 +836,7 @@
                 </div>
                 <div class="calc-row final">
                   <span>최종 결제금액</span>
-                  <span id="final-amount">29,200원</span>
+                  <span id="final-amount">0원</span>
                 </div>
               </div>
             </div>
@@ -836,8 +858,8 @@
               </div>
               <div class="detail-row">
                 <span class="detail-label">계좌번호</span>
-                <span class="detail-value">1000-0000-0000</span>
-                <button class="copy-btn">복사</button>
+                <span class="detail-value" id="bank-account">1000-0000-0000</span>
+                <button type="button" class="copy-btn" onclick="copyBankAccount()">복사</button>
               </div>
               <div class="detail-row">
                 <span class="detail-label">예금주</span>
@@ -847,36 +869,21 @@
             <p class="bank-notice">※ 주문 후 24시간 이내 미입금 시 자동 취소됩니다.</p>
           </div>
           
-          <!-- Payment Methods -->
-          <div class="payment-methods">
+          <!-- 토스페이먼츠 결제 위젯 -->
+          <div class="toss-payment-section">
             <h3>결제 수단</h3>
-            <div class="method-list">
-              <label class="method-item">
-                <input type="radio" name="payment-method" value="transfer" checked>
-                <div class="method-content">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="24" height="24">
-                    <rect x="2" y="4" width="20" height="16" rx="2"/>
-                    <line x1="2" y1="10" x2="22" y2="10"/>
-                  </svg>
-                  <span>계좌이체</span>
-                </div>
-              </label>
-              <label class="method-item">
-                <input type="radio" name="payment-method" value="card">
-                <div class="method-content">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="24" height="24">
-                    <rect x="1" y="4" width="22" height="16" rx="2" ry="2"/>
-                    <line x1="1" y1="10" x2="23" y2="10"/>
-                  </svg>
-                  <span>카드결제</span>
-                </div>
-              </label>
+            <div id="payment-method-widget">
+              <!-- 토스페이먼츠 위젯이 여기에 렌더링됩니다 -->
+              <div class="widget-loading">결제 수단 로딩 중...</div>
+            </div>
+            <div id="agreement-widget">
+              <!-- 이용약관 위젯 -->
             </div>
           </div>
           
           <!-- Confirm Button -->
-          <button class="btn btn-primary btn-full btn-lg" onclick="processPayment()">
-            결제 완료
+          <button class="btn btn-primary btn-full btn-lg" id="payment-submit-btn" onclick="submitPayment()">
+            결제하기
           </button>
         </div>
       </section>
@@ -1027,6 +1034,8 @@
 
   </div><!-- end #app -->
 
+  <!-- API 모듈 (반드시 app.js 전에 로드) -->
+  <script src="api.js"></script>
   <script src="app.js"></script>
 </body>
 </html>

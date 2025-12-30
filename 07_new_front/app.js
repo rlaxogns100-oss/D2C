@@ -1,6 +1,8 @@
 /**
+ * ============================================================================
  * MAEJANG D2C - NEW FRONTEND APP
- * Single Page Application with BHC-style Header Navigation
+ * Single Page Application with Real API Integration
+ * ============================================================================
  */
 
 // ========================================
@@ -10,18 +12,32 @@ const AppState = {
   currentPage: 'page-splash',
   previousPage: null,
   isLoggedIn: false,
+  user: null,
   cart: [],
-  cartCount: 3, // Mock data
+  cartCount: 0,
   sliderIndex: 0,
-  userPoints: 15000, // Mock: 15,000P
-  orderTotal: 29200,
-  orderSubtotal: 26700,
+  
+  // 결제 관련
+  orderTotal: 0,
+  orderSubtotal: 0,
   pointsUsed: 0,
-  finalPayment: 29200
+  finalPayment: 0,
+  selectedAddressId: null,
+  
+  // 토스페이먼츠
+  tossWidgets: null,
+  
+  // 카카오맵
+  kakaoMap: null,
+  storeMarker: null,
+  customerMarker: null,
+  
+  // 매장 정보
+  storeInfo: null
 };
 
 // ========================================
-// MOCK DATA
+// MOCK DATA (API 실패 시 폴백용)
 // ========================================
 const MockData = {
   menus: [
@@ -39,40 +55,12 @@ const MockData = {
     { id: 12, name: '티라미수', desc: '클래식 이탈리안 티라미수', price: 7500, category: 'dessert', emoji: '🍮' }
   ],
   
-  cartItems: [
-    { id: 1, menuId: 2, name: '매콤 불닭 볶음면', option: '치즈 추가', price: 9900, quantity: 2, emoji: '🍜' },
-    { id: 2, menuId: 1, name: '크림 파스타', option: '기본', price: 12900, quantity: 1, emoji: '🍝' }
-  ],
-  
-  orders: {
-    ongoing: [
-      {
-        id: 'ORD-2024001',
-        date: '2024-01-15 14:30',
-        status: 'delivering',
-        statusText: '배달 중',
-        trackingProgress: 75,
-        items: '매콤 불닭 볶음면 외 1개',
-        total: '32,700원'
-      }
-    ],
-    completed: [
-      {
-        id: 'ORD-2024000',
-        date: '2024-01-14 19:20',
-        status: 'delivered',
-        statusText: '배달 완료',
-        items: '크림 파스타 외 2개',
-        total: '27,300원'
-      }
-    ]
-  },
-  
-  addresses: [
-    { id: 1, label: '집', address: '경기도 용인시 수지구 현암로125번길 11', detail: '101동 1001호', isDefault: true },
-    { id: 2, label: '회사', address: '서울시 강남구 테헤란로 123', detail: '10층', isDefault: false }
-  ]
+  addresses: [],
+  orders: { ongoing: [], completed: [] }
 };
+
+// 실제 메뉴 데이터 (API에서 로드)
+let RealMenuData = null;
 
 // ========================================
 // NAVIGATION
@@ -148,7 +136,6 @@ function initPageContent(pageId) {
       break;
     case 'page-cart':
       renderCartItems();
-      updateOrderSummary();
       break;
     case 'page-orders':
       renderOrders();
@@ -156,38 +143,81 @@ function initPageContent(pageId) {
     case 'page-addresses':
       renderAddresses();
       break;
+    case 'page-add-address':
+      initAddressPage();
+      break;
     case 'page-payment':
       initPaymentPage();
+      break;
+    case 'page-profile':
+      updateProfilePage();
       break;
   }
 }
 
 // ========================================
-// MENU GRID
+// MENU GRID (API 연동)
 // ========================================
-function renderMenuGrid(category = 'all') {
+async function renderMenuGrid(category = 'all') {
   const grid = document.getElementById('menu-grid');
   if (!grid) return;
   
-  // Get reward rate
-  const rewardRate = parseInt(localStorage.getItem('rewardRate') || '40');
+  // 로딩 표시
+  grid.innerHTML = '<div class="loading-spinner">메뉴를 불러오는 중...</div>';
   
-  // Update reward banner
+  // 적립률 가져오기
+  const rewardRate = PointsApi?.getRewardRate() || 40;
+  
+  // 적립률 표시 업데이트
   const rewardRateDisplay = document.getElementById('reward-rate-display');
   if (rewardRateDisplay) {
     rewardRateDisplay.textContent = `${rewardRate}%`;
   }
   
-  let menus = MockData.menus;
+  // 메뉴 데이터 가져오기
+  let menus = [];
+  
+  try {
+    if (!RealMenuData && window.MenuApi) {
+      const result = await MenuApi.getList();
+      if (result.success && result.data) {
+        RealMenuData = result.data.map(menu => ({
+          id: menu.menuId,
+          name: menu.menuName,
+          desc: menu.description || '',
+          price: menu.price,
+          category: menu.category?.toLowerCase() || 'main',
+          emoji: getMenuEmoji(menu.category),
+          picture: menu.picture
+        }));
+      }
+    }
+    
+    menus = RealMenuData || MockData.menus;
+  } catch (error) {
+    console.error('메뉴 로드 실패, Mock 데이터 사용:', error);
+    menus = MockData.menus;
+  }
+  
+  // 카테고리 필터링
   if (category !== 'all') {
     menus = menus.filter(m => m.category === category);
   }
   
+  if (menus.length === 0) {
+    grid.innerHTML = '<p class="empty-message">메뉴가 없습니다.</p>';
+    return;
+  }
+  
   grid.innerHTML = menus.map(menu => {
     const rewardAmount = Math.floor(menu.price * rewardRate / 100);
+    const imageContent = menu.picture 
+      ? `<img src="${menu.picture}" alt="${menu.name}" class="menu-card-img">`
+      : `<span class="menu-card-emoji">${menu.emoji}</span>`;
+    
     return `
       <div class="menu-card" onclick="openMenuDetail(${menu.id})">
-        <div class="menu-card-image">${menu.emoji}</div>
+        <div class="menu-card-image">${imageContent}</div>
         <div class="menu-card-content">
           <h4 class="menu-card-name">${menu.name}</h4>
           <p class="menu-card-desc">${menu.desc}</p>
@@ -203,11 +233,24 @@ function renderMenuGrid(category = 'all') {
     `;
   }).join('');
   
-  // Update count
+  // 메뉴 개수 업데이트
   const countEl = document.querySelector('.section-header .count');
   if (countEl) {
     countEl.textContent = `(${menus.length})`;
   }
+}
+
+function getMenuEmoji(category) {
+  const emojiMap = {
+    'main': '🍽️',
+    'side': '🍟',
+    'drink': '🥤',
+    'dessert': '🍰',
+    'pizza': '🍕',
+    'chicken': '🍗',
+    'pasta': '🍝'
+  };
+  return emojiMap[category?.toLowerCase()] || '🍽️';
 }
 
 // ========================================
@@ -228,17 +271,22 @@ function setupCategoryTabs() {
 // MENU DETAIL
 // ========================================
 function openMenuDetail(menuId) {
-  const menu = MockData.menus.find(m => m.id === menuId);
+  const menus = RealMenuData || MockData.menus;
+  const menu = menus.find(m => m.id === menuId);
   if (!menu) return;
   
-  // Get reward rate
-  const rewardRate = parseInt(localStorage.getItem('rewardRate') || '40');
+  const rewardRate = PointsApi?.getRewardRate() || 40;
   
-  // Update detail page content
   const detailPage = document.getElementById('page-menu-detail');
   if (detailPage) {
     const heroPlaceholder = detailPage.querySelector('.hero-img-placeholder');
-    if (heroPlaceholder) heroPlaceholder.textContent = menu.emoji;
+    if (heroPlaceholder) {
+      if (menu.picture) {
+        heroPlaceholder.innerHTML = `<img src="${menu.picture}" alt="${menu.name}" style="width:100%;height:100%;object-fit:cover;">`;
+      } else {
+        heroPlaceholder.textContent = menu.emoji;
+      }
+    }
     
     const menuName = detailPage.querySelector('.menu-name');
     if (menuName) menuName.textContent = menu.name;
@@ -249,16 +297,13 @@ function openMenuDetail(menuId) {
     const priceValue = detailPage.querySelector('.price-value');
     if (priceValue) priceValue.textContent = `${menu.price.toLocaleString()}원`;
     
-    // Calculate and show reward
     const rewardAmount = Math.floor(menu.price * rewardRate / 100);
     const detailReward = document.getElementById('detail-reward');
     if (detailReward) detailReward.textContent = `${rewardAmount.toLocaleString()}P 적립!`;
     
-    // Store current menu info
     detailPage.dataset.menuId = menuId;
     detailPage.dataset.basePrice = menu.price;
     
-    // Reset quantity
     const qtyValue = detailPage.querySelector('.qty-value');
     if (qtyValue) qtyValue.textContent = '1';
   }
@@ -268,80 +313,154 @@ function openMenuDetail(menuId) {
 
 function quickAddToCart(menuId, event) {
   event.stopPropagation();
-  const menu = MockData.menus.find(m => m.id === menuId);
-  if (menu) {
-    showToast(`${menu.name}이(가) 장바구니에 담겼습니다.`);
-    updateCartBadge(AppState.cartCount + 1);
+  
+  const menus = RealMenuData || MockData.menus;
+  const menu = menus.find(m => m.id === menuId);
+  if (!menu) return;
+  
+  // CartApi 사용
+  if (window.CartApi) {
+    CartApi.addItem({
+      menuId: menu.id,
+      menuName: menu.name,
+      price: menu.price,
+      totalPrice: menu.price,
+      quantity: 1,
+      option: '기본',
+      picture: menu.picture || null,
+      emoji: menu.emoji,
+      ownerId: ApiConfig?.ownerId
+    });
   }
+  
+  showToast(`${menu.name}이(가) 장바구니에 담겼습니다.`);
+  updateCartBadge();
 }
 
 function addToCartAndNavigate() {
+  const detailPage = document.getElementById('page-menu-detail');
+  const menuId = parseInt(detailPage?.dataset.menuId);
+  const menus = RealMenuData || MockData.menus;
+  const menu = menus.find(m => m.id === menuId);
+  
+  if (!menu) {
+    showToast('메뉴 정보를 찾을 수 없습니다.');
+    return;
+  }
+  
+  const quantity = parseInt(detailPage.querySelector('.qty-value')?.textContent || 1);
+  const selectedOption = detailPage.querySelector('.option-btn.active')?.textContent || '기본';
+  
+  // 옵션 가격 계산
+  let additionalPrice = 0;
+  if (selectedOption.includes('+')) {
+    const priceMatch = selectedOption.match(/\+(\d+,?\d*)/);
+    if (priceMatch) {
+      additionalPrice = parseInt(priceMatch[1].replace(',', ''));
+    }
+  }
+  
+  const itemPrice = menu.price + additionalPrice;
+  
+  if (window.CartApi) {
+    CartApi.addItem({
+      menuId: menu.id,
+      menuName: menu.name,
+      price: itemPrice,
+      totalPrice: itemPrice * quantity,
+      quantity: quantity,
+      option: selectedOption.split('(')[0].trim(),
+      picture: menu.picture || null,
+      emoji: menu.emoji,
+      ownerId: ApiConfig?.ownerId
+    });
+  }
+  
   showToast('장바구니에 담겼습니다.');
-  updateCartBadge(AppState.cartCount + 1);
+  updateCartBadge();
   setTimeout(() => navigateTo('page-cart'), 500);
 }
 
 // ========================================
-// CART
+// CART (API 연동)
 // ========================================
 function renderCartItems() {
   const container = document.getElementById('cart-items');
   if (!container) return;
   
-  container.innerHTML = MockData.cartItems.map(item => `
-    <div class="cart-item" data-id="${item.id}">
-      <button class="cart-item-remove" onclick="removeCartItem(${item.id})">×</button>
-      <div class="cart-item-image">${item.emoji}</div>
-      <div class="cart-item-info">
-        <h4 class="cart-item-name">${item.name}</h4>
-        <p class="cart-item-option">${item.option}</p>
-        <div class="cart-item-footer">
-          <span class="cart-item-price">${(item.price * item.quantity).toLocaleString()}원</span>
-          <div class="cart-counter">
-            <button class="cart-counter-btn" onclick="updateCartQuantity(${item.id}, -1)">−</button>
-            <span class="cart-counter-value">${item.quantity}</span>
-            <button class="cart-counter-btn" onclick="updateCartQuantity(${item.id}, 1)">+</button>
+  const cartItems = CartApi?.getAll() || [];
+  
+  if (cartItems.length === 0) {
+    container.innerHTML = '<p class="empty-message">장바구니가 비어있습니다.</p>';
+    updateOrderSummary(0);
+    return;
+  }
+  
+  container.innerHTML = cartItems.map(item => {
+    const imageContent = item.picture 
+      ? `<img src="${item.picture}" alt="${item.menuName}" style="width:100%;height:100%;object-fit:cover;border-radius:8px;">`
+      : (item.emoji || '🍽️');
+    
+    return `
+      <div class="cart-item" data-id="${item.id}">
+        <button class="cart-item-remove" onclick="removeCartItem(${item.id})">×</button>
+        <div class="cart-item-image">${imageContent}</div>
+        <div class="cart-item-info">
+          <h4 class="cart-item-name">${item.menuName}</h4>
+          <p class="cart-item-option">${item.option || '기본'}</p>
+          <div class="cart-item-footer">
+            <span class="cart-item-price">${item.totalPrice.toLocaleString()}원</span>
+            <div class="cart-counter">
+              <button class="cart-counter-btn" onclick="updateCartQuantity(${item.id}, ${item.quantity - 1})">−</button>
+              <span class="cart-counter-value">${item.quantity}</span>
+              <button class="cart-counter-btn" onclick="updateCartQuantity(${item.id}, ${item.quantity + 1})">+</button>
+            </div>
           </div>
         </div>
       </div>
-    </div>
-  `).join('');
+    `;
+  }).join('');
+  
+  updateOrderSummary();
+  loadAddressForCart();
 }
 
-function updateCartQuantity(itemId, change) {
-  const item = MockData.cartItems.find(i => i.id === itemId);
-  if (item) {
-    item.quantity = Math.max(1, item.quantity + change);
-    renderCartItems();
-    updateOrderSummary();
+function updateCartQuantity(itemId, newQuantity) {
+  if (newQuantity < 1) return;
+  
+  if (window.CartApi) {
+    CartApi.updateQuantity(itemId, newQuantity);
   }
+  
+  renderCartItems();
+  updateCartBadge();
 }
 
 function removeCartItem(itemId) {
-  MockData.cartItems = MockData.cartItems.filter(i => i.id !== itemId);
-  renderCartItems();
-  updateOrderSummary();
-  updateCartBadge(MockData.cartItems.reduce((sum, i) => sum + i.quantity, 0));
+  if (confirm('이 상품을 장바구니에서 삭제하시겠습니까?')) {
+    if (window.CartApi) {
+      CartApi.removeItem(itemId);
+    }
+    renderCartItems();
+    updateCartBadge();
+  }
 }
 
 function updateOrderSummary() {
-  const subtotal = MockData.cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-  const delivery = 2500;
+  const cartItems = CartApi?.getAll() || [];
+  const subtotal = cartItems.reduce((sum, item) => sum + item.totalPrice, 0);
+  const delivery = subtotal > 0 ? 2500 : 0;
   const total = subtotal + delivery;
   
-  // Get reward rate from localStorage (set by owner, default 40%)
-  const rewardRate = parseInt(localStorage.getItem('rewardRate') || '40');
+  const rewardRate = PointsApi?.getRewardRate() || 40;
   const rewardAmount = Math.floor(subtotal * rewardRate / 100);
   
-  // Update subtotal
   const subtotalEl = document.getElementById('cart-subtotal');
   if (subtotalEl) subtotalEl.textContent = `${subtotal.toLocaleString()}원`;
   
-  // Update reward display
   const rewardEl = document.getElementById('cart-reward');
   if (rewardEl) rewardEl.textContent = `${rewardAmount.toLocaleString()}P (${rewardRate}%)`;
   
-  // Update total
   const totalEl = document.getElementById('cart-total');
   if (totalEl) totalEl.textContent = `${total.toLocaleString()}원`;
   
@@ -350,12 +469,41 @@ function updateOrderSummary() {
     checkoutBtn.textContent = `${total.toLocaleString()}원 결제하기`;
   }
   
-  // Store for payment page
   AppState.orderTotal = total;
   AppState.orderSubtotal = subtotal;
 }
 
-function updateCartBadge(count) {
+async function loadAddressForCart() {
+  if (!AuthApi?.isLoggedIn()) {
+    const addressLabel = document.querySelector('.address-label');
+    const addressText = document.querySelector('.address-text');
+    if (addressLabel) addressLabel.textContent = '';
+    if (addressText) addressText.textContent = '로그인 후 주소를 선택해주세요';
+    return;
+  }
+  
+  try {
+    const result = await AddressApi.getList();
+    if (result.success && result.data && result.data.length > 0) {
+      const addresses = result.data;
+      MockData.addresses = addresses;
+      
+      // 기본 주소 또는 첫 번째 주소 선택
+      const defaultAddr = addresses.find(a => a.isDefault) || addresses[0];
+      AppState.selectedAddressId = defaultAddr.addressId;
+      
+      const addressLabel = document.querySelector('.address-label');
+      const addressText = document.querySelector('.address-text');
+      if (addressLabel) addressLabel.textContent = defaultAddr.name || '배달';
+      if (addressText) addressText.textContent = defaultAddr.address || '';
+    }
+  } catch (error) {
+    console.error('주소 로드 실패:', error);
+  }
+}
+
+function updateCartBadge() {
+  const count = CartApi?.getCount() || 0;
   AppState.cartCount = count;
   
   document.querySelectorAll('.cart-badge, .tab-badge, .cart-tab-badge').forEach(badge => {
@@ -365,83 +513,76 @@ function updateCartBadge(count) {
 }
 
 // ========================================
-// ORDERS
+// ORDERS (API 연동)
 // ========================================
-function renderOrders() {
-  renderOngoingOrders();
-  renderCompletedOrders();
+async function renderOrders() {
   setupOrderTabs();
+  await renderOngoingOrders();
 }
 
-function renderOngoingOrders() {
+async function renderOngoingOrders() {
   const container = document.getElementById('ongoing-orders');
   if (!container) return;
   
-  if (MockData.orders.ongoing.length === 0) {
-    container.innerHTML = '<p class="empty-message">진행 중인 주문이 없습니다.</p>';
-    return;
+  container.innerHTML = '<div class="loading-spinner">주문 내역을 불러오는 중...</div>';
+  
+  try {
+    if (AuthApi?.isLoggedIn()) {
+      const result = await OrderApi.getList();
+      if (result.success && result.data) {
+        const orders = result.data;
+        
+        if (orders.length === 0) {
+          container.innerHTML = '<p class="empty-message">주문 내역이 없습니다.</p>';
+          return;
+        }
+        
+        container.innerHTML = orders.map(order => `
+          <div class="order-card">
+            <div class="order-header">
+              <div>
+                <p class="order-id">주문번호: ${order.orderId}</p>
+                <p class="order-date">${formatDate(order.createdAt)}</p>
+              </div>
+              <span class="order-status status-${order.orderStatus?.toLowerCase()}">${getStatusText(order.orderStatus)}</span>
+            </div>
+            <p class="order-items-preview">${order.items?.map(i => i.menuName).join(', ') || '주문 상품'}</p>
+            <p class="order-total">${order.totalPrice?.toLocaleString() || 0}원</p>
+          </div>
+        `).join('');
+        
+        return;
+      }
+    }
+  } catch (error) {
+    console.error('주문 내역 로드 실패:', error);
   }
   
-  container.innerHTML = MockData.orders.ongoing.map(order => `
-    <div class="order-card">
-      <div class="order-header">
-        <div>
-          <p class="order-id">${order.id}</p>
-          <p class="order-date">${order.date}</p>
-        </div>
-        <span class="order-status status-${order.status}">${order.statusText}</span>
-      </div>
-      <div class="order-tracking">
-        <div class="tracking-steps">
-          <div class="tracking-line">
-            <div class="tracking-progress" style="width: ${order.trackingProgress}%"></div>
-          </div>
-          <div class="tracking-step">
-            <div class="step-dot completed"></div>
-            <span class="step-label">주문확인</span>
-          </div>
-          <div class="tracking-step">
-            <div class="step-dot ${order.trackingProgress >= 50 ? 'completed' : ''}"></div>
-            <span class="step-label">조리중</span>
-          </div>
-          <div class="tracking-step">
-            <div class="step-dot ${order.trackingProgress >= 75 ? 'active' : ''}"></div>
-            <span class="step-label ${order.trackingProgress >= 75 ? 'active' : ''}">배달중</span>
-          </div>
-          <div class="tracking-step">
-            <div class="step-dot ${order.trackingProgress >= 100 ? 'completed' : ''}"></div>
-            <span class="step-label">완료</span>
-          </div>
-        </div>
-      </div>
-      <p class="order-items-preview">${order.items}</p>
-      <p class="order-total">${order.total}</p>
-    </div>
-  `).join('');
+  container.innerHTML = '<p class="empty-message">로그인 후 주문 내역을 확인하세요.</p>';
 }
 
 function renderCompletedOrders() {
   const container = document.getElementById('completed-orders');
   if (!container) return;
-  
-  if (MockData.orders.completed.length === 0) {
-    container.innerHTML = '<p class="empty-message">지난 주문이 없습니다.</p>';
-    return;
-  }
-  
-  container.innerHTML = MockData.orders.completed.map(order => `
-    <div class="order-card">
-      <div class="order-header">
-        <div>
-          <p class="order-id">${order.id}</p>
-          <p class="order-date">${order.date}</p>
-        </div>
-        <span class="order-status status-${order.status}">${order.statusText}</span>
-      </div>
-      <p class="order-items-preview">${order.items}</p>
-      <p class="order-total">${order.total}</p>
-    </div>
-  `).join('');
+  container.innerHTML = '<p class="empty-message">완료된 주문이 없습니다.</p>';
+}
+
+function getStatusText(status) {
+  const statusMap = {
+    'PENDING': '주문 접수',
+    'CONFIRMED': '주문 확인',
+    'PREPARING': '조리 중',
+    'DELIVERING': '배달 중',
+    'COMPLETED': '배달 완료',
+    'CANCELLED': '취소됨'
+  };
+  return statusMap[status] || status || '처리 중';
+}
+
+function formatDate(dateStr) {
+  if (!dateStr) return '';
+  const date = new Date(dateStr);
+  return `${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,'0')}-${String(date.getDate()).padStart(2,'0')} ${String(date.getHours()).padStart(2,'0')}:${String(date.getMinutes()).padStart(2,'0')}`;
 }
 
 function setupOrderTabs() {
@@ -455,78 +596,390 @@ function setupOrderTabs() {
       const completedList = document.getElementById('completed-orders');
       
       if (tab.dataset.tab === 'ongoing') {
-        ongoingList.classList.remove('hidden');
-        completedList.classList.add('hidden');
+        ongoingList?.classList.remove('hidden');
+        completedList?.classList.add('hidden');
       } else {
-        ongoingList.classList.add('hidden');
-        completedList.classList.remove('hidden');
+        ongoingList?.classList.add('hidden');
+        completedList?.classList.remove('hidden');
+        renderCompletedOrders();
       }
     });
   });
 }
 
 // ========================================
-// ADDRESSES
+// ADDRESSES (API 연동)
 // ========================================
-function renderAddresses() {
+async function renderAddresses() {
   const container = document.getElementById('address-list');
   if (!container) return;
   
-  container.innerHTML = MockData.addresses.map(addr => `
-    <div class="address-card ${addr.isDefault ? 'default' : ''}" data-id="${addr.id}">
-      <div class="address-card-header">
-        <div class="address-card-label">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
-            <circle cx="12" cy="10" r="3"/>
-          </svg>
-          <span class="address-card-name">${addr.label}</span>
-        </div>
-        <div class="address-card-actions">
-          <button class="address-action-btn edit" onclick="editAddress(${addr.id})">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
-              <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
-            </svg>
-          </button>
-          <button class="address-action-btn delete" onclick="deleteAddress(${addr.id})">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <polyline points="3 6 5 6 21 6"/>
-              <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
-            </svg>
-          </button>
-        </div>
-      </div>
-      <p class="address-card-text">${addr.address} ${addr.detail}</p>
-    </div>
-  `).join('');
+  container.innerHTML = '<div class="loading-spinner">주소를 불러오는 중...</div>';
+  
+  try {
+    if (AuthApi?.isLoggedIn()) {
+      const result = await AddressApi.getList();
+      if (result.success && result.data) {
+        const addresses = result.data;
+        MockData.addresses = addresses;
+        
+        if (addresses.length === 0) {
+          container.innerHTML = '<p class="empty-message">등록된 주소가 없습니다.</p>';
+          return;
+        }
+        
+        container.innerHTML = addresses.map(addr => `
+          <div class="address-card ${addr.isDefault ? 'default' : ''}" data-id="${addr.addressId}">
+            <div class="address-card-header">
+              <div class="address-card-label">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+                  <circle cx="12" cy="10" r="3"/>
+                </svg>
+                <span class="address-card-name">${addr.name || '배달 주소'}</span>
+                ${addr.isDefault ? '<span class="default-badge">기본</span>' : ''}
+              </div>
+              <div class="address-card-actions">
+                <button class="address-action-btn delete" onclick="deleteAddress(${addr.addressId})">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="3 6 5 6 21 6"/>
+                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                  </svg>
+                </button>
+              </div>
+            </div>
+            <p class="address-card-text">${addr.address || ''}</p>
+          </div>
+        `).join('');
+        
+        return;
+      }
+    }
+  } catch (error) {
+    console.error('주소 로드 실패:', error);
+  }
+  
+  container.innerHTML = '<p class="empty-message">로그인 후 주소를 관리하세요.</p>';
 }
 
-function editAddress(addressId) {
-  console.log('Edit address:', addressId);
-  navigateTo('page-add-address');
-}
-
-function deleteAddress(addressId) {
-  if (confirm('이 주소를 삭제하시겠습니까?')) {
-    MockData.addresses = MockData.addresses.filter(a => a.id !== addressId);
-    renderAddresses();
-    showToast('주소가 삭제되었습니다.');
+async function deleteAddress(addressId) {
+  if (!confirm('이 주소를 삭제하시겠습니까?')) return;
+  
+  try {
+    const result = await AddressApi.delete(addressId);
+    if (result.success) {
+      showToast('주소가 삭제되었습니다.');
+      renderAddresses();
+    } else {
+      showToast(result.message || '주소 삭제에 실패했습니다.');
+    }
+  } catch (error) {
+    showToast('주소 삭제 중 오류가 발생했습니다.');
   }
 }
 
-function saveAddress(event) {
+// ========================================
+// ADD ADDRESS (카카오맵 연동)
+// ========================================
+function initAddressPage() {
+  // 로그인 체크
+  if (!AuthApi?.isLoggedIn()) {
+    showToast('로그인이 필요합니다.');
+    navigateTo('page-login');
+    return;
+  }
+  
+  // 카카오맵 초기화
+  initKakaoMap();
+  
+  // 라벨 버튼 설정
+  setupAddressLabels();
+}
+
+function initKakaoMap() {
+  const mapContainer = document.getElementById('kakao-map');
+  if (!mapContainer || !window.kakao?.maps) {
+    console.warn('카카오맵 SDK가 로드되지 않았습니다.');
+    return;
+  }
+  
+  // 가게 위치 (기본값 또는 API에서 가져온 값)
+  const storeLocation = {
+    lat: AppState.storeInfo?.latitude || 37.5012743,
+    lng: AppState.storeInfo?.longitude || 127.0396597
+  };
+  
+  const mapOption = {
+    center: new kakao.maps.LatLng(storeLocation.lat, storeLocation.lng),
+    level: 4
+  };
+  
+  AppState.kakaoMap = new kakao.maps.Map(mapContainer, mapOption);
+  
+  // 가게 마커 추가
+  AppState.storeMarker = new kakao.maps.Marker({
+    position: new kakao.maps.LatLng(storeLocation.lat, storeLocation.lng),
+    map: AppState.kakaoMap
+  });
+  
+  const storeInfoWindow = new kakao.maps.InfoWindow({
+    content: '<div style="padding:5px;font-size:12px;color:#FF6B35;font-weight:600;">🏪 가게 위치</div>'
+  });
+  storeInfoWindow.open(AppState.kakaoMap, AppState.storeMarker);
+}
+
+function openAddressSearch() {
+  new daum.Postcode({
+    oncomplete: function(data) {
+      const roadAddr = data.roadAddress;
+      const zonecode = data.zonecode;
+      
+      document.getElementById('street-address').value = roadAddr;
+      document.getElementById('address-postcode').value = zonecode;
+      
+      // 주소 미리보기
+      const preview = document.getElementById('address-preview');
+      const previewText = document.getElementById('address-preview-text');
+      if (preview && previewText) {
+        preview.style.display = 'flex';
+        previewText.textContent = roadAddr;
+      }
+      
+      // 좌표 변환
+      const geocoder = new kakao.maps.services.Geocoder();
+      geocoder.addressSearch(roadAddr, function(result, status) {
+        if (status === kakao.maps.services.Status.OK) {
+          const lat = result[0].y;
+          const lng = result[0].x;
+          
+          document.getElementById('address-lat').value = lat;
+          document.getElementById('address-lng').value = lng;
+          
+          // 지도에 마커 추가
+          const coords = new kakao.maps.LatLng(lat, lng);
+          
+          if (AppState.customerMarker) {
+            AppState.customerMarker.setMap(null);
+          }
+          
+          AppState.customerMarker = new kakao.maps.Marker({
+            position: coords,
+            map: AppState.kakaoMap
+          });
+          
+          const customerInfoWindow = new kakao.maps.InfoWindow({
+            content: '<div style="padding:5px;font-size:12px;color:#4A90E2;font-weight:600;">📍 배달 주소</div>'
+          });
+          customerInfoWindow.open(AppState.kakaoMap, AppState.customerMarker);
+          
+          // 두 마커가 보이도록 지도 범위 조정
+          const bounds = new kakao.maps.LatLngBounds();
+          const storeLocation = {
+            lat: AppState.storeInfo?.latitude || 37.5012743,
+            lng: AppState.storeInfo?.longitude || 127.0396597
+          };
+          bounds.extend(new kakao.maps.LatLng(storeLocation.lat, storeLocation.lng));
+          bounds.extend(coords);
+          AppState.kakaoMap.setBounds(bounds);
+          
+          // 배달 가능 여부 체크
+          checkDeliveryAvailability(parseFloat(lat), parseFloat(lng));
+        }
+      });
+    }
+  }).open();
+}
+
+async function checkDeliveryAvailability(lat, lng) {
+  const resultEl = document.getElementById('delivery-check-result');
+  if (!resultEl) return;
+  
+  try {
+    if (window.StoreApi) {
+      const result = await StoreApi.checkDelivery(lat, lng);
+      
+      resultEl.style.display = 'flex';
+      
+      if (result.isAvailable) {
+        resultEl.className = 'delivery-check-result available';
+        resultEl.innerHTML = `
+          <span class="icon">✅</span>
+          <span class="text">배달 가능 지역입니다 (${result.distance}km)</span>
+        `;
+      } else {
+        resultEl.className = 'delivery-check-result unavailable';
+        resultEl.innerHTML = `
+          <span class="icon">⚠️</span>
+          <span class="text">배달 권역 밖입니다 (${result.distance}km / 최대 ${result.maxRadius}km)</span>
+        `;
+      }
+    }
+  } catch (error) {
+    console.error('배달 가능 여부 확인 실패:', error);
+  }
+}
+
+function setupAddressLabels() {
+  const labelBtns = document.querySelectorAll('#address-labels .label-btn');
+  const customInput = document.getElementById('custom-label');
+  
+  labelBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      labelBtns.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      
+      if (btn.dataset.label === '기타') {
+        customInput.style.display = 'block';
+        customInput.required = true;
+      } else {
+        customInput.style.display = 'none';
+        customInput.required = false;
+      }
+    });
+  });
+}
+
+async function submitAddress(event) {
   event.preventDefault();
-  showToast('주소가 저장되었습니다.');
-  navigateTo('page-addresses');
+  
+  const street = document.getElementById('street-address').value.trim();
+  const detail = document.getElementById('detail-address').value.trim();
+  const lat = document.getElementById('address-lat').value;
+  const lng = document.getElementById('address-lng').value;
+  
+  if (!lat || !lng) {
+    showToast('주소 검색 버튼을 클릭하여 주소를 선택해주세요.');
+    return;
+  }
+  
+  // 선택된 라벨
+  const activeLabel = document.querySelector('#address-labels .label-btn.active');
+  let label = activeLabel?.dataset.label || '배달';
+  
+  if (label === '기타') {
+    label = document.getElementById('custom-label').value.trim() || '기타';
+  }
+  
+  const addressData = {
+    name: label,
+    address: detail ? `${street}, ${detail}` : street,
+    latitude: parseFloat(lat),
+    longitude: parseFloat(lng)
+  };
+  
+  try {
+    const result = await AddressApi.create(addressData);
+    
+    if (result.success) {
+      showToast('주소가 저장되었습니다!');
+      navigateTo('page-addresses');
+    } else if (result.error === 'AUTH_ERROR') {
+      showToast('로그인이 필요합니다.');
+      navigateTo('page-login');
+    } else {
+      showToast(result.message || '주소 저장에 실패했습니다.');
+    }
+  } catch (error) {
+    console.error('주소 저장 실패:', error);
+    showToast('주소 저장 중 오류가 발생했습니다.');
+  }
 }
 
 // ========================================
-// PAYMENT
+// PAYMENT (토스페이먼츠 연동)
 // ========================================
-// ========================================
-// POINT SYSTEM
-// ========================================
+async function initPaymentPage() {
+  // 로그인 체크
+  if (!AuthApi?.isLoggedIn()) {
+    showToast('로그인이 필요합니다.');
+    navigateTo('page-login');
+    return;
+  }
+  
+  // 장바구니 확인
+  const cartItems = CartApi?.getAll() || [];
+  if (cartItems.length === 0) {
+    showToast('장바구니가 비어있습니다.');
+    navigateTo('page-delivery');
+    return;
+  }
+  
+  // 금액 계산
+  const subtotal = cartItems.reduce((sum, item) => sum + item.totalPrice, 0);
+  const delivery = 2500;
+  const total = subtotal + delivery;
+  
+  AppState.orderTotal = total;
+  AppState.orderSubtotal = subtotal;
+  AppState.finalPayment = total;
+  
+  // 금액 표시 업데이트
+  const paymentTotal = document.getElementById('payment-total');
+  if (paymentTotal) paymentTotal.textContent = `${total.toLocaleString()}원`;
+  
+  const originalAmount = document.getElementById('original-amount');
+  if (originalAmount) originalAmount.textContent = `${total.toLocaleString()}원`;
+  
+  const finalAmount = document.getElementById('final-amount');
+  if (finalAmount) finalAmount.textContent = `${total.toLocaleString()}원`;
+  
+  // 포인트 표시
+  const availablePoints = PointsApi?.getAvailablePoints() || 0;
+  const availableEl = document.getElementById('available-points');
+  if (availableEl) availableEl.textContent = `${availablePoints.toLocaleString()}P`;
+  
+  // 포인트 input 최대값 설정
+  const pointInput = document.getElementById('point-amount');
+  if (pointInput) pointInput.max = availablePoints;
+  
+  // 토스페이먼츠 위젯 초기화
+  initTossPayments(total);
+}
+
+async function initTossPayments(amount) {
+  const widgetContainer = document.getElementById('payment-method-widget');
+  
+  try {
+    // 토스페이먼츠 테스트 키 (실제 배포 시 실제 키로 변경)
+    const clientKey = "test_gck_docs_Ovk5rk1EwkEbP0W43n07xlzm";
+    const customerKey = 'CUSTOMER_' + Date.now();
+    
+    if (typeof TossPayments === 'undefined') {
+      widgetContainer.innerHTML = '<p style="text-align:center;color:#888;">결제 위젯을 로드할 수 없습니다.</p>';
+      return;
+    }
+    
+    const tossPayments = TossPayments(clientKey);
+    const widgets = tossPayments.widgets({ customerKey });
+    
+    await widgets.setAmount({
+      currency: "KRW",
+      value: amount
+    });
+    
+    await widgets.renderPaymentMethods({
+      selector: "#payment-method-widget",
+      variantKey: "DEFAULT"
+    });
+    
+    await widgets.renderAgreement({
+      selector: "#agreement-widget",
+      variantKey: "AGREEMENT"
+    });
+    
+    AppState.tossWidgets = widgets;
+    
+  } catch (error) {
+    console.error('토스페이먼츠 초기화 실패:', error);
+    widgetContainer.innerHTML = `
+      <p style="text-align:center;color:#888;">
+        결제 위젯 초기화 실패<br>
+        <small>(${error.message})</small>
+      </p>
+    `;
+  }
+}
+
 function togglePointUsage() {
   const checkbox = document.getElementById('use-points');
   const details = document.getElementById('point-details');
@@ -544,26 +997,23 @@ function togglePointUsage() {
 
 function updatePointUsage() {
   const pointInput = document.getElementById('point-amount');
-  const availablePoints = AppState.userPoints || 15000; // Mock: 15,000P
-  const orderTotal = AppState.orderTotal || 29200;
+  const availablePoints = PointsApi?.getAvailablePoints() || 0;
+  const orderTotal = AppState.orderTotal || 0;
   const minPayment = 5000;
   
   let pointsToUse = parseInt(pointInput?.value || 0);
   
-  // Validate points
+  // 최대 사용 가능 포인트 (최소 결제금액 보장)
   const maxUsable = Math.min(availablePoints, orderTotal - minPayment);
   if (pointsToUse > maxUsable) {
-    pointsToUse = maxUsable;
+    pointsToUse = Math.max(0, maxUsable);
     if (pointInput) pointInput.value = pointsToUse;
   }
-  if (pointsToUse < 0) {
-    pointsToUse = 0;
-    if (pointInput) pointInput.value = 0;
-  }
+  if (pointsToUse < 0) pointsToUse = 0;
   
   const finalAmount = orderTotal - pointsToUse;
   
-  // Update display
+  // 표시 업데이트
   const originalAmountEl = document.getElementById('original-amount');
   const pointDiscountEl = document.getElementById('point-discount');
   const finalAmountEl = document.getElementById('final-amount');
@@ -576,18 +1026,26 @@ function updatePointUsage() {
   
   AppState.pointsUsed = pointsToUse;
   AppState.finalPayment = finalAmount;
+  
+  // 토스위젯 금액 업데이트
+  if (AppState.tossWidgets && finalAmount > 0) {
+    AppState.tossWidgets.setAmount({
+      currency: "KRW",
+      value: finalAmount
+    });
+  }
 }
 
 function useAllPoints() {
-  const availablePoints = AppState.userPoints || 15000;
-  const orderTotal = AppState.orderTotal || 29200;
+  const availablePoints = PointsApi?.getAvailablePoints() || 0;
+  const orderTotal = AppState.orderTotal || 0;
   const minPayment = 5000;
   
   const maxUsable = Math.min(availablePoints, orderTotal - minPayment);
   
   const pointInput = document.getElementById('point-amount');
   if (pointInput) {
-    pointInput.value = maxUsable;
+    pointInput.value = Math.max(0, maxUsable);
     updatePointUsage();
   }
 }
@@ -596,7 +1054,7 @@ function resetPointUsage() {
   const pointInput = document.getElementById('point-amount');
   if (pointInput) pointInput.value = 0;
   
-  const orderTotal = AppState.orderTotal || 29200;
+  const orderTotal = AppState.orderTotal || 0;
   const paymentTotalEl = document.getElementById('payment-total');
   if (paymentTotalEl) paymentTotalEl.textContent = `${orderTotal.toLocaleString()}원`;
   
@@ -604,48 +1062,220 @@ function resetPointUsage() {
   AppState.finalPayment = orderTotal;
 }
 
-function initPaymentPage() {
-  const orderTotal = AppState.orderTotal || 29200;
-  const availablePoints = AppState.userPoints || 15000; // Mock data
+async function submitPayment() {
+  const cartItems = CartApi?.getAll() || [];
   
-  // Set available points display
-  const availableEl = document.getElementById('available-points');
-  if (availableEl) availableEl.textContent = `${availablePoints.toLocaleString()}P`;
-  
-  // Set order total
-  const paymentTotalEl = document.getElementById('payment-total');
-  if (paymentTotalEl) paymentTotalEl.textContent = `${orderTotal.toLocaleString()}원`;
-  
-  const originalAmountEl = document.getElementById('original-amount');
-  if (originalAmountEl) originalAmountEl.textContent = `${orderTotal.toLocaleString()}원`;
-  
-  // Reset point usage
-  resetPointUsage();
-}
-
-function processPayment() {
-  const pointsUsed = AppState.pointsUsed || 0;
-  const finalPayment = AppState.finalPayment || AppState.orderTotal || 29200;
-  
-  // Deduct points if used
-  if (pointsUsed > 0) {
-    AppState.userPoints = (AppState.userPoints || 15000) - pointsUsed;
-    showToast(`${pointsUsed.toLocaleString()}P 사용! 결제가 완료되었습니다.`);
-  } else {
-    showToast('결제가 완료되었습니다.');
+  if (cartItems.length === 0) {
+    showToast('장바구니가 비어있습니다.');
+    return;
   }
   
-  // Add reward points (based on subtotal, not including delivery)
-  const rewardRate = parseInt(localStorage.getItem('rewardRate') || '40');
-  const subtotal = AppState.orderSubtotal || 26700;
-  const earnedPoints = Math.floor(subtotal * rewardRate / 100);
-  AppState.userPoints = (AppState.userPoints || 15000) + earnedPoints;
+  if (!AppState.selectedAddressId) {
+    showToast('배달 주소를 선택해주세요.');
+    navigateTo('page-addresses');
+    return;
+  }
   
-  setTimeout(() => {
-    showToast(`${earnedPoints.toLocaleString()}P 적립되었습니다!`);
-  }, 1500);
+  const submitBtn = document.getElementById('payment-submit-btn');
+  if (submitBtn) {
+    submitBtn.disabled = true;
+    submitBtn.textContent = '결제 처리 중...';
+  }
   
-  setTimeout(() => navigateTo('page-orders'), 2500);
+  try {
+    // 1. 주문 생성
+    const orderData = {
+      addressId: AppState.selectedAddressId,
+      request: '',
+      items: cartItems.map(item => ({
+        menuId: item.menuId,
+        option: item.option || null,
+        count: item.quantity
+      }))
+    };
+    
+    console.log('📦 주문 생성:', orderData);
+    
+    // 주문 생성 API 호출
+    const orderResult = await OrderApi.create(orderData);
+    
+    if (!orderResult.success) {
+      throw new Error(orderResult.message || '주문 생성에 실패했습니다.');
+    }
+    
+    const orderId = orderResult.data?.orderId;
+    console.log('✅ 주문 생성 완료:', orderId);
+    
+    // 2. 토스페이먼츠 결제 요청
+    if (AppState.tossWidgets && AppState.finalPayment > 0) {
+      await AppState.tossWidgets.requestPayment({
+        orderId: PaymentUtils.generateOrderId(),
+        orderName: `매장직결 주문 (${cartItems.length}개)`,
+        successUrl: window.location.origin + '/07_new_front/payment_success.html?orderId=' + orderId,
+        failUrl: window.location.origin + '/07_new_front/payment_fail.html',
+        customerEmail: AppState.user?.email || 'customer@example.com',
+        customerName: AppState.user?.name || '고객'
+      });
+    } else {
+      // 포인트로 전액 결제한 경우
+      handlePaymentSuccess(orderId);
+    }
+    
+  } catch (error) {
+    console.error('결제 실패:', error);
+    showToast('결제 처리 중 오류가 발생했습니다: ' + error.message);
+    
+    if (submitBtn) {
+      submitBtn.disabled = false;
+      submitBtn.textContent = '결제하기';
+    }
+  }
+}
+
+function handlePaymentSuccess(orderId) {
+  // 포인트 차감
+  if (AppState.pointsUsed > 0) {
+    const currentPoints = PointsApi?.getAvailablePoints() || 0;
+    PointsApi?.setPoints(currentPoints - AppState.pointsUsed);
+  }
+  
+  // 적립금 지급
+  const rewardRate = PointsApi?.getRewardRate() || 40;
+  const earnedPoints = Math.floor(AppState.orderSubtotal * rewardRate / 100);
+  const currentPoints = PointsApi?.getAvailablePoints() || 0;
+  PointsApi?.setPoints(currentPoints + earnedPoints);
+  
+  // 장바구니 비우기
+  CartApi?.clear();
+  updateCartBadge();
+  
+  showToast(`주문이 완료되었습니다! ${earnedPoints.toLocaleString()}P 적립`);
+  
+  setTimeout(() => navigateTo('page-orders'), 1500);
+}
+
+function copyBankAccount() {
+  const account = document.getElementById('bank-account')?.textContent || '';
+  navigator.clipboard.writeText(account).then(() => {
+    showToast('계좌번호가 복사되었습니다.');
+  }).catch(() => {
+    showToast('복사에 실패했습니다.');
+  });
+}
+
+// ========================================
+// PROFILE PAGE
+// ========================================
+function updateProfilePage() {
+  const nameEl = document.querySelector('.profile-name');
+  const emailEl = document.querySelector('.profile-email');
+  const loginMenuItem = document.querySelector('.profile-menu-item:last-child span');
+  
+  if (AuthApi?.isLoggedIn() && AppState.user) {
+    if (nameEl) nameEl.textContent = AppState.user.name || '회원';
+    if (emailEl) emailEl.textContent = AppState.user.email || '';
+    if (loginMenuItem) loginMenuItem.textContent = '로그아웃';
+  } else {
+    if (nameEl) nameEl.textContent = '게스트';
+    if (emailEl) emailEl.textContent = '로그인이 필요합니다';
+    if (loginMenuItem) loginMenuItem.textContent = '로그인';
+  }
+}
+
+// ========================================
+// AUTH FORMS (API 연동)
+// ========================================
+function setupAuthForms() {
+  const loginForm = document.getElementById('login-form');
+  if (loginForm) {
+    loginForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      const email = document.getElementById('login-email').value;
+      const password = document.getElementById('login-password').value;
+      
+      const submitBtn = loginForm.querySelector('button[type="submit"]');
+      if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.textContent = '로그인 중...';
+      }
+      
+      try {
+        const result = await AuthApi.login(email, password);
+        
+        if (result.success) {
+          AppState.isLoggedIn = true;
+          AppState.user = result.data?.user || { email };
+          localStorage.setItem('user', JSON.stringify(AppState.user));
+          
+          showToast('로그인 되었습니다.');
+          setTimeout(() => navigateTo('page-home'), 500);
+        } else {
+          showToast(result.message || '로그인에 실패했습니다.');
+        }
+      } catch (error) {
+        showToast('로그인 중 오류가 발생했습니다.');
+      } finally {
+        if (submitBtn) {
+          submitBtn.disabled = false;
+          submitBtn.textContent = '로그인';
+        }
+      }
+    });
+  }
+  
+  const signupForm = document.getElementById('signup-form');
+  if (signupForm) {
+    signupForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      const name = document.getElementById('signup-name').value;
+      const email = document.getElementById('signup-email').value;
+      const password = document.getElementById('signup-password').value;
+      const passwordConfirm = document.getElementById('signup-password-confirm').value;
+      
+      if (password !== passwordConfirm) {
+        showToast('비밀번호가 일치하지 않습니다.');
+        return;
+      }
+      
+      if (password.length < 6) {
+        showToast('비밀번호는 6자 이상이어야 합니다.');
+        return;
+      }
+      
+      const submitBtn = signupForm.querySelector('button[type="submit"]');
+      if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.textContent = '가입 중...';
+      }
+      
+      try {
+        const result = await AuthApi.signup({ name, email, password });
+        
+        if (result.success) {
+          showToast('회원가입이 완료되었습니다.');
+          setTimeout(() => navigateTo('page-login'), 500);
+        } else {
+          showToast(result.message || '회원가입에 실패했습니다.');
+        }
+      } catch (error) {
+        showToast('회원가입 중 오류가 발생했습니다.');
+      } finally {
+        if (submitBtn) {
+          submitBtn.disabled = false;
+          submitBtn.textContent = '회원가입';
+        }
+      }
+    });
+  }
+}
+
+function togglePassword(inputId) {
+  const input = document.getElementById(inputId);
+  if (input) {
+    input.type = input.type === 'password' ? 'text' : 'password';
+  }
 }
 
 // ========================================
@@ -661,26 +1291,20 @@ function updateSlider() {
   const slider = document.querySelector('.hero-slider');
   if (!slider) return;
   
-  // Create slides if not exist
-  let slidesContainer = slider.querySelector('.slides-container');
-  if (!slidesContainer) {
-    // Just update the active slide
-    const slide = slider.querySelector('.hero-slide');
-    if (slide) {
-      const currentData = sliderSlides[AppState.sliderIndex];
-      slide.style.background = currentData.bg;
-      const emoji = slide.querySelector('.hero-food-emoji');
-      if (emoji) emoji.textContent = currentData.emoji;
-      const subtitle = slide.querySelector('.hero-subtitle');
-      if (subtitle) subtitle.textContent = currentData.subtitle;
-      const title = slide.querySelector('.hero-title');
-      if (title) title.innerHTML = currentData.title;
-      const desc = slide.querySelector('.hero-desc');
-      if (desc) desc.textContent = currentData.desc;
-    }
+  const slide = slider.querySelector('.hero-slide');
+  if (slide) {
+    const currentData = sliderSlides[AppState.sliderIndex];
+    slide.style.background = currentData.bg;
+    const emoji = slide.querySelector('.hero-food-emoji');
+    if (emoji) emoji.textContent = currentData.emoji;
+    const subtitle = slide.querySelector('.hero-subtitle');
+    if (subtitle) subtitle.textContent = currentData.subtitle;
+    const title = slide.querySelector('.hero-title');
+    if (title) title.innerHTML = currentData.title;
+    const desc = slide.querySelector('.hero-desc');
+    if (desc) desc.textContent = currentData.desc;
   }
   
-  // Update dots
   const dots = slider.querySelectorAll('.dot');
   dots.forEach((dot, idx) => {
     dot.classList.toggle('active', idx === AppState.sliderIndex);
@@ -698,10 +1322,8 @@ function prevSlide() {
 }
 
 function setupSlider() {
-  // Auto slide
   setInterval(nextSlide, 5000);
   
-  // Dot clicks
   const dots = document.querySelectorAll('.slider-dots .dot');
   dots.forEach((dot, idx) => {
     dot.addEventListener('click', () => {
@@ -712,7 +1334,7 @@ function setupSlider() {
 }
 
 // ========================================
-// QUANTITY CONTROLS (Detail Page)
+// QUANTITY CONTROLS
 // ========================================
 function setupQuantityControls() {
   const minusBtn = document.querySelector('.qty-btn.minus');
@@ -723,7 +1345,7 @@ function setupQuantityControls() {
   
   if (!minusBtn || !plusBtn) return;
   
-  const rewardRate = parseInt(localStorage.getItem('rewardRate') || '40');
+  const rewardRate = PointsApi?.getRewardRate() || 40;
   
   function updatePriceAndReward() {
     const detailPage = document.getElementById('page-menu-detail');
@@ -767,60 +1389,12 @@ function setupOptionButtons() {
 }
 
 // ========================================
-// ADDRESS LABEL BUTTONS
-// ========================================
-function setupLabelButtons() {
-  const labelBtns = document.querySelectorAll('.label-btn');
-  labelBtns.forEach(btn => {
-    btn.addEventListener('click', () => {
-      labelBtns.forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-    });
-  });
-}
-
-// ========================================
-// AUTH HELPERS
-// ========================================
-function togglePassword(inputId) {
-  const input = document.getElementById(inputId);
-  if (input) {
-    input.type = input.type === 'password' ? 'text' : 'password';
-  }
-}
-
-function setupAuthForms() {
-  const loginForm = document.getElementById('login-form');
-  if (loginForm) {
-    loginForm.addEventListener('submit', (e) => {
-      e.preventDefault();
-      showToast('로그인 되었습니다.');
-      AppState.isLoggedIn = true;
-      setTimeout(() => navigateTo('page-home'), 500);
-    });
-  }
-  
-  const signupForm = document.getElementById('signup-form');
-  if (signupForm) {
-    signupForm.addEventListener('submit', (e) => {
-      e.preventDefault();
-      showToast('회원가입이 완료되었습니다.');
-      setTimeout(() => navigateTo('page-login'), 500);
-    });
-  }
-}
-
-// ========================================
 // TOAST NOTIFICATION
 // ========================================
-function showToast(message, duration = 2000) {
-  // Remove existing toast
+function showToast(message, duration = 2500) {
   const existingToast = document.querySelector('.toast');
-  if (existingToast) {
-    existingToast.remove();
-  }
+  if (existingToast) existingToast.remove();
   
-  // Create new toast
   const toast = document.createElement('div');
   toast.className = 'toast';
   toast.textContent = message;
@@ -836,6 +1410,8 @@ function showToast(message, duration = 2000) {
     font-size: 14px;
     z-index: 9999;
     animation: toastIn 0.3s ease;
+    max-width: 80%;
+    text-align: center;
   `;
   
   document.body.appendChild(toast);
@@ -846,7 +1422,7 @@ function showToast(message, duration = 2000) {
   }, duration);
 }
 
-// Add toast animation styles
+// Toast animation styles
 const toastStyles = document.createElement('style');
 toastStyles.textContent = `
   @keyframes toastIn {
@@ -861,9 +1437,41 @@ toastStyles.textContent = `
 document.head.appendChild(toastStyles);
 
 // ========================================
-// SPLASH SCREEN
+// SPLASH SCREEN & INITIALIZATION
 // ========================================
-function initSplash() {
+async function initSplash() {
+  try {
+    // API 초기화 (매장 정보 로드)
+    if (window.initApi) {
+      await initApi();
+      
+      // 매장 정보 저장
+      if (window.ApiConfig?.storeInfo) {
+        AppState.storeInfo = ApiConfig.storeInfo;
+        
+        // 매장명 업데이트
+        const storeTitle = document.querySelector('.store-title');
+        if (storeTitle && ApiConfig.storeName) {
+          storeTitle.textContent = ApiConfig.storeName;
+        }
+      }
+    }
+    
+    // 로그인 상태 복원
+    const savedUser = localStorage.getItem('user');
+    if (savedUser && AuthToken?.exists()) {
+      AppState.user = JSON.parse(savedUser);
+      AppState.isLoggedIn = true;
+    }
+    
+    // 장바구니 카운트 업데이트
+    updateCartBadge();
+    
+  } catch (error) {
+    console.error('초기화 실패:', error);
+  }
+  
+  // 스플래시 숨기기
   setTimeout(() => {
     const splash = document.getElementById('page-splash');
     if (splash) {
@@ -876,39 +1484,27 @@ function initSplash() {
         navigateTo('page-home');
       }, 500);
     }
-  }, 2500);
+  }, 2000);
 }
 
 // ========================================
-// INITIALIZATION
+// MAIN INITIALIZATION
 // ========================================
 document.addEventListener('DOMContentLoaded', () => {
-  // Initialize splash screen
+  // 스플래시 & API 초기화
   initSplash();
   
-  // Setup category tabs
+  // 이벤트 리스너 설정
   setupCategoryTabs();
-  
-  // Setup slider
   setupSlider();
-  
-  // Setup quantity controls
   setupQuantityControls();
-  
-  // Setup option buttons
   setupOptionButtons();
-  
-  // Setup label buttons
-  setupLabelButtons();
-  
-  // Setup auth forms
   setupAuthForms();
-  
-  // Initialize cart badge
-  updateCartBadge(AppState.cartCount);
 });
 
-// Make functions globally available
+// ========================================
+// GLOBAL EXPORTS
+// ========================================
 window.navigateTo = navigateTo;
 window.navigateFromHeader = navigateFromHeader;
 window.navigateFromTab = navigateFromTab;
@@ -918,13 +1514,15 @@ window.quickAddToCart = quickAddToCart;
 window.addToCartAndNavigate = addToCartAndNavigate;
 window.updateCartQuantity = updateCartQuantity;
 window.removeCartItem = removeCartItem;
-window.editAddress = editAddress;
 window.deleteAddress = deleteAddress;
-window.saveAddress = saveAddress;
-window.processPayment = processPayment;
+window.submitAddress = submitAddress;
+window.openAddressSearch = openAddressSearch;
+window.submitPayment = submitPayment;
+window.copyBankAccount = copyBankAccount;
 window.nextSlide = nextSlide;
 window.prevSlide = prevSlide;
 window.togglePassword = togglePassword;
 window.togglePointUsage = togglePointUsage;
 window.updatePointUsage = updatePointUsage;
 window.useAllPoints = useAllPoints;
+window.handlePaymentSuccess = handlePaymentSuccess;

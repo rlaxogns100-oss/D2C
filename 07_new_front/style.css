@@ -2787,3 +2787,188 @@ img {
   scrollbar-width: thin;
   scrollbar-color: var(--bg-elevated) var(--bg-dark);
 }
+
+/* ========================================
+   ADDITIONAL STYLES FOR API INTEGRATION
+======================================== */
+
+/* Loading Spinner */
+.loading-spinner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--spacing-2xl);
+  color: var(--text-secondary);
+  font-size: 14px;
+}
+
+.loading-spinner::before {
+  content: '';
+  width: 20px;
+  height: 20px;
+  border: 2px solid var(--bg-elevated);
+  border-top-color: var(--primary);
+  border-radius: 50%;
+  margin-right: 10px;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Empty Message */
+.empty-message {
+  text-align: center;
+  padding: var(--spacing-2xl);
+  color: var(--text-secondary);
+  font-size: 14px;
+}
+
+/* Address Preview */
+.address-preview {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--bg-elevated);
+  padding: var(--spacing-md);
+  margin: var(--spacing-md);
+  border-radius: var(--radius-md);
+  border-left: 4px solid var(--primary);
+}
+
+.address-preview svg {
+  stroke: var(--primary);
+  flex-shrink: 0;
+}
+
+#address-preview-text {
+  font-size: 14px;
+  color: var(--text-primary);
+}
+
+/* Delivery Check Result */
+.delivery-check-result {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: var(--spacing-sm) var(--spacing-md);
+  margin: 0 var(--spacing-md) var(--spacing-md);
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+}
+
+.delivery-check-result.available {
+  background: rgba(46, 204, 113, 0.1);
+  color: var(--success);
+}
+
+.delivery-check-result.unavailable {
+  background: rgba(231, 76, 60, 0.1);
+  color: var(--error);
+}
+
+/* Custom Label Input */
+.custom-label-input {
+  margin-top: var(--spacing-sm);
+  padding: var(--spacing-sm) var(--spacing-md);
+  background: var(--bg-input);
+  border: 1px solid var(--bg-elevated);
+  border-radius: var(--radius-sm);
+  color: var(--text-primary);
+  font-size: 14px;
+  width: 100%;
+}
+
+.custom-label-input:focus {
+  outline: none;
+  border-color: var(--primary);
+}
+
+/* Kakao Map Container */
+#kakao-map {
+  width: 100%;
+  height: 200px;
+  background: var(--bg-card);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  margin-bottom: var(--spacing-md);
+}
+
+/* Toss Payment Section */
+.toss-payment-section {
+  background: var(--bg-card);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-lg);
+  margin-bottom: var(--spacing-lg);
+}
+
+.toss-payment-section h3 {
+  margin-bottom: var(--spacing-md);
+  font-size: 16px;
+  font-weight: 600;
+}
+
+#payment-method-widget,
+#agreement-widget {
+  background: var(--bg-elevated);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+
+.widget-loading {
+  padding: var(--spacing-xl);
+  text-align: center;
+  color: var(--text-secondary);
+  font-size: 14px;
+}
+
+/* Payment Amount Sub */
+.amount-sub {
+  display: block;
+  font-size: 12px;
+  color: var(--text-secondary);
+  margin-top: 4px;
+}
+
+/* Menu Card Image with actual image */
+.menu-card-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.menu-card-emoji {
+  font-size: 48px;
+}
+
+/* Default Badge for Address */
+.default-badge {
+  background: var(--primary);
+  color: white;
+  font-size: 10px;
+  padding: 2px 6px;
+  border-radius: var(--radius-sm);
+  margin-left: 8px;
+}
+
+/* Button Disabled State */
+button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Form Row with Button */
+.input-row {
+  display: flex;
+  gap: var(--spacing-sm);
+}
+
+.input-row input {
+  flex: 1;
+}
+
+.input-row .btn {
+  flex-shrink: 0;
+  white-space: nowrap;
+}

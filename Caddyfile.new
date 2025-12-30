@@ -1,0 +1,106 @@
+# ============================================================================
+# 🚀 새 프론트엔드용 Caddyfile (SPA 라우팅 지원)
+# ============================================================================
+# 
+# 📌 교체 방법:
+#   1. 기존 Caddyfile 백업: cp /etc/caddy/Caddyfile /etc/caddy/Caddyfile.backup
+#   2. 새 설정 적용: sudo cp Caddyfile.new /etc/caddy/Caddyfile
+#   3. Caddy 재시작: sudo systemctl reload caddy
+#
+# ⚠️ 롤백 방법:
+#   sudo cp /etc/caddy/Caddyfile.backup /etc/caddy/Caddyfile
+#   sudo systemctl reload caddy
+#
+# ============================================================================
+
+# 1. 메인 랜딩 페이지 + 통합 관리자 (maejang.com)
+maejang.com {
+    # /admin → 통합 관리자 페이지
+    redir /admin /admin/
+    
+    handle_path /admin/* {
+        root * /home/ubuntu/D2C/00_Admin
+        file_server
+        try_files {path} {path}/ /index.html
+    }
+    
+    # 나머지 → 홈페이지
+    handle {
+        root * /home/ubuntu/D2C/01_Homepage
+        file_server
+        try_files {path} {path}/ /index.html
+    }
+    
+    log {
+        output file /var/log/caddy/maejang.access.log
+    }
+}
+
+# 2. pizzaschool 서브도메인 (새 프론트엔드)
+pizzaschool.maejang.com {
+    
+    # [우선순위 1] 백엔드 API
+    handle /api/* {
+        reverse_proxy localhost:8080
+    }
+
+    # [우선순위 2] 점주 페이지 (/admin) - 새 프론트엔드
+    handle /admin* {
+        @without_slash path /admin
+        redir @without_slash /admin/
+        
+        uri strip_prefix /admin
+        root * /home/ubuntu/D2C/08_new_owner
+        file_server
+        
+        # SPA 라우팅: 모든 경로를 index.html로
+        try_files {path} /index.html
+    }
+
+    # [우선순위 3] 고객용 페이지 - 새 프론트엔드
+    handle {
+        root * /home/ubuntu/D2C/07_new_front
+        file_server
+        
+        # SPA 라우팅: 모든 경로를 index.html로
+        try_files {path} /index.html
+    }
+
+    log {
+        output file /var/log/caddy/pizzaschool.access.log
+    }
+}
+
+# 3. 7room 서브도메인 (기존 유지 - 안전하게)
+7room.maejang.com {
+    
+    # [우선순위 1] 백엔드 API
+    handle /api/* {
+        reverse_proxy localhost:8080
+    }
+
+    # [우선순위 2] 점주 페이지 (/admin)
+    handle /admin* {
+        @without_slash path /admin
+        redir @without_slash /admin/
+        
+        uri strip_prefix /admin
+        root * /home/ubuntu/D2C/02_Owner
+        file_server
+        try_files {path} /01_Loading.html
+    }
+
+    # [우선순위 3] 나머지 모든 요청 (고객용 정적 파일)
+    handle {
+        root * /home/ubuntu/D2C/03_Customer
+        file_server
+        
+        rewrite / /01_Loading.html
+        try_files {path} {path}/ /01_Loading.html
+    }
+
+    log {
+        output file /var/log/caddy/7room.access.log
+    }
+}
+
