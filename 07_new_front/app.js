@@ -329,7 +329,7 @@ function quickAddToCart(menuId, event) {
       option: '기본',
       picture: menu.picture || null,
       emoji: menu.emoji,
-      ownerId: ApiConfig?.ownerId
+      ownerId: window.OWNER_ID
     });
   }
   
@@ -372,7 +372,7 @@ function addToCartAndNavigate() {
       option: selectedOption.split('(')[0].trim(),
       picture: menu.picture || null,
       emoji: menu.emoji,
-      ownerId: ApiConfig?.ownerId
+      ownerId: window.OWNER_ID
     });
   }
   
@@ -1441,18 +1441,18 @@ document.head.appendChild(toastStyles);
 // ========================================
 async function initSplash() {
   try {
-    // API 초기화 (매장 정보 로드)
-    if (window.initApi) {
-      await initApi();
+    // API 초기화 (매장 정보 로드 대기)
+    if (window.STORE_CONFIG_LOADED) {
+      await window.STORE_CONFIG_LOADED;
       
       // 매장 정보 저장
-      if (window.ApiConfig?.storeInfo) {
-        AppState.storeInfo = ApiConfig.storeInfo;
+      if (window.STORE_INFO) {
+        AppState.storeInfo = window.STORE_INFO;
         
         // 매장명 업데이트
         const storeTitle = document.querySelector('.store-title');
-        if (storeTitle && ApiConfig.storeName) {
-          storeTitle.textContent = ApiConfig.storeName;
+        if (storeTitle && window.STORE_NAME) {
+          storeTitle.textContent = window.STORE_NAME;
         }
       }
     }
