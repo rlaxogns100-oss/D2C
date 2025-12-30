@@ -862,32 +862,36 @@ img {
 .reward-banner {
   display: flex;
   align-items: center;
-  gap: var(--spacing-sm);
+  gap: var(--spacing-md);
   padding: var(--spacing-md) var(--spacing-lg);
-  background: linear-gradient(135deg, rgba(245, 158, 11, 0.15) 0%, rgba(251, 191, 36, 0.1) 100%);
-  border: 1px solid rgba(245, 158, 11, 0.3);
+  background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%);
   border-radius: var(--radius-lg);
-  margin-bottom: var(--spacing-md);
+  margin: var(--spacing-md) var(--spacing-lg);
+  box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
 }
 
-.reward-icon {
-  font-size: 1.5rem;
+.reward-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 12px;
+  background: rgba(255,255,255,0.2);
+  border-radius: 20px;
+  font-size: 0.9375rem;
+  font-weight: 700;
+  color: #fff;
+  white-space: nowrap;
 }
 
 .reward-text {
-  font-size: 1rem;
-  color: #FBBF24;
+  font-size: 0.875rem;
+  color: rgba(255,255,255,0.9);
+  line-height: 1.3;
 }
 
 .reward-text strong {
-  font-size: 1.25rem;
-  color: #F59E0B;
-}
-
-.reward-sub {
-  font-size: 0.75rem;
-  color: var(--text-muted);
-  margin-left: auto;
+  font-weight: 700;
+  color: #fff;
 }
 
 /* Category Tabs */

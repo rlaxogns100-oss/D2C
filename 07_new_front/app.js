@@ -170,8 +170,12 @@ async function renderMenuGrid(category = 'all') {
   
   // 적립률 표시 업데이트
   const rewardRateDisplay = document.getElementById('reward-rate-display');
+  const rewardRateDisplay2 = document.getElementById('reward-rate-display-2');
   if (rewardRateDisplay) {
     rewardRateDisplay.textContent = `${rewardRate}%`;
+  }
+  if (rewardRateDisplay2) {
+    rewardRateDisplay2.textContent = `${rewardRate}%`;
   }
   
   // 메뉴 데이터 가져오기
@@ -194,6 +198,11 @@ async function renderMenuGrid(category = 'all') {
     }
     
     menus = RealMenuData || MockData.menus;
+    
+    // 첫 로드 시 카테고리 탭 설정
+    if (category === 'all') {
+      setupCategoryTabs();
+    }
   } catch (error) {
     console.error('메뉴 로드 실패, Mock 데이터 사용:', error);
     menus = MockData.menus;
@@ -257,6 +266,37 @@ function getMenuEmoji(category) {
 // CATEGORY TABS
 // ========================================
 function setupCategoryTabs() {
+  // 메뉴 데이터에서 카테고리 동적 생성
+  const menus = RealMenuData || MockData.menus;
+  const tabsContainer = document.getElementById('category-tabs');
+  
+  if (tabsContainer && menus.length > 0) {
+    // 고유 카테고리 추출
+    const uniqueCategories = [...new Set(menus.map(m => m.category).filter(c => c && c !== 'all'))];
+    
+    // 카테고리 한글 매핑
+    const categoryNames = {
+      'all': '전체',
+      'main': '메인',
+      'side': '사이드',
+      'drink': '음료',
+      'dessert': '디저트',
+      'pizza': '피자',
+      'chicken': '치킨',
+      'pasta': '파스타',
+      'set': '세트'
+    };
+    
+    // 탭 생성
+    tabsContainer.innerHTML = `
+      <button class="tab active" data-category="all">전체</button>
+      ${uniqueCategories.map(cat => 
+        `<button class="tab" data-category="${cat}">${categoryNames[cat] || cat}</button>`
+      ).join('')}
+    `;
+  }
+  
+  // 이벤트 리스너 등록
   const tabs = document.querySelectorAll('.category-tabs .tab');
   tabs.forEach(tab => {
     tab.addEventListener('click', () => {
@@ -333,8 +373,12 @@ function quickAddToCart(menuId, event) {
     });
   }
   
-  showToast(`${menu.name}이(가) 장바구니에 담겼습니다.`);
   updateCartBadge();
+  
+  // 팝업으로 장바구니 이동 확인
+  if (confirm(`${menu.name}이(가) 장바구니에 담겼습니다.\n\n장바구니로 이동하시겠습니까?`)) {
+    navigateFromTab('page-cart');
+  }
 }
 
 function addToCartAndNavigate() {
@@ -376,9 +420,12 @@ function addToCartAndNavigate() {
     });
   }
   
-  showToast('장바구니에 담겼습니다.');
   updateCartBadge();
-  setTimeout(() => navigateTo('page-cart'), 500);
+  
+  // 팝업으로 장바구니 이동 확인
+  if (confirm(`${menu.name}이(가) 장바구니에 담겼습니다.\n\n장바구니로 이동하시겠습니까?`)) {
+    navigateFromTab('page-cart');
+  }
 }
 
 // ========================================
@@ -658,10 +705,15 @@ async function renderOngoingOrders() {
     if (AuthApi?.isLoggedIn()) {
       const result = await OrderApi.getList();
       if (result.success && result.data) {
-        const orders = result.data;
+        const allOrders = result.data;
+        
+        // 진행 중: ORDERED, COOKING, DELIVERING
+        const orders = allOrders.filter(order => 
+          ['ORDERED', 'COOKING', 'DELIVERING'].includes(order.condition)
+        );
         
         if (orders.length === 0) {
-          container.innerHTML = '<p class="empty-message">주문 내역이 없습니다.</p>';
+          container.innerHTML = '<p class="empty-message">진행 중인 주문이 없습니다.</p>';
           return;
         }
         
@@ -669,13 +721,13 @@ async function renderOngoingOrders() {
           <div class="order-card">
             <div class="order-header">
               <div>
-                <p class="order-id">주문번호: ${order.orderId}</p>
-                <p class="order-date">${formatDate(order.createdAt)}</p>
+                <p class="order-id">주문번호: #${order.id}</p>
+                <p class="order-date">${formatOrderDate(order.orderAt)}</p>
               </div>
-              <span class="order-status status-${order.orderStatus?.toLowerCase()}">${getStatusText(order.orderStatus)}</span>
+              <span class="order-status status-${order.condition?.toLowerCase()}">${getStatusText(order.condition)}</span>
             </div>
-            <p class="order-items-preview">${order.items?.map(i => i.menuName).join(', ') || '주문 상품'}</p>
-            <p class="order-total">${order.totalPrice?.toLocaleString() || 0}원</p>
+            <p class="order-total">${(order.price || 0).toLocaleString()}원</p>
+            ${order.request ? `<p class="order-request">💬 ${order.request}</p>` : ''}
           </div>
         `).join('');
         
@@ -689,10 +741,60 @@ async function renderOngoingOrders() {
   container.innerHTML = '<p class="empty-message">로그인 후 주문 내역을 확인하세요.</p>';
 }
 
-function renderCompletedOrders() {
+async function renderCompletedOrders() {
   const container = document.getElementById('completed-orders');
   if (!container) return;
-  container.innerHTML = '<p class="empty-message">완료된 주문이 없습니다.</p>';
+  
+  container.innerHTML = '<div class="loading-spinner">지난 주문을 불러오는 중...</div>';
+  
+  try {
+    if (AuthApi?.isLoggedIn()) {
+      const result = await OrderApi.getList();
+      if (result.success && result.data) {
+        const allOrders = result.data;
+        
+        // 완료: DELIVERED, CANCELLED, REJECTED
+        const orders = allOrders.filter(order => 
+          ['DELIVERED', 'CANCELLED', 'REJECTED'].includes(order.condition)
+        );
+        
+        if (orders.length === 0) {
+          container.innerHTML = '<p class="empty-message">지난 주문이 없습니다.</p>';
+          return;
+        }
+        
+        container.innerHTML = orders.map(order => `
+          <div class="order-card">
+            <div class="order-header">
+              <div>
+                <p class="order-id">주문번호: #${order.id}</p>
+                <p class="order-date">${formatOrderDate(order.orderAt)}</p>
+              </div>
+              <span class="order-status status-${order.condition?.toLowerCase()}">${getStatusText(order.condition)}</span>
+            </div>
+            <p class="order-total">${(order.price || 0).toLocaleString()}원</p>
+          </div>
+        `).join('');
+        
+        return;
+      }
+    }
+  } catch (error) {
+    console.error('지난 주문 로드 실패:', error);
+  }
+  
+  container.innerHTML = '<p class="empty-message">지난 주문이 없습니다.</p>';
+}
+
+function formatOrderDate(orderAt) {
+  if (!orderAt) return '';
+  const date = new Date(orderAt);
+  return date.toLocaleDateString('ko-KR', {
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit'
+  });
 }
 
 function getStatusText(status) {
@@ -1297,16 +1399,33 @@ function copyBankAccount() {
 function updateProfilePage() {
   const nameEl = document.querySelector('.profile-name');
   const emailEl = document.querySelector('.profile-email');
-  const loginMenuItem = document.querySelector('.profile-menu-item:last-child span');
+  const loginLogoutText = document.querySelector('.login-logout-text');
   
   if (AuthApi?.isLoggedIn() && AppState.user) {
     if (nameEl) nameEl.textContent = AppState.user.name || '회원';
     if (emailEl) emailEl.textContent = AppState.user.email || '';
-    if (loginMenuItem) loginMenuItem.textContent = '로그아웃';
+    if (loginLogoutText) loginLogoutText.textContent = '로그아웃';
   } else {
     if (nameEl) nameEl.textContent = '게스트';
     if (emailEl) emailEl.textContent = '로그인이 필요합니다';
-    if (loginMenuItem) loginMenuItem.textContent = '로그인';
+    if (loginLogoutText) loginLogoutText.textContent = '로그인';
+  }
+}
+
+function handleLoginLogout() {
+  if (AuthApi?.isLoggedIn()) {
+    // 로그아웃
+    if (confirm('로그아웃 하시겠습니까?')) {
+      AuthApi.logout();
+      AppState.isLoggedIn = false;
+      AppState.user = null;
+      showToast('로그아웃되었습니다.');
+      updateProfilePage();
+      navigateFromTab('page-home');
+    }
+  } else {
+    // 로그인 페이지로 이동
+    navigateTo('page-login');
   }
 }
 
@@ -1649,6 +1768,7 @@ window.submitAddress = submitAddress;
 window.openAddressSearch = openAddressSearch;
 window.submitPayment = submitPayment;
 window.copyBankAccount = copyBankAccount;
+window.handleLoginLogout = handleLoginLogout;
 window.nextSlide = nextSlide;
 window.prevSlide = prevSlide;
 window.togglePassword = togglePassword;

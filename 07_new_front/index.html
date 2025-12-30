@@ -136,27 +136,13 @@
               
               <div class="form-options">
                 <label class="checkbox-wrapper">
-                  <input type="checkbox" id="remember-me">
+                  <input type="checkbox" id="remember-me" checked>
                   <span class="checkmark"></span>
                   <span>로그인 유지</span>
                 </label>
-                <a href="#" class="forgot-link">비밀번호 찾기</a>
               </div>
               
               <button type="submit" class="btn btn-primary btn-full">로그인</button>
-              
-              <div class="auth-divider">
-                <span>또는</span>
-              </div>
-              
-              <div class="social-login">
-                <button type="button" class="btn btn-social btn-kakao">
-                  <svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20">
-                    <path d="M12 3c5.799 0 10.5 3.664 10.5 8.185 0 4.52-4.701 8.184-10.5 8.184a13.5 13.5 0 0 1-1.727-.11l-4.408 2.883c-.501.265-.678.236-.472-.413l.892-3.678c-2.88-1.46-4.785-3.99-4.785-6.866C1.5 6.665 6.201 3 12 3z"/>
-                  </svg>
-                  카카오로 시작하기
-                </button>
-              </div>
             </form>
             
             <p class="auth-footer">
@@ -268,7 +254,7 @@
                 <span class="hero-subtitle">SPECIAL MENU</span>
                 <h1 class="hero-title">신선한 재료로<br>만든 특별한 맛</h1>
                 <p class="hero-desc">매장직결만의 레시피로 정성껏 준비했습니다</p>
-                <button class="btn btn-hero" onclick="navigateTo('page-delivery')">주문하기</button>
+                <button class="btn btn-hero" onclick="navigateFromTab('page-delivery')">주문하기</button>
               </div>
               <div class="hero-image-container">
                 <div class="hero-food-emoji">🍗</div>
@@ -394,7 +380,7 @@
               </div>
             </div>
             
-            <button class="btn btn-primary btn-lg" onclick="navigateTo('page-delivery')">
+            <button class="btn btn-primary btn-lg" onclick="navigateFromTab('page-delivery')">
               전체 메뉴 보기
             </button>
           </div>
@@ -456,6 +442,9 @@
               <span><strong>연락처</strong> 010-2808-9914</span>
               <span><strong>이메일</strong> rlaxogns100@snu.ac.kr</span>
             </div>
+            <div class="footer-row">
+              <span><strong>통신판매업</strong> 등록 예정</span>
+            </div>
           </div>
         </footer>
       </section>
@@ -467,18 +456,14 @@
         <div class="delivery-container">
           <!-- Reward Banner -->
           <div class="reward-banner">
-            <span class="reward-icon">🎁</span>
-            <span class="reward-text"><strong id="reward-rate-display">40%</strong> 적립 적용중!</span>
-            <span class="reward-sub">주문금액의 포인트가 적립됩니다</span>
+            <div class="reward-badge">🎁 <span id="reward-rate-display">40%</span> 적립</div>
+            <span class="reward-text">주문금액의 <strong id="reward-rate-display-2">40%</strong>가 포인트로 적립됩니다!</span>
           </div>
           
-          <!-- Category Tabs -->
-          <div class="category-tabs">
+          <!-- Category Tabs (동적으로 생성됨) -->
+          <div class="category-tabs" id="category-tabs">
             <button class="tab active" data-category="all">전체</button>
-            <button class="tab" data-category="main">메인</button>
-            <button class="tab" data-category="side">사이드</button>
-            <button class="tab" data-category="drink">음료</button>
-            <button class="tab" data-category="dessert">디저트</button>
+            <!-- API에서 가져온 카테고리가 동적으로 추가됩니다 -->
           </div>
           
           <!-- Menu Grid -->
@@ -937,13 +922,24 @@
                   <path d="M9 18l6-6-6-6"/>
                 </svg>
               </a>
-              <a href="#" class="profile-menu-item" onclick="navigateTo('page-login'); return false;">
+              <a href="#" class="profile-menu-item" onclick="navigateTo('page-terms'); return false;">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                  <path d="M9 13h6"/>
+                  <path d="M9 17h3"/>
+                </svg>
+                <span>이용약관</span>
+                <svg class="arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M9 18l6-6-6-6"/>
+                </svg>
+              </a>
+              <a href="#" class="profile-menu-item" onclick="handleLoginLogout(); return false;">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/>
                   <polyline points="10 17 15 12 10 7"/>
                   <line x1="15" y1="12" x2="3" y2="12"/>
                 </svg>
-                <span>로그인</span>
+                <span class="login-logout-text">로그인</span>
                 <svg class="arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <path d="M9 18l6-6-6-6"/>
                 </svg>
