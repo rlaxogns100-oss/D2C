@@ -473,14 +473,50 @@ function updateOrderSummary() {
   AppState.orderSubtotal = subtotal;
 }
 
+// 가게 정보 (배달 권역 확인용)
+let storeInfo = { lat: null, lng: null, deliveryRadius: null };
+
+async function loadStoreInfoForDelivery() {
+  try {
+    await window.STORE_CONFIG_LOADED;
+    const result = await StoreApi.getInfo();
+    if (result.success && result.data) {
+      const store = result.data;
+      if (store.latitude && store.longitude) {
+        storeInfo.lat = store.latitude;
+        storeInfo.lng = store.longitude;
+        storeInfo.deliveryRadius = store.deliveryRadius || 5; // 기본 5km
+      }
+    }
+  } catch (error) {
+    console.error('가게 정보 로드 실패:', error);
+  }
+}
+
+// 두 좌표 간 거리 계산 (Haversine formula, km 단위)
+function calculateDistance(lat1, lon1, lat2, lon2) {
+  const R = 6371;
+  const dLat = (lat2 - lat1) * Math.PI / 180;
+  const dLon = (lon2 - lon1) * Math.PI / 180;
+  const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+            Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+            Math.sin(dLon/2) * Math.sin(dLon/2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+  return R * c;
+}
+
 async function loadAddressForCart() {
+  const addressLabel = document.getElementById('cart-address-label');
+  const addressText = document.getElementById('cart-address-text');
+  
   if (!AuthApi?.isLoggedIn()) {
-    const addressLabel = document.querySelector('.address-label');
-    const addressText = document.querySelector('.address-text');
     if (addressLabel) addressLabel.textContent = '';
     if (addressText) addressText.textContent = '로그인 후 주소를 선택해주세요';
     return;
   }
+  
+  // 가게 정보 로드
+  await loadStoreInfoForDelivery();
   
   try {
     const result = await AddressApi.getList();
@@ -488,18 +524,110 @@ async function loadAddressForCart() {
       const addresses = result.data;
       MockData.addresses = addresses;
       
-      // 기본 주소 또는 첫 번째 주소 선택
-      const defaultAddr = addresses.find(a => a.isDefault) || addresses[0];
-      AppState.selectedAddressId = defaultAddr.addressId;
+      // 기본 주소 또는 첫 번째 배달 가능 주소 선택
+      let defaultAddr = addresses.find(a => a.isDefault);
+      if (!defaultAddr) {
+        // 배달 가능한 주소 중 첫 번째 선택
+        defaultAddr = addresses.find(a => isAddressDeliverable(a)) || addresses[0];
+      }
       
-      const addressLabel = document.querySelector('.address-label');
-      const addressText = document.querySelector('.address-text');
-      if (addressLabel) addressLabel.textContent = defaultAddr.name || '배달';
-      if (addressText) addressText.textContent = defaultAddr.address || '';
+      selectAddressFromDropdown(defaultAddr);
+    } else {
+      if (addressLabel) addressLabel.textContent = '';
+      if (addressText) addressText.textContent = '등록된 주소가 없습니다';
     }
   } catch (error) {
     console.error('주소 로드 실패:', error);
   }
+}
+
+function isAddressDeliverable(address) {
+  if (!storeInfo.lat || !storeInfo.lng || !storeInfo.deliveryRadius) {
+    return true; // 가게 정보 없으면 모두 허용
+  }
+  if (!address.latitude || !address.longitude) {
+    return true; // 좌표 없으면 허용
+  }
+  
+  const distance = calculateDistance(
+    storeInfo.lat, storeInfo.lng,
+    address.latitude, address.longitude
+  );
+  return distance <= storeInfo.deliveryRadius;
+}
+
+function getAddressDistance(address) {
+  if (!storeInfo.lat || !storeInfo.lng || !address.latitude || !address.longitude) {
+    return null;
+  }
+  return calculateDistance(
+    storeInfo.lat, storeInfo.lng,
+    address.latitude, address.longitude
+  );
+}
+
+function toggleAddressDropdown() {
+  const dropdown = document.getElementById('address-dropdown');
+  const arrow = document.getElementById('address-dropdown-arrow');
+  
+  if (!dropdown) return;
+  
+  if (dropdown.style.display === 'none') {
+    renderAddressDropdownList();
+    dropdown.style.display = 'block';
+    if (arrow) arrow.classList.add('open');
+  } else {
+    dropdown.style.display = 'none';
+    if (arrow) arrow.classList.remove('open');
+  }
+}
+
+function renderAddressDropdownList() {
+  const list = document.getElementById('address-dropdown-list');
+  if (!list) return;
+  
+  const addresses = MockData.addresses || [];
+  
+  if (addresses.length === 0) {
+    list.innerHTML = '<p style="text-align:center;padding:20px;color:var(--text-muted);">등록된 주소가 없습니다</p>';
+    return;
+  }
+  
+  list.innerHTML = addresses.map(address => {
+    const isDeliverable = isAddressDeliverable(address);
+    const distance = getAddressDistance(address);
+    const distanceText = distance ? `${distance.toFixed(1)}km` : '';
+    const isSelected = AppState.selectedAddressId === address.addressId;
+    
+    return `
+      <div class="address-dropdown-item ${isSelected ? 'selected' : ''} ${!isDeliverable ? 'disabled' : ''}" 
+           onclick="${isDeliverable ? `selectAddressFromDropdown({addressId: ${address.addressId}, name: '${(address.name || '').replace(/'/g, "\\'")}', address: '${(address.address || '').replace(/'/g, "\\'")}', latitude: ${address.latitude || 'null'}, longitude: ${address.longitude || 'null'}})` : `alert('배달 권역 밖입니다. (거리: ${distanceText}, 배달 가능: ${storeInfo.deliveryRadius}km)')`}">
+        <div class="item-content">
+          <div class="item-label">${address.name || '주소'}</div>
+          <div class="item-address">${address.address || ''}</div>
+        </div>
+        ${!isDeliverable ? 
+          `<div class="item-unavailable">⚠️ 배달 불가</div>` : 
+          (distanceText ? `<div class="item-distance">${distanceText}</div>` : '')}
+      </div>
+    `;
+  }).join('');
+}
+
+function selectAddressFromDropdown(address) {
+  AppState.selectedAddressId = address.addressId;
+  
+  const addressLabel = document.getElementById('cart-address-label');
+  const addressText = document.getElementById('cart-address-text');
+  
+  if (addressLabel) addressLabel.textContent = address.name || '배달';
+  if (addressText) addressText.textContent = address.address || '';
+  
+  // 드롭다운 닫기
+  const dropdown = document.getElementById('address-dropdown');
+  const arrow = document.getElementById('address-dropdown-arrow');
+  if (dropdown) dropdown.style.display = 'none';
+  if (arrow) arrow.classList.remove('open');
 }
 
 function updateCartBadge() {
@@ -1111,8 +1239,8 @@ async function submitPayment() {
       await AppState.tossWidgets.requestPayment({
         orderId: PaymentUtils.generateOrderId(),
         orderName: `매장직결 주문 (${cartItems.length}개)`,
-        successUrl: window.location.origin + '/07_new_front/payment_success.html?orderId=' + orderId,
-        failUrl: window.location.origin + '/07_new_front/payment_fail.html',
+        successUrl: window.location.origin + '/payment_success.html?orderId=' + orderId,
+        failUrl: window.location.origin + '/payment_fail.html',
         customerEmail: AppState.user?.email || 'customer@example.com',
         customerName: AppState.user?.name || '고객'
       });
@@ -1515,6 +1643,8 @@ window.addToCartAndNavigate = addToCartAndNavigate;
 window.updateCartQuantity = updateCartQuantity;
 window.removeCartItem = removeCartItem;
 window.deleteAddress = deleteAddress;
+window.toggleAddressDropdown = toggleAddressDropdown;
+window.selectAddressFromDropdown = selectAddressFromDropdown;
 window.submitAddress = submitAddress;
 window.openAddressSearch = openAddressSearch;
 window.submitPayment = submitPayment;

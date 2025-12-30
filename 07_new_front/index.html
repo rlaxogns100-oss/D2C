@@ -589,11 +589,7 @@
       <section id="page-cart" class="page">
         <div class="cart-container">
           <header class="page-header">
-            <button class="back-btn" onclick="navigateTo('page-delivery')">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M15 18l-6-6 6-6"/>
-              </svg>
-            </button>
+            <div class="header-spacer"></div>
             <h1>장바구니</h1>
             <div class="header-spacer"></div>
           </header>
@@ -603,7 +599,7 @@
             <!-- Cart items will be rendered here -->
           </div>
           
-          <!-- Delivery Address -->
+          <!-- Delivery Address with Dropdown -->
           <div class="delivery-address-section">
             <div class="section-title">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20">
@@ -612,14 +608,28 @@
               </svg>
               <span>배달 주소</span>
             </div>
-            <div class="address-selector" onclick="navigateTo('page-addresses')">
+            <div class="address-selector" onclick="toggleAddressDropdown()">
               <div class="address-info">
-                <span class="address-label">집</span>
-                <span class="address-text">경기도 용인시 수지구 현암로125번길 11</span>
+                <span class="address-label" id="cart-address-label">집</span>
+                <span class="address-text" id="cart-address-text">주소를 선택해주세요</span>
               </div>
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20">
-                <path d="M9 18l6-6-6-6"/>
+              <svg class="dropdown-arrow" id="address-dropdown-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20">
+                <path d="M6 9l6 6 6-6"/>
               </svg>
+            </div>
+            
+            <!-- Address Dropdown Menu -->
+            <div class="address-dropdown" id="address-dropdown" style="display: none;">
+              <div class="address-dropdown-list" id="address-dropdown-list">
+                <!-- 주소 목록이 여기에 동적으로 추가됩니다 -->
+              </div>
+              <button class="address-dropdown-manage-btn" onclick="navigateTo('page-addresses'); toggleAddressDropdown();">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+                  <path d="M12 20h9"/>
+                  <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
+                </svg>
+                주소 관리
+              </button>
             </div>
           </div>
           
@@ -894,11 +904,7 @@
       <section id="page-profile" class="page">
         <div class="profile-container">
           <header class="page-header">
-            <button class="back-btn" onclick="navigateTo('page-home')">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M15 18l-6-6 6-6"/>
-              </svg>
-            </button>
+            <div class="header-spacer"></div>
             <h1>내 정보</h1>
             <div class="header-spacer"></div>
           </header>

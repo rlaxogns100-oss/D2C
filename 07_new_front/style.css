@@ -1842,6 +1842,114 @@ img {
   color: var(--text-primary);
 }
 
+/* Address Dropdown */
+.delivery-address-section {
+  position: relative;
+}
+
+.dropdown-arrow {
+  transition: transform var(--transition-fast);
+}
+
+.dropdown-arrow.open {
+  transform: rotate(180deg);
+}
+
+.address-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  margin-top: var(--spacing-sm);
+  background: var(--bg-card);
+  border: 1px solid var(--bg-elevated);
+  border-radius: var(--radius-md);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+  z-index: 100;
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.address-dropdown-list {
+  padding: var(--spacing-sm);
+}
+
+.address-dropdown-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--spacing-md);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: background var(--transition-fast);
+  margin-bottom: var(--spacing-xs);
+}
+
+.address-dropdown-item:hover:not(.disabled) {
+  background: var(--bg-elevated);
+}
+
+.address-dropdown-item.selected {
+  background: var(--primary-subtle);
+  border: 1px solid var(--primary);
+}
+
+.address-dropdown-item.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.address-dropdown-item .item-content {
+  flex: 1;
+}
+
+.address-dropdown-item .item-label {
+  font-weight: 600;
+  color: var(--primary-light);
+  font-size: 0.875rem;
+  margin-bottom: 2px;
+}
+
+.address-dropdown-item .item-address {
+  font-size: 0.8125rem;
+  color: var(--text-secondary);
+}
+
+.address-dropdown-item .item-distance {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin-left: var(--spacing-sm);
+}
+
+.address-dropdown-item .item-unavailable {
+  font-size: 0.75rem;
+  color: var(--error);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.address-dropdown-manage-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-sm);
+  width: 100%;
+  padding: var(--spacing-md);
+  background: var(--bg-elevated);
+  border: none;
+  border-top: 1px solid var(--bg-dark);
+  color: var(--primary-light);
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background var(--transition-fast);
+}
+
+.address-dropdown-manage-btn:hover {
+  background: var(--bg-card);
+}
+
 .order-summary {
   padding: var(--spacing-lg);
   background: var(--bg-card);

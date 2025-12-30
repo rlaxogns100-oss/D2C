@@ -437,14 +437,14 @@ const AddressApi = {
   },
   
   /**
-   * 주소 삭제
+   * 주소 삭제 - /api/v1/address/delete/{addressId}
    */
   async delete(addressId) {
     const token = AuthToken.get();
     if (!token) return { success: false };
     
     try {
-      const response = await fetch(`${baseUrl}/api/v1/address/${addressId}`, {
+      const response = await fetch(`${baseUrl}/api/v1/address/delete/${addressId}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`
