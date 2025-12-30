@@ -1,0 +1,771 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>매장직결 | 점주용 관리 시스템</title>
+  
+  <!-- Pretendard 폰트 -->
+  <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css" />
+  
+  <!-- Playfair Display for accent headings -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- ========================================
+       APP CONTAINER
+  ======================================== -->
+  <div id="app">
+    
+    <!-- ========================================
+         DESKTOP HEADER (상단 네비게이션)
+    ======================================== -->
+    <header class="desktop-header">
+      <div class="header-inner">
+        <a href="#" class="header-logo" onclick="navigateFromHeader('page-dashboard'); return false;">
+          <span class="logo-icon">🏪</span>
+          <span class="logo-text">매장직결 <span class="owner-badge">점주</span></span>
+        </a>
+        
+        <nav class="header-nav">
+          <a href="#" class="nav-link active" data-page="page-dashboard" onclick="navigateFromHeader('page-dashboard'); return false;">대시보드</a>
+          <a href="#" class="nav-link" data-page="page-orders" onclick="navigateFromHeader('page-orders'); return false;">주문 관리</a>
+          <a href="#" class="nav-link" data-page="page-menus" onclick="navigateFromHeader('page-menus'); return false;">메뉴 관리</a>
+          <a href="#" class="nav-link" data-page="page-store-edit" onclick="navigateFromHeader('page-store-edit'); return false;">매장 정보</a>
+          <a href="#" class="nav-link" data-page="page-settings" onclick="navigateFromHeader('page-settings'); return false;">설정</a>
+        </nav>
+        
+        <div class="header-actions">
+          <div class="shop-status" id="header-shop-status">
+            <span class="status-dot closed"></span>
+            <span class="status-text">영업 종료</span>
+          </div>
+          <button class="login-btn" onclick="navigateTo('page-login')">로그아웃</button>
+        </div>
+      </div>
+    </header>
+
+    <!-- ========================================
+         MAIN CONTENT AREA
+    ======================================== -->
+    <main class="main-content">
+      
+      <!-- ========================================
+           PAGE 0: SPLASH / LOADING
+      ======================================== -->
+      <section id="page-splash" class="page active">
+        <div class="splash-container">
+          <div class="splash-logo">
+            <div class="logo-icon">🏪</div>
+            <h1 class="logo-text">매장직결</h1>
+            <p class="logo-tagline">점주용 관리 시스템</p>
+          </div>
+          <div class="splash-loader">
+            <div class="loader-bar"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ========================================
+           PAGE 1: LOGIN
+      ======================================== -->
+      <section id="page-login" class="page page-fullscreen">
+        <div class="auth-container">
+          <div class="auth-visual owner-visual">
+            <div class="auth-visual-content">
+              <div class="visual-shapes">
+                <div class="shape shape-1"></div>
+                <div class="shape shape-2"></div>
+                <div class="shape shape-3"></div>
+              </div>
+              <h2 class="visual-title">점주님 환영합니다</h2>
+              <p class="visual-subtitle">매장을 효율적으로 관리하세요</p>
+            </div>
+          </div>
+          
+          <div class="auth-form-section">
+            <div class="auth-header">
+              <h1>점주 로그인</h1>
+              <p>매장 관리를 위해 로그인하세요</p>
+            </div>
+            
+            <form id="login-form" class="auth-form">
+              <div class="input-group">
+                <label for="login-email">이메일</label>
+                <div class="input-wrapper">
+                  <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+                    <polyline points="22,6 12,13 2,6"/>
+                  </svg>
+                  <input type="email" id="login-email" placeholder="owner@store.com" required>
+                </div>
+              </div>
+              
+              <div class="input-group">
+                <label for="login-password">비밀번호</label>
+                <div class="input-wrapper">
+                  <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                    <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                  </svg>
+                  <input type="password" id="login-password" placeholder="••••••••" required>
+                  <button type="button" class="password-toggle" onclick="togglePassword('login-password')">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                      <circle cx="12" cy="12" r="3"/>
+                    </svg>
+                  </button>
+                </div>
+              </div>
+              
+              <button type="submit" class="btn btn-primary btn-full">로그인</button>
+            </form>
+            
+            <p class="auth-footer">
+              매장 등록이 필요하신가요? <a href="#" onclick="navigateTo('page-signup'); return false;">입점 문의</a>
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ========================================
+           PAGE 2: DASHBOARD (대시보드)
+      ======================================== -->
+      <section id="page-dashboard" class="page">
+        <div class="dashboard-container">
+          <!-- Today Stats -->
+          <div class="stats-grid">
+            <div class="stat-card revenue">
+              <div class="stat-header">
+                <span class="stat-title">오늘의 매출</span>
+                <span class="stat-icon">💰</span>
+              </div>
+              <div class="stat-value">327,500원</div>
+              <div class="stat-change positive">+12.5% 어제 대비</div>
+            </div>
+            
+            <div class="stat-card orders">
+              <div class="stat-header">
+                <span class="stat-title">오늘 주문</span>
+                <span class="stat-icon">📦</span>
+              </div>
+              <div class="stat-value">23건</div>
+              <div class="stat-change positive">+5건 어제 대비</div>
+            </div>
+            
+            <div class="stat-card avg-order">
+              <div class="stat-header">
+                <span class="stat-title">평균 주문금액</span>
+                <span class="stat-icon">📊</span>
+              </div>
+              <div class="stat-value">14,239원</div>
+              <div class="stat-change neutral">-2.1% 어제 대비</div>
+            </div>
+            
+            <div class="stat-card rating">
+              <div class="stat-header">
+                <span class="stat-title">평균 평점</span>
+                <span class="stat-icon">⭐</span>
+              </div>
+              <div class="stat-value">4.7</div>
+              <div class="stat-change positive">+0.1 지난주 대비</div>
+            </div>
+          </div>
+          
+          <!-- Shop Status Control -->
+          <div class="control-panel">
+            <h3>매장 운영</h3>
+            <div class="control-cards">
+              <div class="control-card">
+                <div class="control-info">
+                  <div class="control-icon" id="statusIcon">🔴</div>
+                  <div>
+                    <div class="control-title">영업 상태</div>
+                    <div class="control-value" id="statusText">현재 영업 종료</div>
+                  </div>
+                </div>
+                <button class="toggle-btn closed" id="statusToggle" onclick="toggleShopStatus()">
+                  영업 시작
+                </button>
+              </div>
+              
+              <div class="control-card">
+                <div class="control-info">
+                  <div class="control-icon">🕐</div>
+                  <div>
+                    <div class="control-title">운영 시간</div>
+                    <div class="control-value">11:00 - 22:00</div>
+                  </div>
+                </div>
+                <button class="edit-btn" onclick="navigateTo('page-settings')">수정</button>
+              </div>
+              
+              <div class="control-card">
+                <div class="control-info">
+                  <div class="control-icon">📍</div>
+                  <div>
+                    <div class="control-title">배달 지역</div>
+                    <div class="control-value">반경 3km</div>
+                  </div>
+                </div>
+                <button class="edit-btn" onclick="navigateTo('page-settings')">수정</button>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Recent Orders -->
+          <div class="recent-orders">
+            <div class="section-header">
+              <h3>최근 주문</h3>
+              <a href="#" class="see-all" onclick="navigateTo('page-orders'); return false;">전체 보기</a>
+            </div>
+            <div class="orders-list" id="recent-orders-list">
+              <!-- Will be rendered by JS -->
+            </div>
+          </div>
+          
+          <!-- Quick Actions - Desktop Only -->
+          <div class="quick-actions desktop-only">
+            <h3>빠른 관리</h3>
+            <div class="action-grid">
+              <div class="action-card" onclick="navigateTo('page-add-menu')">
+                <span class="action-icon">➕</span>
+                <span class="action-text">메뉴 추가</span>
+              </div>
+              <div class="action-card" onclick="navigateTo('page-store-edit')">
+                <span class="action-icon">🏪</span>
+                <span class="action-text">매장 정보 수정</span>
+              </div>
+              <div class="action-card" onclick="navigateTo('page-promo-edit')">
+                <span class="action-icon">🎉</span>
+                <span class="action-text">프로모션 관리</span>
+              </div>
+              <div class="action-card" onclick="navigateTo('page-settings')">
+                <span class="action-icon">⚙️</span>
+                <span class="action-text">설정</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ========================================
+           PAGE 3: ORDERS (주문 관리)
+      ======================================== -->
+      <section id="page-orders" class="page">
+        <div class="orders-container">
+          <header class="page-header mobile-header">
+            <h1>주문 관리</h1>
+          </header>
+          
+          <!-- Order Tabs -->
+          <div class="order-tabs">
+            <button class="order-tab active" data-tab="new" onclick="switchOrderTab('new')">
+              새 주문 <span class="tab-count" id="count-new">3</span>
+            </button>
+            <button class="order-tab" data-tab="cooking" onclick="switchOrderTab('cooking')">
+              조리 중 <span class="tab-count" id="count-cooking">1</span>
+            </button>
+            <button class="order-tab" data-tab="done" onclick="switchOrderTab('done')">
+              완료 <span class="tab-count" id="count-done">12</span>
+            </button>
+          </div>
+          
+          <!-- Orders List -->
+          <div class="orders-list-container">
+            <div class="orders-list" id="orders-list">
+              <!-- Will be rendered by JS -->
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ========================================
+           PAGE 4: MENUS (메뉴 관리)
+      ======================================== -->
+      <section id="page-menus" class="page">
+        <div class="menus-container">
+          <header class="page-header">
+            <h1>메뉴 관리</h1>
+            <div class="header-actions">
+              <button class="btn btn-secondary btn-sm" onclick="openCategoryModal()">카테고리</button>
+              <button class="btn btn-primary btn-sm" onclick="navigateTo('page-add-menu')">+ 메뉴 추가</button>
+            </div>
+          </header>
+          
+          <!-- Category Tabs -->
+          <div class="category-tabs" id="menu-category-tabs">
+            <button class="tab active" data-category="all">전체</button>
+            <button class="tab" data-category="main">메인</button>
+            <button class="tab" data-category="side">사이드</button>
+            <button class="tab" data-category="drink">음료</button>
+          </div>
+          
+          <!-- Menu Grid -->
+          <div class="menu-grid" id="menu-grid">
+            <!-- Will be rendered by JS -->
+          </div>
+        </div>
+      </section>
+
+      <!-- ========================================
+           PAGE 5: ADD/EDIT MENU
+      ======================================== -->
+      <section id="page-add-menu" class="page">
+        <div class="form-container">
+          <header class="page-header">
+            <button class="back-btn" onclick="navigateTo('page-menus')">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M15 18l-6-6 6-6"/>
+              </svg>
+            </button>
+            <h1>메뉴 추가</h1>
+            <button class="btn-text" onclick="resetMenuForm()">초기화</button>
+          </header>
+          
+          <form id="menu-form" class="edit-form">
+            <div class="form-section">
+              <h3>기본 정보</h3>
+              
+              <div class="input-group">
+                <label>메뉴명 *</label>
+                <input type="text" id="menu-name" placeholder="예: 크림 파스타" required>
+              </div>
+              
+              <div class="input-group">
+                <label>가격 (원) *</label>
+                <input type="number" id="menu-price" placeholder="12900" required min="0">
+              </div>
+              
+              <div class="input-group">
+                <label>카테고리 *</label>
+                <select id="menu-category" required>
+                  <option value="">선택하세요</option>
+                  <option value="main">메인</option>
+                  <option value="side">사이드</option>
+                  <option value="drink">음료</option>
+                  <option value="dessert">디저트</option>
+                </select>
+              </div>
+              
+              <div class="input-group">
+                <label>상세 설명</label>
+                <textarea id="menu-description" placeholder="메뉴에 대한 설명을 입력하세요" rows="3"></textarea>
+              </div>
+            </div>
+            
+            <div class="form-section">
+              <h3>이미지</h3>
+              
+              <div class="image-upload-area" id="menu-image-upload">
+                <input type="file" id="menu-image-file" accept="image/*" hidden>
+                <div class="upload-placeholder" onclick="document.getElementById('menu-image-file').click()">
+                  <span class="upload-icon">📷</span>
+                  <span class="upload-text">이미지 선택</span>
+                  <span class="upload-hint">JPG, PNG, GIF, WEBP (최대 10MB)</span>
+                </div>
+                <div class="image-preview hidden" id="menu-image-preview">
+                  <img src="" alt="미리보기">
+                  <button type="button" class="remove-image-btn" onclick="removeMenuImage()">×</button>
+                </div>
+              </div>
+            </div>
+            
+            <div class="form-section">
+              <h3>옵션</h3>
+              
+              <div id="options-list" class="options-list">
+                <!-- Dynamic options -->
+              </div>
+              
+              <button type="button" class="btn btn-outline btn-full" onclick="addMenuOption()">
+                + 옵션 추가
+              </button>
+            </div>
+            
+            <div class="form-actions">
+              <button type="submit" class="btn btn-primary btn-full btn-lg">저장하기</button>
+            </div>
+          </form>
+        </div>
+      </section>
+
+      <!-- ========================================
+           PAGE 6: STORE EDIT (매장 정보 편집) - Desktop Only
+      ======================================== -->
+      <section id="page-store-edit" class="page">
+        <div class="form-container wide">
+          <header class="page-header">
+            <button class="back-btn" onclick="navigateTo('page-dashboard')">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M15 18l-6-6 6-6"/>
+              </svg>
+            </button>
+            <h1>매장 정보 편집</h1>
+            <button class="btn btn-primary btn-sm" onclick="saveStoreInfo()">저장</button>
+          </header>
+          
+          <!-- Desktop Only Notice for Mobile -->
+          <div class="desktop-only-notice mobile-only">
+            <div class="notice-icon">💻</div>
+            <h2>PC에서 편집해주세요</h2>
+            <p>매장 정보의 상세 편집은 PC 환경에서만 가능합니다.<br>더 넓은 화면에서 편리하게 수정하세요.</p>
+          </div>
+          
+          <!-- Store Edit Form - Desktop Only -->
+          <div class="store-edit-content desktop-only">
+            <div class="edit-layout">
+              <!-- Left: Preview -->
+              <div class="preview-panel">
+                <h3>미리보기</h3>
+                <div class="store-preview">
+                  <div class="preview-hero" id="preview-hero">
+                    <div class="preview-hero-content">
+                      <span class="preview-subtitle">SPECIAL MENU</span>
+                      <h2 id="preview-hero-title">신선한 재료로<br>만든 특별한 맛</h2>
+                      <p id="preview-hero-desc">매장직결만의 레시피로 정성껏 준비했습니다</p>
+                    </div>
+                    <div class="preview-emoji">🍗</div>
+                  </div>
+                  
+                  <div class="preview-info">
+                    <div class="preview-logo">🍽️</div>
+                    <h3 id="preview-store-name">Spicy Restaurant</h3>
+                    <p id="preview-store-tagline">정성을 담아 요리합니다</p>
+                    <div class="preview-stats">
+                      <div class="preview-stat">
+                        <span>⭐</span> <span id="preview-rating">4.7</span>
+                      </div>
+                      <div class="preview-stat">
+                        <span>🕐</span> <span id="preview-delivery-time">20분</span>
+                      </div>
+                      <div class="preview-stat">
+                        <span>🛵</span> <span id="preview-delivery-fee">2,500원</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <!-- Right: Edit Form -->
+              <div class="edit-panel">
+                <form id="store-form" class="edit-form">
+                  <div class="form-section">
+                    <h3>기본 정보</h3>
+                    
+                    <div class="input-group">
+                      <label>매장명 *</label>
+                      <input type="text" id="store-name" value="Spicy Restaurant" required oninput="updatePreview()">
+                    </div>
+                    
+                    <div class="input-group">
+                      <label>태그라인</label>
+                      <input type="text" id="store-tagline" value="정성을 담아 요리합니다" oninput="updatePreview()">
+                    </div>
+                    
+                    <div class="input-group">
+                      <label>연락처 *</label>
+                      <input type="tel" id="store-phone" value="010-2808-9914" required>
+                    </div>
+                    
+                    <div class="input-group">
+                      <label>주소 *</label>
+                      <input type="text" id="store-address" value="경기도 용인시 수지구 현암로125번길 11" required>
+                    </div>
+                  </div>
+                  
+                  <div class="form-section">
+                    <h3>히어로 배너</h3>
+                    
+                    <div class="input-group">
+                      <label>서브타이틀</label>
+                      <input type="text" id="hero-subtitle" value="SPECIAL MENU" oninput="updatePreview()">
+                    </div>
+                    
+                    <div class="input-group">
+                      <label>메인 타이틀</label>
+                      <textarea id="hero-title" rows="2" oninput="updatePreview()">신선한 재료로
+만든 특별한 맛</textarea>
+                    </div>
+                    
+                    <div class="input-group">
+                      <label>설명</label>
+                      <input type="text" id="hero-desc" value="매장직결만의 레시피로 정성껏 준비했습니다" oninput="updatePreview()">
+                    </div>
+                    
+                    <div class="input-group">
+                      <label>배경색</label>
+                      <div class="color-options">
+                        <button type="button" class="color-btn active" style="background: linear-gradient(135deg, #8B1538, #C41E3A);" onclick="selectHeroColor(this, '#8B1538', '#C41E3A')"></button>
+                        <button type="button" class="color-btn" style="background: linear-gradient(135deg, #2C3E50, #3498DB);" onclick="selectHeroColor(this, '#2C3E50', '#3498DB')"></button>
+                        <button type="button" class="color-btn" style="background: linear-gradient(135deg, #1E5631, #2ECC71);" onclick="selectHeroColor(this, '#1E5631', '#2ECC71')"></button>
+                        <button type="button" class="color-btn" style="background: linear-gradient(135deg, #6B5B95, #88B04B);" onclick="selectHeroColor(this, '#6B5B95', '#88B04B')"></button>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div class="form-section">
+                    <h3>배달 정보</h3>
+                    
+                    <div class="input-row">
+                      <div class="input-group">
+                        <label>평균 배달 시간</label>
+                        <input type="text" id="delivery-time" value="20분" oninput="updatePreview()">
+                      </div>
+                      <div class="input-group">
+                        <label>배달비</label>
+                        <input type="text" id="delivery-fee" value="2,500원" oninput="updatePreview()">
+                      </div>
+                    </div>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ========================================
+           PAGE 7: PROMO EDIT (프로모션 편집) - Desktop Only
+      ======================================== -->
+      <section id="page-promo-edit" class="page">
+        <div class="form-container wide">
+          <header class="page-header">
+            <button class="back-btn" onclick="navigateTo('page-dashboard')">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M15 18l-6-6 6-6"/>
+              </svg>
+            </button>
+            <h1>프로모션 관리</h1>
+            <button class="btn btn-primary btn-sm" onclick="savePromos()">저장</button>
+          </header>
+          
+          <!-- Desktop Only Notice for Mobile -->
+          <div class="desktop-only-notice mobile-only">
+            <div class="notice-icon">💻</div>
+            <h2>PC에서 편집해주세요</h2>
+            <p>프로모션 관리는 PC 환경에서만 가능합니다.</p>
+          </div>
+          
+          <!-- Promo Edit - Desktop Only -->
+          <div class="promo-edit-content desktop-only">
+            <div class="promo-list" id="promo-list">
+              <!-- Will be rendered by JS -->
+            </div>
+            
+            <button class="btn btn-outline btn-full" onclick="addPromoCard()">
+              + 프로모션 카드 추가
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- ========================================
+           PAGE 8: SETTINGS (설정)
+      ======================================== -->
+      <section id="page-settings" class="page">
+        <div class="settings-container">
+          <header class="page-header mobile-header">
+            <button class="back-btn" onclick="navigateTo('page-dashboard')">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M15 18l-6-6 6-6"/>
+              </svg>
+            </button>
+            <h1>설정</h1>
+            <div class="header-spacer"></div>
+          </header>
+          
+          <div class="settings-content">
+            <!-- Operating Hours -->
+            <div class="settings-section">
+              <h3>운영 시간</h3>
+              <div class="time-inputs">
+                <div class="input-group">
+                  <label>오픈</label>
+                  <input type="time" id="open-time" value="11:00">
+                </div>
+                <div class="input-group">
+                  <label>마감</label>
+                  <input type="time" id="close-time" value="22:00">
+                </div>
+              </div>
+            </div>
+            
+            <!-- Delivery Area -->
+            <div class="settings-section">
+              <h3>배달 지역</h3>
+              <div class="input-group">
+                <label>배달 반경 (km)</label>
+                <input type="number" id="delivery-radius" value="3" min="1" max="10">
+              </div>
+              <div class="map-placeholder">
+                <span>🗺️</span>
+                <p>지도에서 배달 가능 지역을 확인하세요</p>
+              </div>
+            </div>
+            
+            <!-- Point/Reward Settings -->
+            <div class="settings-section">
+              <h3>고객 적립 설정</h3>
+              <div class="input-group">
+                <label>적립 비율 (%)</label>
+                <div class="input-with-suffix">
+                  <input type="number" id="reward-rate" value="40" min="0" max="100" onchange="saveRewardRate()">
+                  <span class="input-suffix">%</span>
+                </div>
+                <p class="input-hint">고객이 주문 시 결제 금액의 일정 비율을 포인트로 적립합니다.</p>
+              </div>
+              <div class="reward-preview">
+                <div class="preview-label">예시</div>
+                <div class="preview-content">
+                  <span>10,000원 주문 시</span>
+                  <span class="preview-reward" id="reward-preview-amount">4,000P 적립</span>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Account -->
+            <div class="settings-section">
+              <h3>계정</h3>
+              <div class="settings-menu">
+                <div class="settings-menu-item">
+                  <span>개인 정보 수정</span>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M9 18l6-6-6-6"/>
+                  </svg>
+                </div>
+                <div class="settings-menu-item">
+                  <span>비밀번호 변경</span>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M9 18l6-6-6-6"/>
+                  </svg>
+                </div>
+                <div class="settings-menu-item" onclick="navigateTo('page-terms')">
+                  <span>이용약관</span>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M9 18l6-6-6-6"/>
+                  </svg>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Logout -->
+            <button class="btn btn-danger btn-full" onclick="logout()">로그아웃</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- ========================================
+           PAGE 9: TERMS (이용약관)
+      ======================================== -->
+      <section id="page-terms" class="page">
+        <div class="terms-container">
+          <header class="page-header">
+            <button class="back-btn" onclick="navigateTo('page-settings')">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M15 18l-6-6 6-6"/>
+              </svg>
+            </button>
+            <h1>이용약관</h1>
+            <div class="header-spacer"></div>
+          </header>
+          
+          <div class="terms-content">
+            <div class="terms-section">
+              <h2>점주 서비스 이용약관</h2>
+              <p>
+                본 약관은 매장직결(이하 '회사')이 제공하는 점주 서비스의 이용조건 및 절차, 
+                점주와 회사의 권리, 의무, 책임사항과 기타 필요한 사항을 규정함을 목적으로 합니다.
+              </p>
+            </div>
+            
+            <div class="terms-section">
+              <h2>수수료 정책</h2>
+              <p>
+                매장직결은 주문 건당 수수료를 부과합니다. 자세한 수수료율은 계약 시 안내드립니다.
+              </p>
+            </div>
+            
+            <div class="terms-section">
+              <h2>정산 안내</h2>
+              <p>
+                매출 정산은 매주 월요일에 지난 주 매출을 기준으로 처리되며, 
+                등록된 계좌로 입금됩니다.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </main><!-- end .main-content -->
+
+    <!-- ========================================
+         MOBILE BOTTOM TAB BAR
+    ======================================== -->
+    <nav class="mobile-tabbar">
+      <a href="#" class="tab-item active" data-page="page-dashboard" onclick="navigateFromTab('page-dashboard'); return false;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+          <polyline points="9 22 9 12 15 12 15 22"/>
+        </svg>
+        <span>홈</span>
+      </a>
+      <a href="#" class="tab-item" data-page="page-orders" onclick="navigateFromTab('page-orders'); return false;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+          <polyline points="14 2 14 8 20 8"/>
+          <line x1="16" y1="13" x2="8" y2="13"/>
+          <line x1="16" y1="17" x2="8" y2="17"/>
+        </svg>
+        <span>주문</span>
+        <span class="tab-badge" id="mobile-order-badge">3</span>
+      </a>
+      <a href="#" class="tab-item" data-page="page-menus" onclick="navigateFromTab('page-menus'); return false;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+          <path d="M2 17l10 5 10-5"/>
+          <path d="M2 12l10 5 10-5"/>
+        </svg>
+        <span>메뉴</span>
+      </a>
+      <a href="#" class="tab-item" data-page="page-settings" onclick="navigateFromTab('page-settings'); return false;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="3"/>
+          <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+        </svg>
+        <span>설정</span>
+      </a>
+    </nav>
+
+    <!-- ========================================
+         CATEGORY MODAL
+    ======================================== -->
+    <div id="category-modal" class="modal hidden">
+      <div class="modal-backdrop" onclick="closeCategoryModal()"></div>
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2>카테고리 관리</h2>
+          <button class="modal-close" onclick="closeCategoryModal()">×</button>
+        </div>
+        <div class="modal-body">
+          <div class="add-category-form">
+            <input type="text" id="new-category-input" placeholder="새 카테고리 이름">
+            <button class="btn btn-primary btn-sm" onclick="addCategory()">추가</button>
+          </div>
+          <div class="category-list" id="category-list">
+            <!-- Will be rendered by JS -->
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- end #app -->
+
+  <script src="app.js"></script>
+</body>
+</html>
+

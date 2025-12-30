@@ -1,0 +1,1032 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>매장직결 | 신선한 음식을 집 앞까지</title>
+  
+  <!-- Pretendard 폰트 -->
+  <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css" />
+  
+  <!-- Playfair Display for accent headings -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- ========================================
+       APP CONTAINER
+  ======================================== -->
+  <div id="app">
+    
+    <!-- ========================================
+         DESKTOP HEADER (상단 네비게이션)
+    ======================================== -->
+    <header class="desktop-header">
+      <div class="header-inner">
+        <a href="#" class="header-logo" onclick="navigateFromHeader('page-home'); return false;">
+          <span class="logo-icon">🍽️</span>
+          <span class="logo-text">매장직결</span>
+        </a>
+        
+        <nav class="header-nav">
+          <a href="#" class="nav-link active" data-page="page-home" onclick="navigateFromHeader('page-home'); return false;">홈</a>
+          <a href="#" class="nav-link" data-page="page-delivery" onclick="navigateFromHeader('page-delivery'); return false;">배달/픽업</a>
+          <a href="#" class="nav-link disabled">홀 주문 <span class="badge-soon">예정</span></a>
+          <a href="#" class="nav-link disabled">예약 <span class="badge-soon">예정</span></a>
+          <a href="#" class="nav-link" data-page="page-profile" onclick="navigateFromHeader('page-profile'); return false;">내 정보</a>
+          <a href="#" class="nav-link" data-page="page-terms" onclick="navigateFromHeader('page-terms'); return false;">이용약관</a>
+        </nav>
+        
+        <div class="header-actions">
+          <button class="cart-btn" onclick="navigateTo('page-cart')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="9" cy="21" r="1"/>
+              <circle cx="20" cy="21" r="1"/>
+              <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
+            </svg>
+            <span class="cart-badge">3</span>
+          </button>
+          <button class="login-btn" onclick="navigateTo('page-login')">로그인</button>
+        </div>
+      </div>
+    </header>
+
+    <!-- ========================================
+         MAIN CONTENT AREA
+    ======================================== -->
+    <main class="main-content">
+      
+      <!-- ========================================
+           PAGE 0: SPLASH / LOADING
+      ======================================== -->
+      <section id="page-splash" class="page active">
+        <div class="splash-container">
+          <div class="splash-logo">
+            <div class="logo-icon">🍽️</div>
+            <h1 class="logo-text">매장직결</h1>
+            <p class="logo-tagline">신선한 음식을 집 앞까지</p>
+          </div>
+          <div class="splash-loader">
+            <div class="loader-bar"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ========================================
+           PAGE 1: LOGIN
+      ======================================== -->
+      <section id="page-login" class="page page-fullscreen">
+        <div class="auth-container">
+          <div class="auth-visual">
+            <div class="auth-visual-content">
+              <div class="visual-shapes">
+                <div class="shape shape-1"></div>
+                <div class="shape shape-2"></div>
+                <div class="shape shape-3"></div>
+              </div>
+              <h2 class="visual-title">맛있는 하루의 시작</h2>
+              <p class="visual-subtitle">매장직결과 함께하세요</p>
+            </div>
+          </div>
+          
+          <div class="auth-form-section">
+            <div class="auth-header">
+              <h1>로그인</h1>
+              <p>계정에 로그인하여 주문을 시작하세요</p>
+            </div>
+            
+            <form id="login-form" class="auth-form">
+              <div class="input-group">
+                <label for="login-email">이메일</label>
+                <div class="input-wrapper">
+                  <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+                    <polyline points="22,6 12,13 2,6"/>
+                  </svg>
+                  <input type="email" id="login-email" placeholder="example@email.com" required>
+                </div>
+              </div>
+              
+              <div class="input-group">
+                <label for="login-password">비밀번호</label>
+                <div class="input-wrapper">
+                  <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                    <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                  </svg>
+                  <input type="password" id="login-password" placeholder="••••••••" required>
+                  <button type="button" class="password-toggle" onclick="togglePassword('login-password')">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                      <circle cx="12" cy="12" r="3"/>
+                    </svg>
+                  </button>
+                </div>
+              </div>
+              
+              <div class="form-options">
+                <label class="checkbox-wrapper">
+                  <input type="checkbox" id="remember-me">
+                  <span class="checkmark"></span>
+                  <span>로그인 유지</span>
+                </label>
+                <a href="#" class="forgot-link">비밀번호 찾기</a>
+              </div>
+              
+              <button type="submit" class="btn btn-primary btn-full">로그인</button>
+              
+              <div class="auth-divider">
+                <span>또는</span>
+              </div>
+              
+              <div class="social-login">
+                <button type="button" class="btn btn-social btn-kakao">
+                  <svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20">
+                    <path d="M12 3c5.799 0 10.5 3.664 10.5 8.185 0 4.52-4.701 8.184-10.5 8.184a13.5 13.5 0 0 1-1.727-.11l-4.408 2.883c-.501.265-.678.236-.472-.413l.892-3.678c-2.88-1.46-4.785-3.99-4.785-6.866C1.5 6.665 6.201 3 12 3z"/>
+                  </svg>
+                  카카오로 시작하기
+                </button>
+              </div>
+            </form>
+            
+            <p class="auth-footer">
+              계정이 없으신가요? <a href="#" onclick="navigateTo('page-signup'); return false;">회원가입</a>
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ========================================
+           PAGE 2: SIGNUP
+      ======================================== -->
+      <section id="page-signup" class="page page-fullscreen">
+        <div class="auth-container">
+          <div class="auth-visual">
+            <div class="auth-visual-content">
+              <div class="visual-shapes">
+                <div class="shape shape-1"></div>
+                <div class="shape shape-2"></div>
+                <div class="shape shape-3"></div>
+              </div>
+              <h2 class="visual-title">새로운 시작</h2>
+              <p class="visual-subtitle">지금 바로 가입하세요</p>
+            </div>
+          </div>
+          
+          <div class="auth-form-section">
+            <button class="back-btn" onclick="navigateTo('page-login')">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M15 18l-6-6 6-6"/>
+              </svg>
+            </button>
+            
+            <div class="auth-header">
+              <h1>회원가입</h1>
+              <p>서비스 이용을 위해 가입해주세요</p>
+            </div>
+            
+            <form id="signup-form" class="auth-form">
+              <div class="input-group">
+                <label for="signup-name">이름</label>
+                <div class="input-wrapper">
+                  <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                    <circle cx="12" cy="7" r="4"/>
+                  </svg>
+                  <input type="text" id="signup-name" placeholder="홍길동" required>
+                </div>
+              </div>
+              
+              <div class="input-group">
+                <label for="signup-email">이메일</label>
+                <div class="input-wrapper">
+                  <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+                    <polyline points="22,6 12,13 2,6"/>
+                  </svg>
+                  <input type="email" id="signup-email" placeholder="example@email.com" required>
+                </div>
+              </div>
+              
+              <div class="input-group">
+                <label for="signup-password">비밀번호</label>
+                <div class="input-wrapper">
+                  <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                    <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                  </svg>
+                  <input type="password" id="signup-password" placeholder="6자 이상 입력" required>
+                  <button type="button" class="password-toggle" onclick="togglePassword('signup-password')">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                      <circle cx="12" cy="12" r="3"/>
+                    </svg>
+                  </button>
+                </div>
+              </div>
+              
+              <div class="input-group">
+                <label for="signup-password-confirm">비밀번호 확인</label>
+                <div class="input-wrapper">
+                  <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                    <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                  </svg>
+                  <input type="password" id="signup-password-confirm" placeholder="비밀번호 재입력" required>
+                </div>
+              </div>
+              
+              <button type="submit" class="btn btn-primary btn-full">회원가입</button>
+            </form>
+            
+            <p class="auth-footer">
+              이미 계정이 있으신가요? <a href="#" onclick="navigateTo('page-login'); return false;">로그인</a>
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ========================================
+           PAGE 3: HOME (가게 소개 페이지)
+      ======================================== -->
+      <section id="page-home" class="page">
+        <!-- Hero Slider -->
+        <div class="hero-slider">
+          <div class="hero-slide active" style="background: linear-gradient(135deg, #8B1538 0%, #C41E3A 100%);">
+            <div class="hero-slide-content">
+              <div class="hero-text">
+                <span class="hero-subtitle">SPECIAL MENU</span>
+                <h1 class="hero-title">신선한 재료로<br>만든 특별한 맛</h1>
+                <p class="hero-desc">매장직결만의 레시피로 정성껏 준비했습니다</p>
+                <button class="btn btn-hero" onclick="navigateTo('page-delivery')">주문하기</button>
+              </div>
+              <div class="hero-image-container">
+                <div class="hero-food-emoji">🍗</div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Slider Dots -->
+          <div class="slider-dots">
+            <button class="dot active"></button>
+            <button class="dot"></button>
+            <button class="dot"></button>
+          </div>
+          
+          <!-- Slider Arrows -->
+          <button class="slider-arrow prev" onclick="prevSlide()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M15 18l-6-6 6-6"/>
+            </svg>
+          </button>
+          <button class="slider-arrow next" onclick="nextSlide()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M9 18l6-6-6-6"/>
+            </svg>
+          </button>
+        </div>
+        
+        <!-- Store Introduction -->
+        <div class="store-intro">
+          <div class="intro-container">
+            <div class="store-logo-large">
+              <span>🍽️</span>
+            </div>
+            <h2 class="store-title">Spicy Restaurant</h2>
+            <p class="store-tagline">정성을 담아 요리합니다</p>
+            
+            <div class="store-stats">
+              <div class="stat-item">
+                <div class="stat-icon">⭐</div>
+                <div class="stat-value">4.7</div>
+                <div class="stat-label">평균 별점</div>
+              </div>
+              <div class="stat-divider"></div>
+              <div class="stat-item">
+                <div class="stat-icon">🕐</div>
+                <div class="stat-value">20분</div>
+                <div class="stat-label">평균 배달</div>
+              </div>
+              <div class="stat-divider"></div>
+              <div class="stat-item">
+                <div class="stat-icon">🛵</div>
+                <div class="stat-value">2,500원</div>
+                <div class="stat-label">배달비</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Promotional Cards -->
+        <div class="promo-section">
+          <div class="promo-container">
+            <h3 class="section-title">이벤트 & 소식</h3>
+            
+            <div class="promo-grid">
+              <div class="promo-card">
+                <div class="promo-image" style="background: linear-gradient(135deg, #FF6B35 0%, #F7931E 100%);">
+                  <span class="promo-emoji">🎉</span>
+                </div>
+                <div class="promo-content">
+                  <span class="promo-badge">EVENT</span>
+                  <h4>첫 주문 3,000원 할인</h4>
+                  <p>신규 가입 고객님께 드리는 특별 혜택</p>
+                </div>
+              </div>
+              
+              <div class="promo-card">
+                <div class="promo-image" style="background: linear-gradient(135deg, #6B5B95 0%, #88B04B 100%);">
+                  <span class="promo-emoji">🍜</span>
+                </div>
+                <div class="promo-content">
+                  <span class="promo-badge">NEW</span>
+                  <h4>신메뉴 출시</h4>
+                  <p>매콤 불닭 볶음면이 새롭게 출시되었습니다</p>
+                </div>
+              </div>
+              
+              <div class="promo-card">
+                <div class="promo-image" style="background: linear-gradient(135deg, #45B7D1 0%, #96CEB4 100%);">
+                  <span class="promo-emoji">⏰</span>
+                </div>
+                <div class="promo-content">
+                  <span class="promo-badge">INFO</span>
+                  <h4>영업시간 안내</h4>
+                  <p>매일 오전 11시 ~ 밤 10시 운영</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Featured Menu Preview -->
+        <div class="featured-section">
+          <div class="featured-container">
+            <h3 class="section-title">인기 메뉴</h3>
+            <p class="section-subtitle">가장 사랑받는 메뉴를 만나보세요</p>
+            
+            <div class="featured-menu">
+              <div class="featured-item">
+                <div class="featured-emoji">🍝</div>
+                <span>크림 파스타</span>
+              </div>
+              <div class="featured-item">
+                <div class="featured-emoji">🍜</div>
+                <span>불닭 볶음면</span>
+              </div>
+              <div class="featured-item">
+                <div class="featured-emoji">🥘</div>
+                <span>돈까스 정식</span>
+              </div>
+              <div class="featured-item">
+                <div class="featured-emoji">🍲</div>
+                <span>해물 짬뽕</span>
+              </div>
+            </div>
+            
+            <button class="btn btn-primary btn-lg" onclick="navigateTo('page-delivery')">
+              전체 메뉴 보기
+            </button>
+          </div>
+        </div>
+        
+        <!-- Store Info -->
+        <div class="store-info-section">
+          <div class="info-container">
+            <h3 class="section-title">매장 정보</h3>
+            
+            <div class="info-grid">
+              <div class="info-card">
+                <div class="info-icon">📍</div>
+                <div class="info-content">
+                  <h4>위치</h4>
+                  <p>경기도 용인시 수지구 현암로125번길 11</p>
+                </div>
+              </div>
+              
+              <div class="info-card">
+                <div class="info-icon">📞</div>
+                <div class="info-content">
+                  <h4>연락처</h4>
+                  <p>010-2808-9914</p>
+                </div>
+              </div>
+              
+              <div class="info-card">
+                <div class="info-icon">🕐</div>
+                <div class="info-content">
+                  <h4>영업시간</h4>
+                  <p>매일 11:00 - 22:00</p>
+                </div>
+              </div>
+              
+              <div class="info-card">
+                <div class="info-icon">🛵</div>
+                <div class="info-content">
+                  <h4>배달 범위</h4>
+                  <p>매장 기준 반경 3km 이내</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Business Footer -->
+        <footer class="business-footer">
+          <div class="footer-content">
+            <div class="footer-row">
+              <span><strong>상호명</strong> 매장직결</span>
+              <span><strong>사업자등록번호</strong> 140-29-01759</span>
+              <span><strong>대표자명</strong> 김태훈</span>
+            </div>
+            <div class="footer-row">
+              <span><strong>사업장주소</strong> 경기도 용인시 수지구 현암로125번길 11</span>
+            </div>
+            <div class="footer-row">
+              <span><strong>연락처</strong> 010-2808-9914</span>
+              <span><strong>이메일</strong> rlaxogns100@snu.ac.kr</span>
+            </div>
+          </div>
+        </footer>
+      </section>
+
+      <!-- ========================================
+           PAGE 4: DELIVERY (메뉴 목록)
+      ======================================== -->
+      <section id="page-delivery" class="page">
+        <div class="delivery-container">
+          <!-- Reward Banner -->
+          <div class="reward-banner">
+            <span class="reward-icon">🎁</span>
+            <span class="reward-text"><strong id="reward-rate-display">40%</strong> 적립 적용중!</span>
+            <span class="reward-sub">주문금액의 포인트가 적립됩니다</span>
+          </div>
+          
+          <!-- Category Tabs -->
+          <div class="category-tabs">
+            <button class="tab active" data-category="all">전체</button>
+            <button class="tab" data-category="main">메인</button>
+            <button class="tab" data-category="side">사이드</button>
+            <button class="tab" data-category="drink">음료</button>
+            <button class="tab" data-category="dessert">디저트</button>
+          </div>
+          
+          <!-- Menu Grid -->
+          <div class="section-header">
+            <h3>메뉴 <span class="count">(12)</span></h3>
+          </div>
+          
+          <div class="menu-grid" id="menu-grid">
+            <!-- Menu cards will be rendered here -->
+          </div>
+        </div>
+      </section>
+
+      <!-- ========================================
+           PAGE 5: MENU DETAIL
+      ======================================== -->
+      <section id="page-menu-detail" class="page">
+        <div class="detail-container">
+          <!-- Hero Image -->
+          <div class="detail-hero">
+            <button class="back-btn back-btn-float" onclick="navigateTo('page-delivery')">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M15 18l-6-6 6-6"/>
+              </svg>
+            </button>
+            <button class="favorite-btn">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+              </svg>
+            </button>
+            <div class="detail-hero-img">
+              <div class="hero-img-placeholder large">🍜</div>
+            </div>
+          </div>
+          
+          <!-- Detail Content -->
+          <div class="detail-content">
+            <div class="detail-header">
+              <h1 class="menu-name">매콤 불닭 볶음면</h1>
+              <p class="menu-category">메인 · 매운맛</p>
+            </div>
+            
+            <div class="detail-meta">
+              <div class="meta-item">
+                <svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18">
+                  <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                </svg>
+                <span>4.7</span>
+              </div>
+              <div class="meta-item">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
+                  <circle cx="12" cy="12" r="10"/>
+                  <path d="M12 6v6l4 2"/>
+                </svg>
+                <span>20분</span>
+              </div>
+              <div class="meta-item">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
+                  <rect x="1" y="3" width="15" height="13" rx="2"/>
+                  <path d="M16 8h4l3 3v5h-3"/>
+                  <circle cx="5.5" cy="18.5" r="2.5"/>
+                  <circle cx="18.5" cy="18.5" r="2.5"/>
+                </svg>
+                <span>2,500원</span>
+              </div>
+            </div>
+            
+            <p class="menu-description">
+              불타는 매운맛! 쫄깃한 면발에 매콤달콤한 불닭 소스가 어우러진 최고의 볶음면입니다. 
+              치즈 토핑을 추가하면 더욱 풍미가 살아납니다.
+            </p>
+            
+            <!-- Options -->
+            <div class="options-section">
+              <h3>옵션 선택</h3>
+              <div class="option-buttons">
+                <button class="option-btn active">기본</button>
+                <button class="option-btn">치즈 추가 (+1,000원)</button>
+                <button class="option-btn">계란 추가 (+500원)</button>
+                <button class="option-btn">곱빼기 (+2,000원)</button>
+              </div>
+            </div>
+            
+            <!-- Quantity & Price -->
+            <div class="price-quantity-section">
+              <div class="quantity-control">
+                <button class="qty-btn minus">−</button>
+                <span class="qty-value">1</span>
+                <button class="qty-btn plus">+</button>
+              </div>
+              <div class="price-display">
+                <span class="price-value">8,900원</span>
+                <span class="price-reward" id="detail-reward">3,560P 적립!</span>
+              </div>
+            </div>
+            
+            <!-- Add to Cart Button -->
+            <button class="btn btn-primary btn-full btn-lg" onclick="addToCartAndNavigate()">
+              장바구니에 담기
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- ========================================
+           PAGE 6: CART
+      ======================================== -->
+      <section id="page-cart" class="page">
+        <div class="cart-container">
+          <header class="page-header">
+            <button class="back-btn" onclick="navigateTo('page-delivery')">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M15 18l-6-6 6-6"/>
+              </svg>
+            </button>
+            <h1>장바구니</h1>
+            <div class="header-spacer"></div>
+          </header>
+          
+          <!-- Cart Items -->
+          <div class="cart-items" id="cart-items">
+            <!-- Cart items will be rendered here -->
+          </div>
+          
+          <!-- Delivery Address -->
+          <div class="delivery-address-section">
+            <div class="section-title">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20">
+                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+                <circle cx="12" cy="10" r="3"/>
+              </svg>
+              <span>배달 주소</span>
+            </div>
+            <div class="address-selector" onclick="navigateTo('page-addresses')">
+              <div class="address-info">
+                <span class="address-label">집</span>
+                <span class="address-text">경기도 용인시 수지구 현암로125번길 11</span>
+              </div>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20">
+                <path d="M9 18l6-6-6-6"/>
+              </svg>
+            </div>
+          </div>
+          
+          <!-- Order Summary -->
+          <div class="order-summary">
+            <div class="summary-row">
+              <span>주문금액</span>
+              <span id="cart-subtotal">26,700원</span>
+            </div>
+            <div class="summary-row reward-row">
+              <span>🎁 적립 예정</span>
+              <span class="reward-amount" id="cart-reward">10,680P (40%)</span>
+            </div>
+            <div class="summary-row">
+              <span>배달비</span>
+              <span>2,500원</span>
+            </div>
+            <div class="summary-row total">
+              <span>총 결제금액</span>
+              <span id="cart-total">29,200원</span>
+            </div>
+          </div>
+          
+          <!-- Checkout Button -->
+          <div class="checkout-section">
+            <button class="btn btn-primary btn-full btn-lg" onclick="navigateTo('page-payment')">
+              29,200원 결제하기
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- ========================================
+           PAGE 7: ORDERS
+      ======================================== -->
+      <section id="page-orders" class="page">
+        <div class="orders-container">
+          <header class="page-header">
+            <button class="back-btn" onclick="navigateTo('page-delivery')">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M15 18l-6-6 6-6"/>
+              </svg>
+            </button>
+            <h1>주문 내역</h1>
+            <div class="header-spacer"></div>
+          </header>
+          
+          <!-- Order Tabs -->
+          <div class="order-tabs">
+            <button class="order-tab active" data-tab="ongoing">진행 중</button>
+            <button class="order-tab" data-tab="completed">지난 주문</button>
+          </div>
+          
+          <!-- Ongoing Orders -->
+          <div class="orders-list" id="ongoing-orders">
+            <!-- Order cards will be rendered here -->
+          </div>
+          
+          <!-- Completed Orders (hidden by default) -->
+          <div class="orders-list hidden" id="completed-orders">
+            <!-- Completed order cards -->
+          </div>
+        </div>
+      </section>
+
+      <!-- ========================================
+           PAGE 8: ADDRESSES
+      ======================================== -->
+      <section id="page-addresses" class="page">
+        <div class="addresses-container">
+          <header class="page-header">
+            <button class="back-btn" onclick="navigateTo('page-cart')">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M15 18l-6-6 6-6"/>
+              </svg>
+            </button>
+            <h1>주소 관리</h1>
+            <div class="header-spacer"></div>
+          </header>
+          
+          <!-- Address List -->
+          <div class="address-list" id="address-list">
+            <!-- Address cards will be rendered here -->
+          </div>
+          
+          <!-- Add Address Button -->
+          <button class="btn btn-primary btn-full" onclick="navigateTo('page-add-address')">
+            + 새 주소 추가
+          </button>
+        </div>
+      </section>
+
+      <!-- ========================================
+           PAGE 9: ADD ADDRESS
+      ======================================== -->
+      <section id="page-add-address" class="page">
+        <div class="add-address-container">
+          <header class="page-header">
+            <button class="back-btn" onclick="navigateTo('page-addresses')">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M15 18l-6-6 6-6"/>
+              </svg>
+            </button>
+            <h1>주소 추가</h1>
+            <div class="header-spacer"></div>
+          </header>
+          
+          <!-- Map Placeholder -->
+          <div class="map-container">
+            <div class="map-placeholder">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" width="48" height="48">
+                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+                <circle cx="12" cy="10" r="3"/>
+              </svg>
+              <span>지도 영역</span>
+            </div>
+          </div>
+          
+          <!-- Address Form -->
+          <form class="address-form" onsubmit="saveAddress(event)">
+            <div class="input-group">
+              <label>도로명 주소</label>
+              <div class="input-row">
+                <input type="text" id="street-address" placeholder="주소 검색 버튼을 클릭하세요" readonly>
+                <button type="button" class="btn btn-secondary">주소 검색</button>
+              </div>
+            </div>
+            
+            <div class="input-group">
+              <label>상세 주소</label>
+              <input type="text" id="detail-address" placeholder="동, 호수 등">
+            </div>
+            
+            <div class="input-group">
+              <label>주소 별칭</label>
+              <div class="label-buttons">
+                <button type="button" class="label-btn active">집</button>
+                <button type="button" class="label-btn">회사</button>
+                <button type="button" class="label-btn">학교</button>
+                <button type="button" class="label-btn">기타</button>
+              </div>
+            </div>
+            
+            <button type="submit" class="btn btn-primary btn-full">주소 저장</button>
+          </form>
+        </div>
+      </section>
+
+      <!-- ========================================
+           PAGE 10: PAYMENT
+      ======================================== -->
+      <section id="page-payment" class="page">
+        <div class="payment-container">
+          <header class="page-header">
+            <button class="back-btn" onclick="navigateTo('page-cart')">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M15 18l-6-6 6-6"/>
+              </svg>
+            </button>
+            <h1>결제</h1>
+            <div class="header-spacer"></div>
+          </header>
+          
+          <!-- Payment Amount -->
+          <div class="payment-amount-card">
+            <span class="amount-label">결제 금액</span>
+            <span class="amount-value" id="payment-total">29,200원</span>
+          </div>
+          
+          <!-- Point Usage -->
+          <div class="point-usage-card">
+            <div class="point-header">
+              <div class="point-info">
+                <span class="point-icon">🪙</span>
+                <div>
+                  <div class="point-title">포인트 사용</div>
+                  <div class="point-available">사용 가능: <strong id="available-points">15,000P</strong></div>
+                </div>
+              </div>
+              <label class="point-toggle">
+                <input type="checkbox" id="use-points" onchange="togglePointUsage()">
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+            <div class="point-details" id="point-details" style="display: none;">
+              <div class="point-input-row">
+                <input type="number" id="point-amount" placeholder="사용할 포인트" min="0" max="15000" oninput="updatePointUsage()">
+                <button class="btn btn-sm btn-secondary" onclick="useAllPoints()">전액 사용</button>
+              </div>
+              <p class="point-notice">※ 최소 결제금액 5,000원 이상 시 포인트 전액 사용 가능</p>
+              <div class="point-calculation">
+                <div class="calc-row">
+                  <span>원래 금액</span>
+                  <span id="original-amount">29,200원</span>
+                </div>
+                <div class="calc-row point-discount">
+                  <span>포인트 할인</span>
+                  <span id="point-discount">-0P</span>
+                </div>
+                <div class="calc-row final">
+                  <span>최종 결제금액</span>
+                  <span id="final-amount">29,200원</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Bank Transfer Info -->
+          <div class="bank-info-card">
+            <div class="bank-header">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20">
+                <rect x="2" y="4" width="20" height="16" rx="2"/>
+                <line x1="2" y1="10" x2="22" y2="10"/>
+              </svg>
+              <span>무통장 입금 안내</span>
+            </div>
+            <div class="bank-details">
+              <div class="detail-row">
+                <span class="detail-label">은행명</span>
+                <span class="detail-value">토스뱅크</span>
+              </div>
+              <div class="detail-row">
+                <span class="detail-label">계좌번호</span>
+                <span class="detail-value">1000-0000-0000</span>
+                <button class="copy-btn">복사</button>
+              </div>
+              <div class="detail-row">
+                <span class="detail-label">예금주</span>
+                <span class="detail-value">(주)매장</span>
+              </div>
+            </div>
+            <p class="bank-notice">※ 주문 후 24시간 이내 미입금 시 자동 취소됩니다.</p>
+          </div>
+          
+          <!-- Payment Methods -->
+          <div class="payment-methods">
+            <h3>결제 수단</h3>
+            <div class="method-list">
+              <label class="method-item">
+                <input type="radio" name="payment-method" value="transfer" checked>
+                <div class="method-content">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="24" height="24">
+                    <rect x="2" y="4" width="20" height="16" rx="2"/>
+                    <line x1="2" y1="10" x2="22" y2="10"/>
+                  </svg>
+                  <span>계좌이체</span>
+                </div>
+              </label>
+              <label class="method-item">
+                <input type="radio" name="payment-method" value="card">
+                <div class="method-content">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="24" height="24">
+                    <rect x="1" y="4" width="22" height="16" rx="2" ry="2"/>
+                    <line x1="1" y1="10" x2="23" y2="10"/>
+                  </svg>
+                  <span>카드결제</span>
+                </div>
+              </label>
+            </div>
+          </div>
+          
+          <!-- Confirm Button -->
+          <button class="btn btn-primary btn-full btn-lg" onclick="processPayment()">
+            결제 완료
+          </button>
+        </div>
+      </section>
+
+      <!-- ========================================
+           PAGE 11: PROFILE
+      ======================================== -->
+      <section id="page-profile" class="page">
+        <div class="profile-container">
+          <header class="page-header">
+            <button class="back-btn" onclick="navigateTo('page-home')">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M15 18l-6-6 6-6"/>
+              </svg>
+            </button>
+            <h1>내 정보</h1>
+            <div class="header-spacer"></div>
+          </header>
+          
+          <div class="profile-content">
+            <div class="profile-avatar-section">
+              <div class="profile-avatar-large">👤</div>
+              <h2 class="profile-name">게스트</h2>
+              <p class="profile-email">로그인이 필요합니다</p>
+            </div>
+            
+            <div class="profile-menu">
+              <a href="#" class="profile-menu-item" onclick="navigateTo('page-orders'); return false;">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                  <polyline points="14 2 14 8 20 8"/>
+                </svg>
+                <span>주문 내역</span>
+                <svg class="arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M9 18l6-6-6-6"/>
+                </svg>
+              </a>
+              <a href="#" class="profile-menu-item" onclick="navigateTo('page-addresses'); return false;">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+                  <circle cx="12" cy="10" r="3"/>
+                </svg>
+                <span>주소 관리</span>
+                <svg class="arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M9 18l6-6-6-6"/>
+                </svg>
+              </a>
+              <a href="#" class="profile-menu-item" onclick="navigateTo('page-login'); return false;">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/>
+                  <polyline points="10 17 15 12 10 7"/>
+                  <line x1="15" y1="12" x2="3" y2="12"/>
+                </svg>
+                <span>로그인</span>
+                <svg class="arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M9 18l6-6-6-6"/>
+                </svg>
+              </a>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ========================================
+           PAGE 12: TERMS
+      ======================================== -->
+      <section id="page-terms" class="page">
+        <div class="terms-container">
+          <header class="page-header">
+            <button class="back-btn" onclick="navigateTo('page-home')">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M15 18l-6-6 6-6"/>
+              </svg>
+            </button>
+            <h1>이용약관</h1>
+            <div class="header-spacer"></div>
+          </header>
+          
+          <div class="terms-content">
+            <div class="terms-section">
+              <h2>서비스 이용약관</h2>
+              <p>
+                본 약관은 매장직결(이하 '회사')이 제공하는 서비스의 이용조건 및 절차, 
+                이용자와 회사의 권리, 의무, 책임사항과 기타 필요한 사항을 규정함을 목적으로 합니다.
+              </p>
+            </div>
+            
+            <div class="terms-section">
+              <h2>개인정보 처리방침</h2>
+              <p>
+                회사는 이용자의 개인정보를 중요시하며, 「개인정보 보호법」을 준수하고 있습니다.
+                회사는 개인정보처리방침을 통하여 이용자가 제공하는 개인정보가 어떠한 용도와 
+                방식으로 이용되고 있으며, 개인정보보호를 위해 어떠한 조치가 취해지고 있는지 알려드립니다.
+              </p>
+            </div>
+            
+            <div class="terms-section">
+              <h2>환불 정책</h2>
+              <p>
+                주문 취소는 조리 시작 전까지 가능하며, 조리가 시작된 이후에는 취소가 불가합니다.
+                음식의 하자가 있는 경우, 사진과 함께 고객센터로 문의해 주시면 확인 후 환불 처리해 드립니다.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </main><!-- end .main-content -->
+
+    <!-- ========================================
+         MOBILE BOTTOM TAB BAR
+    ======================================== -->
+    <nav class="mobile-tabbar">
+      <a href="#" class="tab-item active" data-page="page-home" onclick="navigateFromTab('page-home'); return false;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+          <polyline points="9 22 9 12 15 12 15 22"/>
+        </svg>
+        <span>홈</span>
+      </a>
+      <a href="#" class="tab-item" data-page="page-delivery" onclick="navigateFromTab('page-delivery'); return false;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="1" y="3" width="15" height="13" rx="2"/>
+          <path d="M16 8h4l3 3v5h-3"/>
+          <circle cx="5.5" cy="18.5" r="2.5"/>
+          <circle cx="18.5" cy="18.5" r="2.5"/>
+        </svg>
+        <span>배달</span>
+        <span class="tab-badge">3</span>
+      </a>
+      <a href="#" class="tab-item" data-page="page-cart" onclick="navigateFromTab('page-cart'); return false;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="9" cy="21" r="1"/>
+          <circle cx="20" cy="21" r="1"/>
+          <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
+        </svg>
+        <span>장바구니</span>
+        <span class="tab-badge cart-tab-badge">3</span>
+      </a>
+      <a href="#" class="tab-item" data-page="page-profile" onclick="navigateFromTab('page-profile'); return false;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+          <circle cx="12" cy="7" r="4"/>
+        </svg>
+        <span>MY</span>
+      </a>
+    </nav>
+
+  </div><!-- end #app -->
+
+  <script src="app.js"></script>
+</body>
+</html>

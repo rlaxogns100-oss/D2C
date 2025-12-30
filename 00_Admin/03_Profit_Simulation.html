@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>매출원가별 수익 구조 시뮬레이션</title>
+    <style>
+        @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
+
+        * {
+            box-sizing: border-box;
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+        }
+
+        body {
+            font-family: 'Pretendard', sans-serif;
+            background-color: #f5f5f5;
+            margin: 0;
+            padding: 20px;
+            color: #333;
+            font-size: 12px; /* Base font size for A4 density */
+        }
+
+        .page {
+            width: 210mm;
+            min-height: 297mm;
+            margin: 0 auto;
+            background: white;
+            padding: 15mm;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 24px;
+            margin-bottom: 5px;
+            color: #1a1a1a;
+        }
+
+        .subtitle {
+            text-align: center;
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 25px;
+        }
+
+        .section-title {
+            background-color: #333;
+            color: white;
+            padding: 8px 15px;
+            font-size: 16px;
+            font-weight: bold;
+            border-radius: 4px;
+            margin-top: 20px;
+            margin-bottom: 10px;
+        }
+
+        .comparison-container {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .comparison-block {
+            flex: 1;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .comparison-header {
+            background-color: #f8f9fa;
+            padding: 10px;
+            text-align: center;
+            font-weight: bold;
+            border-bottom: 1px solid #ddd;
+            font-size: 14px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 11px;
+        }
+
+        th, td {
+            padding: 6px 8px;
+            text-align: right;
+            border-bottom: 1px solid #eee;
+        }
+
+        th {
+            text-align: left;
+            background-color: #fff;
+            color: #555;
+            font-weight: normal;
+            width: 35%;
+        }
+
+        .col-app {
+            background-color: #fff;
+            width: 32.5%;
+        }
+
+        .col-direct {
+            background-color: #f0f7ff; /* Light blue highlight */
+            font-weight: bold;
+            width: 32.5%;
+        }
+
+        .header-row td {
+            font-weight: bold;
+            text-align: center;
+            background-color: #f4f4f4;
+        }
+
+        .header-row .direct-header {
+            background-color: #e3f2fd;
+            color: #1565c0;
+        }
+
+        .highlight-row {
+            font-weight: bold;
+            background-color: #fdfdfd;
+        }
+        
+        .highlight-row th {
+            font-weight: bold;
+            color: #000;
+        }
+
+        .profit-row {
+            background-color: #fff8e1; /* Light yellow highlight for profit */
+            font-weight: bold;
+            border-top: 2px solid #ddd;
+        }
+
+        .profit-row td {
+            font-size: 12px;
+        }
+
+        .profit-rate-row {
+            background-color: #e8eaf6;
+            font-weight: bold;
+        }
+
+        .increase-text {
+            color: #e65100;
+            font-size: 11px;
+            display: block;
+            margin-top: 2px;
+        }
+
+        .no-fee {
+            color: #999;
+        }
+
+        /* Print Settings */
+        @media print {
+            body {
+                background: none;
+                padding: 0;
+            }
+            .page {
+                box-shadow: none;
+                margin: 0;
+                width: auto;
+                height: auto;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="page">
+        <h1>수익 구조 비교 시뮬레이션</h1>
+        <div class="subtitle">법인세율 9.9% 기준 수익성 분석 리포트</div>
+
+        <!-- SECTION 1: 20% -->
+        <div class="section-title">CASE 1. 매출원가 20.0%</div>
+        <div class="comparison-container">
+            <!-- 10,000 KRW -->
+            <div class="comparison-block">
+                <table>
+                    <tr class="header-row">
+                        <th>구분</th>
+                        <td>배달앱 주문</td>
+                        <td class="direct-header">매장직결 주문</td>
+                    </tr>
+                    <tr>
+                        <th>판매가</th>
+                        <td>10,000원</td>
+                        <td class="col-direct">10,000원</td>
+                    </tr>
+                    <tr>
+                        <th>매출원가 (20.0%)</th>
+                        <td>2,000원</td>
+                        <td class="col-direct">2,000원</td>
+                    </tr>
+                    <tr>
+                        <th>플랫폼 수수료</th>
+                        <td>780원 (7.8%)</td>
+                        <td class="col-direct no-fee">0원</td>
+                    </tr>
+                    <tr>
+                        <th>결제 수수료</th>
+                        <td>330원 (3.3%)</td>
+                        <td class="col-direct">90원 (0.9%)</td>
+                    </tr>
+                    <tr>
+                        <th>광고 수수료</th>
+                        <td>800원 (8.0%)</td>
+                        <td class="col-direct no-fee">0원</td>
+                    </tr>
+                    <tr>
+                        <th>수수료 3종의 VAT</th>
+                        <td>191원</td>
+                        <td class="col-direct no-fee">0원</td>
+                    </tr>
+                    <tr>
+                        <th>배달비</th>
+                        <td>3,400원</td>
+                        <td class="col-direct">3,400원</td>
+                    </tr>
+                    <tr>
+                        <th>법인세 (9.9%)</th>
+                        <td>247원</td>
+                        <td class="col-direct">446원</td>
+                    </tr>
+                    <tr class="profit-row">
+                        <th>예상순이익</th>
+                        <td>2,251원</td>
+                        <td class="col-direct" style="color: #d32f2f;">
+                            4,063원
+                            <span class="increase-text">(+80.49%)</span>
+                        </td>
+                    </tr>
+                    <tr class="profit-rate-row">
+                        <th>순이익률</th>
+                        <td>22.52%</td>
+                        <td class="col-direct">40.64%</td>
+                    </tr>
+                </table>
+            </div>
+
+            <!-- 30,000 KRW -->
+            <div class="comparison-block">
+                <table>
+                    <tr class="header-row">
+                        <th>구분</th>
+                        <td>배달앱 주문</td>
+                        <td class="direct-header">매장직결 주문</td>
+                    </tr>
+                    <tr>
+                        <th>판매가</th>
+                        <td>30,000원</td>
+                        <td class="col-direct">30,000원</td>
+                    </tr>
+                    <tr>
+                        <th>매출원가 (20.0%)</th>
+                        <td>6,000원</td>
+                        <td class="col-direct">6,000원</td>
+                    </tr>
+                    <tr>
+                        <th>플랫폼 수수료</th>
+                        <td>2,340원 (7.8%)</td>
+                        <td class="col-direct no-fee">0원</td>
+                    </tr>
+                    <tr>
+                        <th>결제 수수료</th>
+                        <td>990원 (3.3%)</td>
+                        <td class="col-direct">270원 (0.9%)</td>
+                    </tr>
+                    <tr>
+                        <th>광고 수수료</th>
+                        <td>2,400원 (8.0%)</td>
+                        <td class="col-direct no-fee">0원</td>
+                    </tr>
+                    <tr>
+                        <th>수수료 3종의 VAT</th>
+                        <td>573원</td>
+                        <td class="col-direct no-fee">0원</td>
+                    </tr>
+                    <tr>
+                        <th>배달비</th>
+                        <td>3,400원</td>
+                        <td class="col-direct">3,400원</td>
+                    </tr>
+                    <tr>
+                        <th>법인세</th>
+                        <td>1,415원 (9.9%)</td>
+                        <td class="col-direct">2,012원 (9.9%)</td>
+                    </tr>
+                    <tr class="profit-row">
+                        <th>예상순이익</th>
+                        <td>12,881원</td>
+                        <td class="col-direct" style="color: #d32f2f;">
+                            18,317원
+                            <span class="increase-text">(+42.2%)</span>
+                        </td>
+                    </tr>
+                    <tr class="profit-rate-row">
+                        <th>순이익률</th>
+                        <td>42.94%</td>
+                        <td class="col-direct">61.06%</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+
+        <!-- SECTION 2: 30% -->
+        <div class="section-title">CASE 2. 매출원가 30.0%</div>
+        <div class="comparison-container">
+            <!-- 10,000 KRW -->
+            <div class="comparison-block">
+                <table>
+                    <tr class="header-row">
+                        <th>구분</th>
+                        <td>배달앱 주문</td>
+                        <td class="direct-header">매장직결 주문</td>
+                    </tr>
+                    <tr>
+                        <th>판매가</th>
+                        <td>10,000원</td>
+                        <td class="col-direct">10,000원</td>
+                    </tr>
+                    <tr>
+                        <th>매출원가 (30.0%)</th>
+                        <td>3,000원</td>
+                        <td class="col-direct">3,000원</td>
+                    </tr>
+                    <tr>
+                        <th>플랫폼 수수료</th>
+                        <td>780원 (7.8%)</td>
+                        <td class="col-direct no-fee">0원</td>
+                    </tr>
+                    <tr>
+                        <th>결제 수수료</th>
+                        <td>330원 (3.3%)</td>
+                        <td class="col-direct">90원 (0.9%)</td>
+                    </tr>
+                    <tr>
+                        <th>광고 수수료</th>
+                        <td>800원 (8.0%)</td>
+                        <td class="col-direct no-fee">0원</td>
+                    </tr>
+                    <tr>
+                        <th>수수료 3종의 VAT</th>
+                        <td>191원</td>
+                        <td class="col-direct no-fee">0원</td>
+                    </tr>
+                    <tr>
+                        <th>배달비</th>
+                        <td>3,400원</td>
+                        <td class="col-direct">3,400원</td>
+                    </tr>
+                    <tr>
+                        <th>법인세</th>
+                        <td>148원 (9.9%)</td>
+                        <td class="col-direct">347원 (9.9%)</td>
+                    </tr>
+                    <tr class="profit-row">
+                        <th>예상순이익</th>
+                        <td>1,350원</td>
+                        <td class="col-direct" style="color: #d32f2f;">
+                            3,162원
+                            <span class="increase-text">(+134.22%)</span>
+                        </td>
+                    </tr>
+                    <tr class="profit-rate-row">
+                        <th>순이익률</th>
+                        <td>13.51%</td>
+                        <td class="col-direct">31.63%</td>
+                    </tr>
+                </table>
+            </div>
+
+            <!-- 30,000 KRW -->
+            <div class="comparison-block">
+                <table>
+                    <tr class="header-row">
+                        <th>구분</th>
+                        <td>배달앱 주문</td>
+                        <td class="direct-header">매장직결 주문</td>
+                    </tr>
+                    <tr>
+                        <th>판매가</th>
+                        <td>30,000원</td>
+                        <td class="col-direct">30,000원</td>
+                    </tr>
+                    <tr>
+                        <th>매출원가 (30.0%)</th>
+                        <td>9,000원</td>
+                        <td class="col-direct">9,000원</td>
+                    </tr>
+                    <tr>
+                        <th>플랫폼 수수료</th>
+                        <td>2,340원 (7.8%)</td>
+                        <td class="col-direct no-fee">0원</td>
+                    </tr>
+                    <tr>
+                        <th>결제 수수료</th>
+                        <td>990원 (3.3%)</td>
+                        <td class="col-direct">270원 (0.9%)</td>
+                    </tr>
+                    <tr>
+                        <th>광고 수수료</th>
+                        <td>2,400원 (8.0%)</td>
+                        <td class="col-direct no-fee">0원</td>
+                    </tr>
+                    <tr>
+                        <th>수수료 3종의 VAT</th>
+                        <td>573원</td>
+                        <td class="col-direct no-fee">0원</td>
+                    </tr>
+                    <tr>
+                        <th>배달비</th>
+                        <td>3,400원</td>
+                        <td class="col-direct">3,400원</td>
+                    </tr>
+                    <tr>
+                        <th>법인세</th>
+                        <td>1,118원 (9.9%)</td>
+                        <td class="col-direct">1,715원 (9.9%)</td>
+                    </tr>
+                    <tr class="profit-row">
+                        <th>예상순이익</th>
+                        <td>10,178원</td>
+                        <td class="col-direct" style="color: #d32f2f;">
+                            15,614원
+                            <span class="increase-text">(+53.4%)</span>
+                        </td>
+                    </tr>
+                    <tr class="profit-rate-row">
+                        <th>순이익률</th>
+                        <td>33.93%</td>
+                        <td class="col-direct">52.05%</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+
+        <!-- SECTION 3: 40% -->
+        <div class="section-title">CASE 3. 매출원가 40.0%</div>
+        <div class="comparison-container" style="margin-bottom: 0;">
+            <!-- 10,000 KRW -->
+            <div class="comparison-block">
+                <table>
+                    <tr class="header-row">
+                        <th>구분</th>
+                        <td>배달앱 주문</td>
+                        <td class="direct-header">매장직결 주문</td>
+                    </tr>
+                    <tr>
+                        <th>판매가</th>
+                        <td>10,000원</td>
+                        <td class="col-direct">10,000원</td>
+                    </tr>
+                    <tr>
+                        <th>매출원가 (40.0%)</th>
+                        <td>4,000원</td>
+                        <td class="col-direct">4,000원</td>
+                    </tr>
+                    <tr>
+                        <th>플랫폼 수수료</th>
+                        <td>780원 (7.8%)</td>
+                        <td class="col-direct no-fee">0원</td>
+                    </tr>
+                    <tr>
+                        <th>결제 수수료</th>
+                        <td>330원 (3.3%)</td>
+                        <td class="col-direct">90원 (0.9%)</td>
+                    </tr>
+                    <tr>
+                        <th>광고 수수료</th>
+                        <td>800원 (8.0%)</td>
+                        <td class="col-direct no-fee">0원</td>
+                    </tr>
+                    <tr>
+                        <th>수수료 3종의 VAT</th>
+                        <td>191원</td>
+                        <td class="col-direct no-fee">0원</td>
+                    </tr>
+                    <tr>
+                        <th>배달비</th>
+                        <td>3,400원</td>
+                        <td class="col-direct">3,400원</td>
+                    </tr>
+                    <tr>
+                        <th>법인세</th>
+                        <td>49원 (9.9%)</td>
+                        <td class="col-direct">248원 (9.9%)</td>
+                    </tr>
+                    <tr class="profit-row">
+                        <th>예상순이익</th>
+                        <td>449원</td>
+                        <td class="col-direct" style="color: #d32f2f;">
+                            2,261원
+                            <span class="increase-text">(+403.56%)</span>
+                        </td>
+                    </tr>
+                    <tr class="profit-rate-row">
+                        <th>순이익률</th>
+                        <td>4.50%</td>
+                        <td class="col-direct">22.62%</td>
+                    </tr>
+                </table>
+            </div>
+
+            <!-- 30,000 KRW -->
+            <div class="comparison-block">
+                <table>
+                    <tr class="header-row">
+                        <th>구분</th>
+                        <td>배달앱 주문</td>
+                        <td class="direct-header">매장직결 주문</td>
+                    </tr>
+                    <tr>
+                        <th>판매가</th>
+                        <td>30,000원</td>
+                        <td class="col-direct">30,000원</td>
+                    </tr>
+                    <tr>
+                        <th>매출원가 (40.0%)</th>
+                        <td>12,000원</td>
+                        <td class="col-direct">12,000원</td>
+                    </tr>
+                    <tr>
+                        <th>플랫폼 수수료</th>
+                        <td>2,340원 (7.8%)</td>
+                        <td class="col-direct no-fee">0원</td>
+                    </tr>
+                    <tr>
+                        <th>결제 수수료</th>
+                        <td>990원 (3.3%)</td>
+                        <td class="col-direct">270원 (0.9%)</td>
+                    </tr>
+                    <tr>
+                        <th>광고 수수료</th>
+                        <td>2,400원 (8.0%)</td>
+                        <td class="col-direct no-fee">0원</td>
+                    </tr>
+                    <tr>
+                        <th>수수료 3종의 VAT</th>
+                        <td>573원</td>
+                        <td class="col-direct no-fee">0원</td>
+                    </tr>
+                    <tr>
+                        <th>배달비</th>
+                        <td>3,400원</td>
+                        <td class="col-direct">3,400원</td>
+                    </tr>
+                    <tr>
+                        <th>법인세</th>
+                        <td>821원 (9.9%)</td>
+                        <td class="col-direct">1,418원 (9.9%)</td>
+                    </tr>
+                    <tr class="profit-row">
+                        <th>예상순이익</th>
+                        <td>7,475원</td>
+                        <td class="col-direct" style="color: #d32f2f;">
+                            12,911원
+                            <span class="increase-text">(+72.72%)</span>
+                        </td>
+                    </tr>
+                    <tr class="profit-rate-row">
+                        <th>순이익률</th>
+                        <td>24.92%</td>
+                        <td class="col-direct">43.04%</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+
+    </div>
+
+</body>
+</html>
+
+
+
+

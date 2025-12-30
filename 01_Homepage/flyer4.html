@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>매장직결 - 고객 안내문</title>
+    <!-- 폰트: Pretendard + Nanum Myeongjo -->
+    <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.8/dist/web/static/pretendard.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Nanum+Myeongjo:wght@400;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Pretendard', 'sans-serif'],
+                        serif: ['"Nanum Myeongjo"', 'serif'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#eff6ff',
+                            100: '#dbeafe',
+                            500: '#3b82f6',
+                            600: '#2563eb',
+                            700: '#1d4ed8',
+                            900: '#1e3a8a',
+                        },
+                        warm: '#8c7b6c',
+                        paper: '#fdfbf7'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @page {
+            size: A4;
+            margin: 0;
+        }
+        @media print {
+            html, body {
+                width: 210mm;
+                height: 297mm;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+            .no-print {
+                display: none !important;
+            }
+        }
+        body {
+            margin: 0;
+            padding: 0;
+            width: 210mm;
+            min-height: 297mm;
+            background: #f3f4f6;
+            box-sizing: border-box;
+            margin: 0 auto;
+        }
+        .a4-container {
+            width: 210mm;
+            height: 296mm;
+            position: relative;
+            background: white;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+        /* 영수증 스타일 테이블 */
+        .receipt-table th { font-weight: normal; color: #666; text-align: left; padding: 4px 0; }
+        .receipt-table td { text-align: right; padding: 4px 0; font-weight: bold; }
+        .receipt-line { border-bottom: 1px dashed #ddd; margin: 8px 0; }
+    </style>
+</head>
+<body>
+
+    <div class="a4-container mx-auto shadow-2xl">
+        
+        <!-- 1. 헤더 섹션 -->
+        <header class="px-10 pt-12 pb-6 bg-white relative">
+            <h1 class="font-serif text-4xl font-extrabold text-gray-900 leading-tight mb-4 break-keep">
+                고객님이 내신 음식값,<br>
+                <span class="text-brand-600">절반은 어디로 사라질까요?</span>
+            </h1>
+            <p class="font-sans text-gray-500 text-lg leading-relaxed break-keep">
+                배달앱의 높은 수수료와 광고비,<br>
+                그 부담을 덜어내면 <b>고객님께 더 큰 혜택</b>으로 돌려드릴 수 있습니다.
+            </p>
+            <div class="w-16 h-1 bg-brand-600 mt-6"></div>
+        </header>
+
+        <!-- 2. 비교 분석 (영수증 컨셉) -->
+        <section class="px-10 py-6 grow bg-gray-50 flex flex-col justify-center">
+            
+            <div class="text-center mb-8">
+                <span class="bg-brand-100 text-brand-700 px-3 py-1 rounded-full text-sm font-bold mb-2 inline-block">실제 판매 데이터 비교</span>
+                <h2 class="font-serif text-2xl font-bold text-gray-800">30,000원 주문 시 가게 수익 비교</h2>
+            </div>
+
+            <div class="flex gap-8 items-stretch justify-center">
+                
+                <!-- 왼쪽: 배달앱 주문 -->
+                <div class="w-1/2 bg-white p-6 rounded-xl shadow-sm border border-gray-200 relative overflow-hidden">
+                    <div class="absolute top-0 left-0 w-full h-2 bg-gray-400"></div>
+                    <h3 class="font-sans text-xl font-bold text-center text-gray-700 mb-6 pb-4 border-b border-gray-100">
+                        배달앱 주문
+                    </h3>
+                    
+                    <table class="w-full text-sm receipt-table font-sans">
+                        <tr>
+                            <th>결제 금액</th>
+                            <td class="text-lg">30,000원</td>
+                        </tr>
+                        <tr><td colspan="2"><div class="receipt-line"></div></td></tr>
+                        
+                        <tr class="text-gray-400">
+                            <th>- 재료비 (40%)</th>
+                            <td>12,000원</td>
+                        </tr>
+                        <tr class="text-red-500">
+                            <th>- 배달앱 수수료/광고비</th>
+                            <td>6,303원</td>
+                        </tr>
+                        <tr class="text-gray-400">
+                            <th>- 배달대행비</th>
+                            <td>3,400원</td>
+                        </tr>
+                        <tr class="text-gray-400">
+                            <th>- 세금 (VAT 등)</th>
+                            <td>821원</td>
+                        </tr>
+                        
+                        <tr><td colspan="2"><div class="receipt-line border-gray-400"></div></td></tr>
+                        
+                        <tr class="text-gray-600 text-base">
+                            <th class="py-2">가게 실제 수익</th>
+                            <td class="py-2">7,475원</td>
+                        </tr>
+                    </table>
+
+                    <!-- 뱃지 -->
+                    <div class="mt-6 bg-gray-100 text-gray-500 text-center py-2 rounded text-xs font-bold">
+                        수익률 약 24.9%
+                    </div>
+                </div>
+
+                <!-- 오른쪽: 매장직결 주문 (강조) -->
+                <div class="w-1/2 bg-white p-6 rounded-xl shadow-lg border-2 border-brand-500 relative overflow-hidden transform scale-105 z-10">
+                    <div class="absolute top-0 left-0 w-full h-2 bg-brand-500"></div>
+                    <div class="absolute top-3 right-3 bg-red-500 text-white text-[10px] font-bold px-2 py-1 rounded-full animate-pulse">BEST CHOICE</div>
+                    
+                    <h3 class="font-sans text-xl font-bold text-center text-brand-600 mb-6 pb-4 border-b border-brand-100">
+                        매장 공식 주문
+                    </h3>
+                    
+                    <table class="w-full text-sm receipt-table font-sans">
+                        <tr>
+                            <th>결제 금액</th>
+                            <td class="text-lg">30,000원</td>
+                        </tr>
+                        <tr><td colspan="2"><div class="receipt-line"></div></td></tr>
+                        
+                        <tr class="text-gray-400">
+                            <th>- 재료비 (40%)</th>
+                            <td>12,000원</td>
+                        </tr>
+                        <tr class="text-brand-600 font-bold bg-brand-50">
+                            <th class="pl-2">- 수수료 (결제망 이용료)</th>
+                            <td class="pr-2">270원</td>
+                        </tr>
+                        <tr class="text-gray-400">
+                            <th>- 배달대행비</th>
+                            <td>3,400원</td>
+                        </tr>
+                        <tr class="text-gray-400">
+                            <th>- 세금</th>
+                            <td>1,418원</td>
+                        </tr>
+                        
+                        <tr><td colspan="2"><div class="receipt-line border-brand-500"></div></td></tr>
+                        
+                        <tr class="text-brand-700 text-xl font-extrabold">
+                            <th class="py-2">가게 실제 수익</th>
+                            <td class="py-2">12,911원</td>
+                        </tr>
+                    </table>
+
+                    <!-- 핵심 메시지 -->
+                    <div class="mt-6 bg-brand-100 text-brand-700 text-center py-3 rounded-lg text-sm font-bold border border-brand-200">
+                        약 <span class="text-red-500 text-base">5,436원</span>이 절약됩니다!<br>
+                        <span class="text-xs font-normal text-gray-600">이 금액을 고객님께 돌려드립니다.</span>
+                    </div>
+                </div>
+
+            </div>
+
+            <p class="text-center text-gray-400 text-xs mt-8">
+                * 위 데이터는 실제 판매가 30,000원, 원가율 40% 기준 시뮬레이션 결과입니다.<br>
+                * 배달앱 수수료는 중개수수료, 결제수수료, 광고비, 부가세를 포함한 금액입니다.
+            </p>
+
+        </section>
+
+        <!-- 3. 하단 CTA -->
+        <footer class="bg-gray-900 text-white px-10 py-10 relative overflow-hidden">
+            <!-- 배경 장식 -->
+            <div class="absolute top-0 right-0 w-96 h-96 bg-brand-600 rounded-full blur-[100px] opacity-30 transform translate-x-1/3 -translate-y-1/2"></div>
+
+            <div class="relative z-10 flex justify-between items-center">
+                <div class="w-2/3">
+                    <h2 class="font-serif text-3xl font-bold mb-4">
+                        수수료 거품을 뺀<br>
+                        <span class="text-brand-400">착한 주문에 동참해주세요</span>
+                    </h2>
+                    <p class="text-gray-300 font-sans text-sm leading-relaxed mb-6">
+                        매장 공식 페이지에서 주문하시면<br>
+                        배달앱에 지불하던 수수료만큼 <b>할인과 서비스</b>로 보답하겠습니다.<br>
+                        건강한 골목 상권, 고객님의 현명한 소비로 지켜집니다.
+                    </p>
+                    
+                    <div class="flex gap-4">
+                         <div class="border border-white/20 bg-white/10 px-4 py-2 rounded text-center">
+                            <div class="text-brand-400 font-bold text-lg">30%</div>
+                            <div class="text-[10px] text-gray-300">포인트 적립</div>
+                         </div>
+                         <div class="border border-white/20 bg-white/10 px-4 py-2 rounded text-center">
+                            <div class="text-brand-400 font-bold text-lg">무료</div>
+                            <div class="text-[10px] text-gray-300">배달비 혜택</div>
+                         </div>
+                    </div>
+                </div>
+
+                <!-- QR 코드 -->
+                <div class="w-1/3 flex flex-col items-center">
+                    <div class="bg-white p-3 rounded-lg shadow-xl mb-3">
+                        <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=https%3A%2F%2Fmaejang.com%2F%3Futm_source%3Doffline%26utm_medium%3Dflyer_detail%26utm_campaign%3Dtransparency" 
+                             alt="매장 주문 QR" 
+                             class="w-32 h-32 block">
+                    </div>
+                    <p class="text-sm font-bold text-brand-400">카메라로 스캔하여 주문하기</p>
+                </div>
+            </div>
+            
+            <div class="mt-8 pt-4 border-t border-gray-800 text-center text-gray-500 text-xs font-sans">
+                매장직결 | Smart Order System for Local Stores
+            </div>
+        </footer>
+
+    </div>
+
+    <!-- 인쇄 버튼 -->
+    <div class="fixed bottom-4 right-4 bg-gray-900 text-white px-6 py-4 rounded-lg shadow-xl z-50 print:hidden no-print flex items-center gap-4">
+        <div>
+            <p class="font-bold">A4 안내문</p>
+            <p class="text-sm text-gray-300">인쇄 시 <span class="text-yellow-400">'배경 그래픽'</span> 체크</p>
+        </div>
+        <button onclick="window.print()" class="bg-brand-600 hover:bg-brand-500 text-white px-4 py-2 rounded font-bold transition">
+            인쇄하기
+        </button>
+    </div>
+
+</body>
+</html>
+
+
+
