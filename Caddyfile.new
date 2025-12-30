@@ -13,9 +13,28 @@
 #
 # ============================================================================
 
-# 1. 메인 랜딩 페이지 + 통합 관리자 (maejang.com)
+# 1. 메인 랜딩 페이지 + 통합 관리자 + 점주 페이지 (maejang.com)
 maejang.com {
-    # /admin → 통합 관리자 페이지
+    
+    # [우선순위 1] 백엔드 API
+    handle /api/* {
+        reverse_proxy localhost:8080
+    }
+    
+    # [우선순위 2] /owner → 점주 통합 관리 페이지 (새 경로)
+    handle /owner* {
+        @without_slash path /owner
+        redir @without_slash /owner/
+        
+        uri strip_prefix /owner
+        root * /home/ubuntu/D2C/08_new_owner
+        file_server
+        
+        # SPA 라우팅
+        try_files {path} /index.html
+    }
+    
+    # [우선순위 3] /admin → 기존 통합 관리자 페이지
     redir /admin /admin/
     
     handle_path /admin/* {
@@ -24,7 +43,7 @@ maejang.com {
         try_files {path} {path}/ /index.html
     }
     
-    # 나머지 → 홈페이지
+    # [우선순위 4] 나머지 → 홈페이지
     handle {
         root * /home/ubuntu/D2C/01_Homepage
         file_server

@@ -703,18 +703,87 @@ function togglePassword(inputId) {
 function setupAuthForms() {
   const loginForm = document.getElementById('login-form');
   if (loginForm) {
-    loginForm.addEventListener('submit', (e) => {
+    loginForm.addEventListener('submit', async (e) => {
       e.preventDefault();
-      showToast('로그인 되었습니다.');
-      AppState.isLoggedIn = true;
-      setTimeout(() => navigateTo('page-dashboard'), 500);
+      
+      const email = document.getElementById('login-email')?.value;
+      const password = document.getElementById('login-password')?.value;
+      
+      if (!email || !password) {
+        showToast('이메일과 비밀번호를 입력해주세요.');
+        return;
+      }
+      
+      const submitBtn = loginForm.querySelector('button[type="submit"]');
+      if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.textContent = '로그인 중...';
+      }
+      
+      try {
+        // 1. 로그인 API 호출
+        const loginResult = await AuthApi.login(email, password);
+        
+        if (!loginResult.success) {
+          showToast(loginResult.message || '로그인에 실패했습니다.');
+          return;
+        }
+        
+        // 2. 점주 정보 및 매장 정보 로드
+        const ownerInfo = await loadStoreConfigByOwner();
+        
+        if (!ownerInfo) {
+          showToast('점주 정보를 불러올 수 없습니다.');
+          AuthApi.logout();
+          return;
+        }
+        
+        if (ownerInfo.user?.role !== 'OWNER') {
+          showToast('점주 계정이 아닙니다. 점주 계정으로 로그인해주세요.');
+          AuthApi.logout();
+          return;
+        }
+        
+        // 3. 성공 - 대시보드로 이동
+        AppState.isLoggedIn = true;
+        showToast(`${ownerInfo.store?.storeName || '매장'} 관리자로 로그인되었습니다.`);
+        
+        // 매장명 업데이트
+        updateStoreInfo();
+        
+        setTimeout(() => navigateTo('page-dashboard'), 500);
+        
+      } catch (error) {
+        console.error('로그인 오류:', error);
+        showToast(error.message || '로그인 중 오류가 발생했습니다.');
+      } finally {
+        if (submitBtn) {
+          submitBtn.disabled = false;
+          submitBtn.textContent = '로그인';
+        }
+      }
     });
+  }
+}
+
+function updateStoreInfo() {
+  // 매장명 표시 업데이트
+  const storeNameEl = document.querySelector('.store-name');
+  if (storeNameEl && window.STORE_NAME) {
+    storeNameEl.textContent = window.STORE_NAME;
+  }
+  
+  // 점주명 표시
+  const ownerNameEl = document.querySelector('.owner-name');
+  if (ownerNameEl && window.OWNER_USER) {
+    ownerNameEl.textContent = window.OWNER_USER.name || window.OWNER_USER.email;
   }
 }
 
 function logout() {
   if (confirm('로그아웃 하시겠습니까?')) {
     AppState.isLoggedIn = false;
+    AuthApi?.logout();
     showToast('로그아웃 되었습니다.');
     navigateTo('page-login');
   }
@@ -796,20 +865,39 @@ document.head.appendChild(toastStyles);
 // ========================================
 // SPLASH SCREEN
 // ========================================
-function initSplash() {
-  setTimeout(() => {
+async function initSplash() {
+  setTimeout(async () => {
     const splash = document.getElementById('page-splash');
     if (splash) {
       splash.style.opacity = '0';
       splash.style.transition = 'opacity 0.5s ease';
       
-      setTimeout(() => {
+      setTimeout(async () => {
         splash.classList.remove('active');
         splash.style.display = 'none';
-        navigateTo('page-dashboard');
+        
+        // 로그인 상태 확인
+        const token = AuthToken?.get();
+        if (token) {
+          try {
+            // 기존 토큰으로 점주 정보 로드 시도
+            const ownerInfo = await loadStoreConfigByOwner();
+            if (ownerInfo && ownerInfo.user?.role === 'OWNER') {
+              AppState.isLoggedIn = true;
+              updateStoreInfo();
+              navigateTo('page-dashboard');
+              return;
+            }
+          } catch (e) {
+            console.log('자동 로그인 실패, 로그인 페이지로 이동');
+          }
+        }
+        
+        // 로그인 페이지로 이동
+        navigateTo('page-login');
       }, 500);
     }
-  }, 2500);
+  }, 1500);
 }
 
 // ========================================

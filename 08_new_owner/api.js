@@ -1,9 +1,10 @@
 /**
  * ============================================================================
- * 📡 OWNER API SERVICE MODULE - 기존 백엔드와 100% 호환
+ * 📡 OWNER API SERVICE MODULE - maejang.com/owner 전용
  * ============================================================================
  * 
- * 기존 02_Owner 코드의 API 호출 방식을 그대로 사용합니다.
+ * 점주 로그인 후 해당 점주의 매장 정보를 로드합니다.
+ * 경로: maejang.com/owner
  * 
  * ============================================================================
  */
@@ -12,61 +13,105 @@
 // 🔧 기본 설정
 // ============================================================================
 
-const hostname = window.location.hostname;
-const subdomain = hostname.split('.')[0];
-
 const baseUrl = window.location.protocol === 'file:' 
-  ? 'https://pizzaschool.maejang.com'
+  ? 'https://maejang.com'
   : '';
 
 let OWNER_ID = null;
 let STORE_ID = null;
 let STORE_NAME = null;
 let STORE_INFO = null;
+let OWNER_USER = null;
 
 // ============================================================================
-// 🏪 매장 정보 로드
+// 🏪 매장 정보 로드 (로그인 후 호출)
 // ============================================================================
 
-async function loadStoreConfig() {
+async function loadStoreConfigByOwner() {
+  const token = AuthToken.get();
+  if (!token) {
+    console.log('🔐 [Owner API] 로그인 필요');
+    return null;
+  }
+  
   try {
-    const targetSubdomain = (subdomain === 'localhost' || subdomain === '127') 
-      ? 'pizzaschool' 
-      : subdomain;
+    // 1. 내 정보 조회 (점주 확인)
+    const meResponse = await fetch(`${baseUrl}/api/v1/auth/me`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    });
     
-    console.log('🏪 [Owner API] 서브도메인 감지:', targetSubdomain);
-    
-    const response = await fetch(`${baseUrl}/api/v1/store/by-subdomain?subdomain=${targetSubdomain}`);
-    
-    if (!response.ok) {
-      throw new Error('매장을 찾을 수 없습니다.');
+    if (!meResponse.ok) {
+      throw new Error('사용자 정보를 가져올 수 없습니다.');
     }
     
-    const result = await response.json();
+    const meData = await meResponse.json();
     
-    if (!result.success || !result.data) {
-      throw new Error('매장 정보가 없습니다.');
+    if (!meData.success || !meData.data) {
+      throw new Error('사용자 정보가 없습니다.');
     }
     
-    STORE_INFO = result.data;
-    OWNER_ID = STORE_INFO.ownerId;
-    STORE_ID = STORE_INFO.storeId;
-    STORE_NAME = STORE_INFO.storeName;
+    OWNER_USER = meData.data;
+    console.log('👤 [Owner API] 사용자 정보:', OWNER_USER);
     
-    console.log('✅ [Owner API] 매장 정보 로드 완료');
+    // 점주 권한 확인
+    if (OWNER_USER.role !== 'OWNER') {
+      throw new Error('점주 계정이 아닙니다.');
+    }
+    
+    OWNER_ID = OWNER_USER.id;
+    
+    // 2. 점주의 매장 정보 조회 (me 응답에 storeId가 있으면 사용)
+    if (OWNER_USER.storeId) {
+      STORE_ID = OWNER_USER.storeId;
+      
+      // 매장 상세 정보 조회
+      try {
+        const storeResponse = await fetch(`${baseUrl}/api/v1/store/${STORE_ID}`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        
+        if (storeResponse.ok) {
+          const storeData = await storeResponse.json();
+          if (storeData.success && storeData.data) {
+            STORE_INFO = storeData.data;
+            STORE_NAME = STORE_INFO.storeName;
+          }
+        }
+      } catch (e) {
+        console.warn('매장 상세 정보 조회 실패:', e);
+      }
+    }
+    
+    // storeId가 없으면 이름은 기본값 사용
+    if (!STORE_NAME) {
+      STORE_NAME = OWNER_USER.name ? `${OWNER_USER.name}님의 매장` : '내 매장';
+    }
+    
+    console.log('✅ [Owner API] 점주 매장 정보 로드 완료');
     console.log('   - OWNER_ID:', OWNER_ID);
     console.log('   - STORE_ID:', STORE_ID);
     console.log('   - STORE_NAME:', STORE_NAME);
     
-    return STORE_INFO;
+    // 전역 변수 업데이트
+    window.OWNER_ID = OWNER_ID;
+    window.STORE_ID = STORE_ID;
+    window.STORE_NAME = STORE_NAME;
+    window.STORE_INFO = STORE_INFO;
+    window.OWNER_USER = OWNER_USER;
+    
+    return { user: OWNER_USER, store: STORE_INFO };
     
   } catch (error) {
-    console.error('❌ [Owner API] 매장 정보 로드 실패:', error);
+    console.error('❌ [Owner API] 점주 정보 로드 실패:', error);
     throw error;
   }
 }
 
-window.STORE_CONFIG_LOADED = loadStoreConfig();
+// 초기 로드는 하지 않음 (로그인 후 호출)
+window.STORE_CONFIG_LOADED = Promise.resolve(null);
 
 // ============================================================================
 // 🔐 인증 토큰 관리
@@ -488,4 +533,5 @@ window.OrderApi = OrderApi;
 window.MenuApi = MenuApi;
 window.StoreApi = StoreApi;
 window.PointsApi = PointsApi;
+window.loadStoreConfigByOwner = loadStoreConfigByOwner;
 window.checkAuthError = checkAuthError;
