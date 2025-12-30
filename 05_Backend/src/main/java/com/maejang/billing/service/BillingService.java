@@ -33,8 +33,8 @@ public class BillingService {
     private final UserRepository userRepository;
     private final RestTemplate restTemplate = new RestTemplate();
 
-    // 토스페이먼츠 시크릿 키 (application.yaml에서 설정)
-    @Value("${toss.secret-key:test_sk_zXLkKEypNArWmo50nX3lmeaxYG5R}")
+    // 토스페이먼츠 시크릿 키 (ZeroTyping 테스트 키)
+    @Value("${toss.secret-key:test_sk_LlDJaYngro9gNQd5zNyN3ezGdRpX}")
     private String tossSecretKey;
 
     /**
