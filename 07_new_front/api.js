@@ -131,7 +131,7 @@ const AuthApi = {
         }
         
         // 로그인 후 사용자 정보 조회
-        const meResult = await this.me();
+        const meResult = await this.getProfile();
         if (meResult.success) {
           return { 
             success: true, 
