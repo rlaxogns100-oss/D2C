@@ -229,14 +229,14 @@ const AuthApi = {
 
 const MenuApi = {
   /**
-   * 메뉴 목록 조회 - /api/v1/menu/read?ownerId=
+   * 메뉴 목록 조회 - /api/v1/menu/read?storeId=
    * 인증 불필요
    */
   async getList() {
     await window.STORE_CONFIG_LOADED;
     
     try {
-      const response = await fetch(`${baseUrl}/api/v1/menu/read?ownerId=${OWNER_ID}`, {
+      const response = await fetch(`${baseUrl}/api/v1/menu/read?storeId=${STORE_ID}`, {
         credentials: 'include'
       });
       

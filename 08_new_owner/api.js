@@ -64,11 +64,12 @@ async function loadStoreConfigByOwner() {
     // userId를 ownerId로 사용 (기존 API 구조)
     OWNER_ID = OWNER_USER.userId;
     
-    // 2. 점주의 매장 정보 조회 (me 응답에 storeId가 있으면 사용)
+    // 2. 점주의 매장 정보 설정 (me 응답에 storeId, storeName 포함)
     if (OWNER_USER.storeId) {
       STORE_ID = OWNER_USER.storeId;
+      STORE_NAME = OWNER_USER.storeName || '내 매장';
       
-      // 매장 상세 정보 조회
+      // 매장 상세 정보 조회 (배달 권역 등 추가 정보 필요시)
       try {
         const storeResponse = await fetch(`${baseUrl}/api/v1/store/${STORE_ID}`, {
           headers: { 'Authorization': `Bearer ${token}` }
@@ -78,16 +79,13 @@ async function loadStoreConfigByOwner() {
           const storeData = await storeResponse.json();
           if (storeData.success && storeData.data) {
             STORE_INFO = storeData.data;
-            STORE_NAME = STORE_INFO.storeName;
           }
         }
       } catch (e) {
         console.warn('매장 상세 정보 조회 실패:', e);
       }
-    }
-    
-    // storeId가 없으면 이름은 기본값 사용
-    if (!STORE_NAME) {
+    } else {
+      // storeId가 없으면 이름은 기본값 사용
       STORE_NAME = OWNER_USER.name ? `${OWNER_USER.name}님의 매장` : '내 매장';
     }
     
@@ -354,19 +352,19 @@ const OrderApi = {
 
 const MenuApi = {
   /**
-   * 메뉴 목록 조회 - /api/v1/menu/read?ownerId=
+   * 메뉴 목록 조회 - /api/v1/menu/read?storeId=
    */
   async getList() {
-    // window.OWNER_ID 사용 (로그인 후 설정됨)
-    const ownerId = window.OWNER_ID || OWNER_ID;
+    // window.STORE_ID 사용 (로그인 후 설정됨)
+    const storeId = window.STORE_ID || STORE_ID;
     
-    if (!ownerId) {
-      console.error('❌ OWNER_ID가 설정되지 않았습니다. 로그인이 필요합니다.');
-      return { success: false, data: [], message: 'OWNER_ID가 없습니다.' };
+    if (!storeId) {
+      console.error('❌ STORE_ID가 설정되지 않았습니다. 로그인이 필요합니다.');
+      return { success: false, data: [], message: 'STORE_ID가 없습니다.' };
     }
     
     try {
-      const response = await fetch(`${baseUrl}/api/v1/menu/read?ownerId=${ownerId}`, {
+      const response = await fetch(`${baseUrl}/api/v1/menu/read?storeId=${storeId}`, {
         credentials: 'include'
       });
       

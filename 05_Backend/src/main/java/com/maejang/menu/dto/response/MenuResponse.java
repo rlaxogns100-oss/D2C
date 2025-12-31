@@ -4,7 +4,8 @@ import com.maejang.menu.domain.Menu;
 
 public record MenuResponse(
         Long menuId,
-        Long ownerId,
+        Long storeId,
+        Long ownerId,  // 레거시 호환용
         String menuName,
         String picture,
         int price,
@@ -15,7 +16,8 @@ public record MenuResponse(
     public static MenuResponse from(Menu m) {
         return new MenuResponse(
                 m.getMenuId(),
-                m.getOwner().getId(),
+                m.getStore().getId(),
+                m.getOwner().getId(),  // 레거시 호환용
                 m.getMenuName(),
                 m.getPicture(),
                 m.getPrice(),

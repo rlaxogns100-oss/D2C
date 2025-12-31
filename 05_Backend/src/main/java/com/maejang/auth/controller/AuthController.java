@@ -4,6 +4,9 @@ import com.maejang.auth.jwt.JwtProperties;
 import com.maejang.auth.security.CustomUserDetails;
 import com.maejang.auth.service.AuthService;
 import com.maejang.global.response.JSONResponse;
+import com.maejang.store.domain.Store;
+import com.maejang.store.repository.StoreRepository;
+import com.maejang.user.domain.UserRole;
 import com.maejang.user.dto.request.UserLoginRequest;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
@@ -23,11 +26,26 @@ import org.springframework.web.bind.annotation.RestController;
 public class AuthController {
 
     private final AuthService authService;
+    private final StoreRepository storeRepository;
 
-    @Operation(summary = "내 정보", description = "JWT 쿠키 기반 인증이 정상인지 확인용")
+    @Operation(summary = "내 정보", description = "JWT 쿠키 기반 인증이 정상인지 확인용. OWNER 권한일 경우 연결된 매장 정보도 반환")
     @PostMapping("/me")
     public ResponseEntity<JSONResponse<AuthMeResponse>> me(@AuthenticationPrincipal CustomUserDetails principal) {
-        return ResponseEntity.ok(JSONResponse.success(new AuthMeResponse(principal.getUserId(), principal.getUsername(), principal.getRole())));
+        Long storeId = null;
+        String storeName = null;
+        
+        // OWNER 권한일 경우 연결된 매장 정보 조회
+        if (principal.getRole() == UserRole.OWNER) {
+            Store store = storeRepository.findFirstByOwnerId(principal.getUserId()).orElse(null);
+            if (store != null) {
+                storeId = store.getId();
+                storeName = store.getStoreName();
+            }
+        }
+        
+        return ResponseEntity.ok(JSONResponse.success(
+            new AuthMeResponse(principal.getUserId(), principal.getUsername(), principal.getRole(), storeId, storeName)
+        ));
     }
 
     @Operation(summary = "로그인", description = "응답 헤더 Authorization: Bearer <token> 으로 토큰을 내려줍니다. (Swagger에서 복사해서 Authorize에 붙여넣어 사용)")

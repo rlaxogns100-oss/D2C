@@ -1,6 +1,7 @@
 package com.maejang.menu.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.maejang.store.domain.Store;
 import com.maejang.user.domain.User;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -30,7 +31,15 @@ public class Menu {
     private Long menuId;
 
     /**
-     * OWNER 유저 (스키마 정의대로 user_id로만 연결)
+     * 매장 (메뉴는 매장에 속함)
+     */
+    @JsonIgnore
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "store_id", nullable = false)
+    private Store store;
+
+    /**
+     * OWNER 유저 (레거시 호환용 - 추후 제거 예정)
      */
     @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
@@ -64,7 +73,8 @@ public class Menu {
     private Boolean isDeleted = false;
 
     @Builder
-    private Menu(User owner, String menuName, String picture, int price, String description, String option, String category) {
+    private Menu(Store store, User owner, String menuName, String picture, int price, String description, String option, String category) {
+        this.store = store;
         this.owner = owner;
         this.menuName = menuName;
         this.picture = picture;

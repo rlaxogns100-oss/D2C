@@ -372,7 +372,7 @@ function quickAddToCart(menuId, event) {
       option: '기본',
       picture: menu.picture || null,
       emoji: menu.emoji,
-      ownerId: window.OWNER_ID
+      storeId: window.STORE_ID
     });
   }
   
@@ -419,7 +419,7 @@ function addToCartAndNavigate() {
       option: selectedOption.split('(')[0].trim(),
       picture: menu.picture || null,
       emoji: menu.emoji,
-      ownerId: window.OWNER_ID
+      storeId: window.STORE_ID
     });
   }
   

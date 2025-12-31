@@ -40,12 +40,25 @@ public class MenuController {
                 .body(JSONResponse.success(new MenuIdResponse(menuService.create(principal.getUserId(), req))));
     }
 
-    @Operation(summary = "메뉴 목록 조회", description = "메뉴 목록을 조회합니다.")
+    @Operation(summary = "메뉴 목록 조회", description = "storeId로 메뉴 목록을 조회합니다. (ownerId는 레거시 호환용)")
     @GetMapping("/read")
-    public ResponseEntity<JSONResponse<List<MenuResponse>>> read(@RequestParam(value = "ownerId", required = false) Long ownerId) {
-        List<MenuResponse> result = menuService.read(ownerId).stream()
-                .map(MenuResponse::from)
-                .toList();
+    public ResponseEntity<JSONResponse<List<MenuResponse>>> read(
+            @RequestParam(value = "storeId", required = false) Long storeId,
+            @RequestParam(value = "ownerId", required = false) Long ownerId
+    ) {
+        List<MenuResponse> result;
+        
+        // storeId 우선, 없으면 ownerId 사용 (레거시 호환)
+        if (storeId != null) {
+            result = menuService.readByStoreId(storeId).stream()
+                    .map(MenuResponse::from)
+                    .toList();
+        } else {
+            result = menuService.read(ownerId).stream()
+                    .map(MenuResponse::from)
+                    .toList();
+        }
+        
         return ResponseEntity.ok(JSONResponse.success(result));
     }
 
