@@ -96,11 +96,13 @@ const AuthToken = {
   }
 };
 
-// 인증 에러 체크 (기존 코드와 동일)
+// 인증 에러 체크
+// 주의: 토큰 자동 삭제하지 않음 (탭 전환 시 로그인 풀림 방지)
 function checkAuthError(response) {
   if (response.status === 401 || response.status === 403) {
-    console.warn('🔐 인증 만료 또는 권한 없음');
-    AuthToken.remove();
+    console.warn('🔐 인증 만료 또는 권한 없음 (status:', response.status, ')');
+    // 토큰 삭제는 명시적인 로그아웃에서만 수행
+    // AuthToken.remove(); // 제거: 자동 삭제 비활성화
     return true;
   }
   return false;
