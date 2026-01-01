@@ -47,7 +47,7 @@ public class AdminController {
                     .body(JSONResponse.error(HttpStatus.UNAUTHORIZED, "관리자 인증 실패"));
         }
 
-        List<Store> stores = storeRepository.findAll();
+        List<Store> stores = storeRepository.findAllWithOwner();
         List<AdminStoreResponse> response = stores.stream()
                 .map(AdminStoreResponse::from)
                 .collect(Collectors.toList());
@@ -67,7 +67,7 @@ public class AdminController {
 
         // OWNER role 유저 중 매장이 없는 유저
         List<User> owners = userRepository.findByRole(UserRole.OWNER);
-        List<Long> ownerIdsWithStore = storeRepository.findAll().stream()
+        List<Long> ownerIdsWithStore = storeRepository.findAllWithOwner().stream()
                 .map(store -> store.getOwner().getId())
                 .collect(Collectors.toList());
 
