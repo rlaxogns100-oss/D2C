@@ -60,6 +60,9 @@ public class SecurityConfig {
                         .requestMatchers("/api/v1/store/check-subdomain").permitAll()
                         .requestMatchers("/api/v1/menu/read/**").permitAll()
 
+                        // Admin API (별도 비밀번호 인증 사용)
+                        .requestMatchers("/api/v1/admin/**").permitAll()
+
                         // Role 기반 접근 제어 (JWT 적용 전에는 ownerId/userId를 요청으로 받아도 결국 서버에서 role 체크 필요)
                         .requestMatchers("/api/v1/store/**").hasRole("OWNER")
                         .requestMatchers("/api/v1/menu/create", "/api/v1/menu/delete/**", "/api/v1/menu/update/**").hasRole("OWNER")

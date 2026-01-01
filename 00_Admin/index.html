@@ -5,9 +5,115 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>D2C 통합 관리자</title>
     <link rel="stylesheet" href="style.css">
+    <style>
+        /* 비밀번호 인증 모달 */
+        .auth-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+        
+        .auth-modal {
+            background: white;
+            border-radius: 16px;
+            padding: 40px;
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+        
+        .auth-modal h2 {
+            font-size: 24px;
+            margin-bottom: 8px;
+            color: #1F2937;
+        }
+        
+        .auth-modal p {
+            color: #6B7280;
+            margin-bottom: 24px;
+        }
+        
+        .auth-modal input {
+            width: 100%;
+            padding: 14px;
+            font-size: 18px;
+            text-align: center;
+            border: 2px solid #E5E7EB;
+            border-radius: 8px;
+            margin-bottom: 16px;
+            letter-spacing: 4px;
+        }
+        
+        .auth-modal input:focus {
+            outline: none;
+            border-color: #4F46E5;
+        }
+        
+        .auth-modal button {
+            width: 100%;
+            padding: 14px;
+            font-size: 16px;
+            font-weight: 600;
+            background: #4F46E5;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+        
+        .auth-modal button:hover {
+            background: #4338CA;
+        }
+        
+        .auth-error {
+            color: #EF4444;
+            font-size: 14px;
+            margin-top: 12px;
+            display: none;
+        }
+        
+        .hidden {
+            display: none !important;
+        }
+        
+        /* 서브도메인 열 스타일 */
+        .subdomain-link {
+            color: #4F46E5;
+            text-decoration: none;
+            font-family: monospace;
+        }
+        
+        .subdomain-link:hover {
+            text-decoration: underline;
+        }
+        
+        .no-subdomain {
+            color: #9CA3AF;
+            font-style: italic;
+        }
+    </style>
 </head>
 <body>
-    <div class="admin-container">
+    <!-- 비밀번호 인증 모달 -->
+    <div class="auth-overlay" id="authOverlay">
+        <div class="auth-modal">
+            <h2>🔐 관리자 인증</h2>
+            <p>관리자 비밀번호를 입력하세요</p>
+            <input type="password" id="authPassword" placeholder="••••••" maxlength="10" onkeyup="if(event.key==='Enter') checkAuth()">
+            <button onclick="checkAuth()">확인</button>
+            <div class="auth-error" id="authError">비밀번호가 올바르지 않습니다</div>
+        </div>
+    </div>
+
+    <div class="admin-container hidden" id="adminContainer">
         <!-- 사이드바 -->
         <nav class="sidebar">
             <div class="logo-area">
@@ -15,9 +121,10 @@
             </div>
             <ul class="menu-list">
                 <li class="menu-item active"><a href="#">매장 관리</a></li>
+                <li class="menu-item"><a href="01_Store_Match.html">매장 매칭</a></li>
                 <li class="menu-item"><a href="#">회원 관리</a></li>
                 <li class="menu-item"><a href="#">주문 현황</a></li>
-                <li class="menu-item"><a href="#">정산 관리</a></li>
+                <li class="menu-item"><a href="03_Profit_Simulation.html">수익 시뮬레이션</a></li>
                 <li class="menu-item"><a href="#">설정</a></li>
             </ul>
         </nav>
@@ -29,7 +136,7 @@
                 <div class="page-title">매장 관리</div>
                 <div class="user-info">
                     <span>Super Admin님</span>
-                    <button class="btn-logout">로그아웃</button>
+                    <button class="btn-logout" onclick="logout()">로그아웃</button>
                 </div>
             </header>
 
@@ -37,36 +144,23 @@
             <main class="content-area">
                 <div class="action-bar">
                     <div class="search-box">
-                        <input type="text" id="searchInput" placeholder="매장명 또는 점주명 검색" onkeyup="filterStores()">
+                        <input type="text" id="searchInput" placeholder="매장명 또는 서브도메인 검색" onkeyup="filterStores()">
                         <button onclick="filterStores()">검색</button>
                     </div>
-                    <button class="btn-primary" onclick="location.href='02_Create_Store.html'">신규 매장 등록</button>
+                    <div>
+                        <button class="btn-secondary" onclick="loadStores()">🔄 새로고침</button>
+                        <button class="btn-primary" onclick="location.href='02_Create_Store.html'">+ 신규 매장 등록</button>
+                    </div>
                 </div>
 
                 <!-- 필터 영역 -->
                 <div class="filter-bar">
                     <div class="filter-group">
-                        <label>카테고리:</label>
-                        <select id="categoryFilter" onchange="filterStores()">
-                            <option value="">전체</option>
-                            <option value="한식">한식</option>
-                            <option value="중식">중식</option>
-                            <option value="일식">일식</option>
-                            <option value="양식">양식</option>
-                            <option value="분식">분식</option>
-                            <option value="치킨">치킨</option>
-                            <option value="피자">피자</option>
-                            <option value="카페/디저트">카페/디저트</option>
-                        </select>
-                    </div>
-                    <div class="filter-group">
                         <label>상태:</label>
                         <select id="statusFilter" onchange="filterStores()">
                             <option value="">전체</option>
-                            <option value="영업중">영업중</option>
-                            <option value="승인 대기">승인 대기</option>
-                            <option value="영업 정지">영업 정지</option>
-                            <option value="휴업">휴업</option>
+                            <option value="active">활성</option>
+                            <option value="deprecated">비활성</option>
                         </select>
                     </div>
                     <div class="filter-stats">
@@ -78,18 +172,21 @@
                     <table class="data-table">
                         <thead>
                             <tr>
-                                <th>ID</th>
+                                <th>Store ID</th>
+                                <th>서브도메인</th>
                                 <th>매장명</th>
-                                <th>카테고리</th>
-                                <th>점주명</th>
-                                <th>연락처</th>
+                                <th>점주 ID</th>
+                                <th>주소</th>
                                 <th>상태</th>
-                                <th>등록일</th>
                                 <th>관리</th>
                             </tr>
                         </thead>
                         <tbody id="storeTableBody">
-                            <!-- JavaScript로 동적 생성 -->
+                            <tr>
+                                <td colspan="7" style="text-align:center;padding:40px;color:#6B7280;">
+                                    데이터를 불러오는 중...
+                                </td>
+                            </tr>
                         </tbody>
                     </table>
                 </div>
@@ -98,107 +195,171 @@
     </div>
 
     <script>
-        // 매장 더미 데이터
-        const storesData = [
-            { id: 101, name: '맛있는 떡볶이', category: '분식', owner: '김철수', phone: '010-1234-5678', status: '영업중', date: '2023-10-15' },
-            { id: 102, name: '강남 피자', category: '피자', owner: '이영희', phone: '010-9876-5432', status: '영업중', date: '2023-10-20' },
-            { id: 103, name: '서울 초밥', category: '일식', owner: '박지성', phone: '010-5555-4444', status: '승인 대기', date: '2023-12-01' },
-            { id: 104, name: '할매 순대국', category: '한식', owner: '최민수', phone: '010-1111-2222', status: '영업 정지', date: '2023-09-05' },
-            { id: 105, name: '진짜 맛있는 치킨', category: '치킨', owner: '정대한', phone: '010-2222-3333', status: '영업중', date: '2023-11-10' },
-            { id: 106, name: '역삼동 짜장면', category: '중식', owner: '왕리웨이', phone: '010-3333-4444', status: '영업중', date: '2023-08-22' },
-            { id: 107, name: '엄마손 김밥', category: '분식', owner: '김영자', phone: '010-4444-5555', status: '영업중', date: '2023-09-30' },
-            { id: 108, name: '스타벅스 강남점', category: '카페/디저트', owner: '이민호', phone: '010-5555-6666', status: '영업중', date: '2023-07-15' },
-            { id: 109, name: '이태리 파스타', category: '양식', owner: '안토니오', phone: '010-6666-7777', status: '영업중', date: '2023-11-25' },
-            { id: 110, name: '전주 비빔밥', category: '한식', owner: '박순례', phone: '010-7777-8888', status: '휴업', date: '2023-06-18' },
-            { id: 111, name: '도쿄 라멘', category: '일식', owner: '다나카', phone: '010-8888-9999', status: '영업중', date: '2023-10-05' },
-            { id: 112, name: '황금 치킨', category: '치킨', owner: '이광수', phone: '010-9999-0000', status: '승인 대기', date: '2023-12-10' },
-            { id: 113, name: '홍콩반점', category: '중식', owner: '황치밍', phone: '010-1010-2020', status: '영업중', date: '2023-09-20' },
-            { id: 114, name: '부산 어묵', category: '분식', owner: '김부산', phone: '010-2020-3030', status: '영업중', date: '2023-11-01' },
-            { id: 115, name: '나폴리 피자', category: '피자', owner: '조셉', phone: '010-3030-4040', status: '영업중', date: '2023-08-10' },
-            { id: 116, name: '서울 갈비집', category: '한식', owner: '강동원', phone: '010-4040-5050', status: '영업중', date: '2023-07-28' },
-            { id: 117, name: '교토 돈까스', category: '일식', owner: '사토시', phone: '010-5050-6060', status: '영업 정지', date: '2023-05-15' },
-            { id: 118, name: '달콤 카페', category: '카페/디저트', owner: '김달콤', phone: '010-6060-7070', status: '영업중', date: '2023-10-12' },
-            { id: 119, name: '프렌치 레스토랑', category: '양식', owner: '피에르', phone: '010-7070-8080', status: '승인 대기', date: '2023-12-05' },
-            { id: 120, name: '참숯 불고기', category: '한식', owner: '이참숯', phone: '010-8080-9090', status: '영업중', date: '2023-09-15' }
-        ];
+        const ADMIN_PASSWORD = '235811';
+        const API_BASE = '';
+        let allStores = [];
 
-        // 페이지 로드 시 데이터 표시
+        // 인증 확인
+        function checkAuth() {
+            const password = document.getElementById('authPassword').value;
+            
+            if (password === ADMIN_PASSWORD) {
+                sessionStorage.setItem('adminAuth', 'true');
+                document.getElementById('authOverlay').classList.add('hidden');
+                document.getElementById('adminContainer').classList.remove('hidden');
+                loadStores();
+            } else {
+                document.getElementById('authError').style.display = 'block';
+                document.getElementById('authPassword').value = '';
+            }
+        }
+
+        // 로그아웃
+        function logout() {
+            sessionStorage.removeItem('adminAuth');
+            location.reload();
+        }
+
+        // 페이지 로드 시 인증 상태 확인
         window.addEventListener('DOMContentLoaded', () => {
-            renderStores(storesData);
+            if (sessionStorage.getItem('adminAuth') === 'true') {
+                document.getElementById('authOverlay').classList.add('hidden');
+                document.getElementById('adminContainer').classList.remove('hidden');
+                loadStores();
+            }
+            
+            // Enter 키 처리
+            document.getElementById('authPassword').focus();
         });
+
+        // 매장 목록 로드 (API 호출)
+        async function loadStores() {
+            const tbody = document.getElementById('storeTableBody');
+            tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:40px;color:#6B7280;">데이터를 불러오는 중...</td></tr>';
+
+            try {
+                const response = await fetch(`${API_BASE}/api/v1/admin/stores`, {
+                    headers: {
+                        'X-Admin-Password': ADMIN_PASSWORD
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error('API 호출 실패');
+                }
+
+                const result = await response.json();
+                allStores = result.data || [];
+                
+                renderStores(allStores);
+
+            } catch (error) {
+                console.error('매장 로드 실패:', error);
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="7" style="text-align:center;padding:40px;color:#EF4444;">
+                            ❌ 데이터를 불러올 수 없습니다<br>
+                            <small>${error.message}</small>
+                        </td>
+                    </tr>
+                `;
+            }
+        }
 
         // 매장 목록 렌더링
         function renderStores(stores) {
             const tbody = document.getElementById('storeTableBody');
-            tbody.innerHTML = '';
-
-            stores.forEach(store => {
-                const row = document.createElement('tr');
-                
-                // 상태에 따른 배지 클래스
-                let badgeClass = 'active';
-                if (store.status === '승인 대기') badgeClass = 'pending';
-                else if (store.status === '영업 정지') badgeClass = 'stopped';
-                else if (store.status === '휴업') badgeClass = '休업';
-
-                // 상태에 따른 버튼
-                let actionButtons = '';
-                if (store.status === '승인 대기') {
-                    actionButtons = `
-                        <button class="btn-sm btn-approve">승인</button>
-                        <button class="btn-sm btn-danger">거절</button>
-                    `;
-                } else if (store.status === '영업 정지') {
-                    actionButtons = `
-                        <button class="btn-sm" onclick="location.href='store_detail.html?id=${store.id}'">상세</button>
-                        <button class="btn-sm">해제</button>
-                    `;
-                } else {
-                    actionButtons = `
-                        <button class="btn-sm" onclick="location.href='store_detail.html?id=${store.id}'">상세</button>
-                        <button class="btn-sm btn-danger">정지</button>
-                    `;
-                }
-
-                row.innerHTML = `
-                    <td>${store.id}</td>
-                    <td>${store.name}</td>
-                    <td>${store.category}</td>
-                    <td>${store.owner}</td>
-                    <td>${store.phone}</td>
-                    <td><span class="badge ${badgeClass}">${store.status}</span></td>
-                    <td>${store.date}</td>
-                    <td>${actionButtons}</td>
+            
+            if (stores.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="7" style="text-align:center;padding:40px;color:#6B7280;">
+                            등록된 매장이 없습니다
+                        </td>
+                    </tr>
                 `;
+                document.getElementById('totalCount').textContent = '전체: 0개';
+                return;
+            }
 
-                tbody.appendChild(row);
-            });
+            tbody.innerHTML = stores.map(store => {
+                const isDeprecated = store.subdomain && store.subdomain.includes('deprecated');
+                const statusBadge = isDeprecated 
+                    ? '<span class="badge stopped">비활성</span>'
+                    : (store.isOpen ? '<span class="badge active">영업중</span>' : '<span class="badge pending">영업종료</span>');
+                
+                const subdomainCell = store.subdomain && !isDeprecated
+                    ? `<a href="https://${store.subdomain}.maejang.com" target="_blank" class="subdomain-link">${store.subdomain}.maejang.com</a>`
+                    : (store.subdomain ? `<span class="no-subdomain">${store.subdomain}</span>` : '<span class="no-subdomain">미설정</span>');
+                
+                return `
+                    <tr>
+                        <td>${store.storeId}</td>
+                        <td>${subdomainCell}</td>
+                        <td>${store.storeName}</td>
+                        <td>${store.ownerId || '-'}</td>
+                        <td>${store.address || '-'}</td>
+                        <td>${statusBadge}</td>
+                        <td>
+                            <button class="btn-sm" onclick="location.href='store_detail.html?id=${store.storeId}'">상세</button>
+                            ${!isDeprecated ? `<button class="btn-sm btn-danger" onclick="deprecateStore(${store.storeId})">비활성화</button>` : ''}
+                        </td>
+                    </tr>
+                `;
+            }).join('');
 
-            // 총 개수 업데이트
             document.getElementById('totalCount').textContent = `전체: ${stores.length}개`;
         }
 
         // 필터링 함수
         function filterStores() {
             const searchInput = document.getElementById('searchInput').value.toLowerCase();
-            const categoryFilter = document.getElementById('categoryFilter').value;
             const statusFilter = document.getElementById('statusFilter').value;
 
-            const filtered = storesData.filter(store => {
+            const filtered = allStores.filter(store => {
                 // 검색어 필터
-                const matchSearch = store.name.toLowerCase().includes(searchInput) || 
-                                   store.owner.toLowerCase().includes(searchInput);
-                
-                // 카테고리 필터
-                const matchCategory = !categoryFilter || store.category === categoryFilter;
+                const matchSearch = 
+                    (store.storeName || '').toLowerCase().includes(searchInput) || 
+                    (store.subdomain || '').toLowerCase().includes(searchInput);
                 
                 // 상태 필터
-                const matchStatus = !statusFilter || store.status === statusFilter;
+                let matchStatus = true;
+                if (statusFilter === 'active') {
+                    matchStatus = !store.subdomain?.includes('deprecated');
+                } else if (statusFilter === 'deprecated') {
+                    matchStatus = store.subdomain?.includes('deprecated');
+                }
 
-                return matchSearch && matchCategory && matchStatus;
+                return matchSearch && matchStatus;
             });
 
             renderStores(filtered);
+        }
+
+        // 매장 비활성화
+        async function deprecateStore(storeId) {
+            if (!confirm('이 매장을 비활성화 하시겠습니까?\n서브도메인이 -deprecated 처리됩니다.')) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE}/api/v1/admin/store/${storeId}/deprecate`, {
+                    method: 'POST',
+                    headers: {
+                        'X-Admin-Password': ADMIN_PASSWORD
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error('비활성화 실패');
+                }
+
+                alert('매장이 비활성화되었습니다.');
+                loadStores();
+
+            } catch (error) {
+                alert('비활성화 실패: ' + error.message);
+            }
         }
     </script>
 </body>

@@ -95,4 +95,8 @@ public class Store {
         this.longitude = longitude;
         this.deliveryRadius = deliveryRadius;
     }
+
+    public void setSubdomain(String subdomain) {
+        this.subdomain = subdomain;
+    }
 }
