@@ -45,7 +45,7 @@ public class Store {
     @Column(name = "description", length = 1000)
     private String description;
 
-    @Column(name = "picture", length = 1000)
+    @Column(name = "picture", columnDefinition = "LONGTEXT")
     private String picture;
 
     @Column(name = "open_time")

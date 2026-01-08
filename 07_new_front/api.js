@@ -42,6 +42,11 @@ async function loadStoreConfig() {
     const response = await fetch(`${baseUrl}/api/v1/store/by-subdomain?subdomain=${targetSubdomain}`);
     
     if (!response.ok) {
+      // 매장을 찾을 수 없는 경우 리다이렉트
+      if (window.location.hostname !== 'maejang.com' && window.location.hostname !== 'localhost') {
+        console.log('🔄 [API] 매장을 찾을 수 없습니다. maejang.com으로 리다이렉트합니다.');
+        window.location.href = 'https://maejang.com';
+      }
       throw new Error('매장을 찾을 수 없습니다.');
     }
     
