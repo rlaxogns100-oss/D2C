@@ -431,7 +431,7 @@
                 const response = await fetch(`${API_BASE}/api/v1/store/check-subdomain?subdomain=${subdomain}`);
                 const result = await response.json();
 
-                if (result.data === true) {
+                if (result.success && result.data === true) {
                     msgEl.textContent = '✓ 사용 가능한 도메인입니다!';
                     msgEl.className = 'form-hint form-success';
                     subdomainChecked = true;
@@ -481,7 +481,7 @@
 
                 const result = await response.json();
                 
-                alert(`✅ 매장이 생성되었습니다!\n\n매장 주소: https://${subdomain}.maejang.com\n\n⚠️ 중요: 서버의 Caddyfile에 이 도메인을 추가해야 접속이 가능합니다.`);
+                alert(`✅ 매장이 생성되었습니다!\n\n매장 주소: https://${subdomain}.maejang.com\n\n※ 즉시 접속 가능합니다.`);
                 
                 closeModal();
                 loadUsersWithoutStore();
