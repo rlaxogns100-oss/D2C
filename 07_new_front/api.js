@@ -65,6 +65,13 @@ async function loadStoreConfig() {
     
   } catch (error) {
     console.error('❌ [API] 매장 정보 로드 실패:', error);
+    
+    // 매장을 찾을 수 없거나 비활성화된 경우 메인 랜딩페이지로 리다이렉트
+    if (window.location.hostname !== 'maejang.com' && window.location.hostname !== 'localhost') {
+      console.log('🔄 [API] 매장을 찾을 수 없어 maejang.com으로 리다이렉트합니다.');
+      window.location.href = 'https://maejang.com';
+    }
+    
     throw error;
   }
 }

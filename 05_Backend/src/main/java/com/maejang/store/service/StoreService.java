@@ -79,9 +79,9 @@ public class StoreService {
                 .orElseThrow(() -> new CustomException(ErrorCode.STORE_NOT_FOUND));
     }
 
-    // 서브도메인 중복 확인
+    // 서브도메인 중복 확인 (비활성화된 것 제외)
     public boolean existsBySubdomain(String subdomain) {
-        return storeRepository.existsBySubdomain(subdomain);
+        return storeRepository.existsBySubdomainExcludingDeprecated(subdomain);
     }
 }
 

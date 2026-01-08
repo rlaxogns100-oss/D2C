@@ -1,11 +1,9 @@
 package com.maejang.admin.dto.request;
 
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 
 public record AdminStoreCreateRequest(
-        @NotNull(message = "userId는 필수입니다.")
-        Long userId,
+        Long userId, // 선택 사항으로 변경
 
         @NotBlank(message = "storeName은 필수입니다.")
         String storeName,

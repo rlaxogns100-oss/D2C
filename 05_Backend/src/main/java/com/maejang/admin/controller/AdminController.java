@@ -90,12 +90,15 @@ public class AdminController {
                     .body(JSONResponse.error(HttpStatus.UNAUTHORIZED, "관리자 인증 실패"));
         }
 
-        // 유저 확인
-        User owner = userRepository.findById(req.userId())
-                .orElseThrow(() -> new RuntimeException("유저를 찾을 수 없습니다."));
+        // 유저 확인 (선택사항)
+        User owner = null;
+        if (req.userId() != null) {
+            owner = userRepository.findById(req.userId())
+                    .orElseThrow(() -> new RuntimeException("유저를 찾을 수 없습니다."));
+        }
 
-        // 서브도메인 중복 확인
-        if (req.subdomain() != null && storeRepository.existsBySubdomain(req.subdomain())) {
+        // 서브도메인 중복 확인 (비활성화된 것 제외)
+        if (req.subdomain() != null && storeRepository.existsBySubdomainExcludingDeprecated(req.subdomain())) {
             return ResponseEntity.badRequest()
                     .body(JSONResponse.error(HttpStatus.BAD_REQUEST, "이미 사용 중인 서브도메인입니다."));
         }
@@ -133,6 +136,37 @@ public class AdminController {
         String currentSubdomain = store.getSubdomain();
         if (currentSubdomain != null && !currentSubdomain.contains("deprecated")) {
             store.setSubdomain(currentSubdomain + "-deprecated");
+            storeRepository.save(store);
+        }
+
+        return ResponseEntity.ok(JSONResponse.success(null));
+    }
+
+    @Operation(summary = "매장 활성화", description = "매장의 서브도메인에서 -deprecated를 제거합니다.")
+    @PostMapping("/store/{storeId}/activate")
+    public ResponseEntity<JSONResponse<Void>> activateStore(
+            @RequestHeader(value = "X-Admin-Password", required = false) String password,
+            @PathVariable Long storeId
+    ) {
+        if (!validatePassword(password)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(JSONResponse.error(HttpStatus.UNAUTHORIZED, "관리자 인증 실패"));
+        }
+
+        Store store = storeRepository.findById(storeId)
+                .orElseThrow(() -> new RuntimeException("매장을 찾을 수 없습니다."));
+
+        String currentSubdomain = store.getSubdomain();
+        if (currentSubdomain != null && currentSubdomain.contains("-deprecated")) {
+            String newSubdomain = currentSubdomain.replace("-deprecated", "");
+            
+            // 활성화할 서브도메인이 이미 사용 중인지 확인
+            if (storeRepository.existsBySubdomainExcludingDeprecated(newSubdomain)) {
+                return ResponseEntity.badRequest()
+                        .body(JSONResponse.error(HttpStatus.BAD_REQUEST, "해당 서브도메인은 이미 다른 매장에서 사용 중입니다."));
+            }
+            
+            store.setSubdomain(newSubdomain);
             storeRepository.save(store);
         }
 
