@@ -99,4 +99,20 @@ public class Store {
     public void setSubdomain(String subdomain) {
         this.subdomain = subdomain;
     }
+
+    public void setOwner(User owner) {
+        this.owner = owner;
+    }
+
+    public void setStoreName(String storeName) {
+        this.storeName = storeName;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
 }

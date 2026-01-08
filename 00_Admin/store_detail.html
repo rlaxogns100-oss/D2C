@@ -3,8 +3,139 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>매장 세부 관리 - D2C Admin</title>
+    <title>매장 상세 - D2C Admin</title>
     <link rel="stylesheet" href="style.css">
+    <style>
+        .detail-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .detail-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #E5E7EB;
+        }
+
+        .detail-header h1 {
+            font-size: 28px;
+            font-weight: 700;
+            color: #1F2937;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .info-section {
+            background: white;
+            border: 1px solid #E5E7EB;
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 20px;
+        }
+
+        .section-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #1F2937;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #F3F4F6;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
+
+        .info-item {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .info-item.full-width {
+            grid-column: 1 / -1;
+        }
+
+        .info-label {
+            font-size: 14px;
+            font-weight: 500;
+            color: #6B7280;
+            margin-bottom: 8px;
+        }
+
+        .info-value {
+            font-size: 15px;
+            color: #1F2937;
+            padding: 10px 12px;
+            background: #F9FAFB;
+            border-radius: 6px;
+        }
+
+        .info-value input,
+        .info-value textarea,
+        .info-value select {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #D1D5DB;
+            border-radius: 6px;
+            font-size: 15px;
+        }
+
+        .info-value textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            border: none;
+            transition: all 0.2s;
+        }
+
+        .btn-primary {
+            background: #4F46E5;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #4338CA;
+        }
+
+        .btn-secondary {
+            background: white;
+            color: #374151;
+            border: 1px solid #D1D5DB;
+        }
+
+        .btn-secondary:hover {
+            background: #F9FAFB;
+        }
+
+        .btn-danger {
+            background: #EF4444;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #DC2626;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+    </style>
 </head>
 <body>
     <div class="admin-container">
@@ -15,9 +146,9 @@
             </div>
             <ul class="menu-list">
                 <li class="menu-item active"><a href="index.html">매장 관리</a></li>
-                <li class="menu-item"><a href="#">회원 관리</a></li>
+                <li class="menu-item"><a href="01_Store_Match.html">매장 매칭</a></li>
+                <li class="menu-item"><a href="03_User_Management.html">회원 관리</a></li>
                 <li class="menu-item"><a href="#">주문 현황</a></li>
-                <li class="menu-item"><a href="#">정산 관리</a></li>
                 <li class="menu-item"><a href="#">설정</a></li>
             </ul>
         </nav>
@@ -26,94 +157,84 @@
         <div class="main-content">
             <!-- 탑바 -->
             <header class="topbar">
-                <div class="page-title">
-                    <button class="btn-back" onclick="history.back()">← 돌아가기</button>
-                    <span>매장 세부 관리</span>
-                </div>
+                <div class="page-title">매장 상세 정보</div>
                 <div class="user-info">
                     <span>Super Admin님</span>
-                    <button class="btn-logout">로그아웃</button>
+                    <button class="btn-logout" onclick="location.href='index.html'">돌아가기</button>
                 </div>
             </header>
 
             <!-- 컨텐츠 영역 -->
             <main class="content-area">
                 <div class="detail-container">
-                    <!-- 매장 기본 정보 -->
+                    <div class="detail-header">
+                        <h1 id="storeTitleName">매장 정보</h1>
+                        <div class="header-actions">
+                            <button id="btnEdit" class="btn btn-primary" onclick="enableEditMode()">수정</button>
+                            <button id="btnSave" class="btn btn-primary hidden" onclick="saveStore()">저장</button>
+                            <button id="btnCancel" class="btn btn-secondary hidden" onclick="cancelEdit()">취소</button>
+                            <button id="btnDelete" class="btn btn-danger" onclick="deleteStore()">삭제</button>
+                        </div>
+                    </div>
+
+                    <!-- 기본 정보 -->
                     <div class="info-section">
                         <h3 class="section-title">기본 정보</h3>
-                        <div class="form-grid">
-                            <div class="form-group">
-                                <label class="required">매장 상호</label>
-                                <input type="text" id="storeName" placeholder="매장 이름을 입력하세요" required>
+                        <div class="info-grid">
+                            <div class="info-item">
+                                <div class="info-label">매장 ID</div>
+                                <div class="info-value" id="displayStoreId">-</div>
                             </div>
-                            
-                            <div class="form-group">
-                                <label class="required">카테고리</label>
-                                <select id="category" required>
-                                    <option value="">카테고리 선택</option>
-                                    <option value="한식">한식</option>
-                                    <option value="중식">중식</option>
-                                    <option value="일식">일식</option>
-                                    <option value="양식">양식</option>
-                                    <option value="분식">분식</option>
-                                    <option value="치킨">치킨</option>
-                                    <option value="피자">피자</option>
-                                    <option value="카페/디저트">카페/디저트</option>
-                                </select>
+                            <div class="info-item">
+                                <div class="info-label">서브도메인</div>
+                                <div class="info-value">
+                                    <span id="displaySubdomain">-</span>
+                                    <input type="text" id="editSubdomain" class="hidden">
+                                </div>
                             </div>
-
-                            <div class="form-group full-width">
-                                <label class="required">매장 주소</label>
-                                <input type="text" id="storeAddress" placeholder="예: 서울특별시 강남구 테헤란로 123" required>
+                            <div class="info-item">
+                                <div class="info-label">매장명</div>
+                                <div class="info-value">
+                                    <span id="displayStoreName">-</span>
+                                    <input type="text" id="editStoreName" class="hidden">
+                                </div>
                             </div>
-
-                            <div class="form-group">
-                                <label class="required">대표 연락처</label>
-                                <input type="tel" id="storePhone" placeholder="010-1234-5678" required>
+                            <div class="info-item">
+                                <div class="info-label">점주 ID</div>
+                                <div class="info-value" id="displayOwnerId">-</div>
                             </div>
-
-                            <div class="form-group">
-                                <label>점주명</label>
-                                <input type="text" id="ownerName" placeholder="점주 이름">
+                            <div class="info-item full-width">
+                                <div class="info-label">주소</div>
+                                <div class="info-value">
+                                    <span id="displayAddress">-</span>
+                                    <input type="text" id="editAddress" class="hidden">
+                                </div>
+                            </div>
+                            <div class="info-item full-width">
+                                <div class="info-label">매장 소개</div>
+                                <div class="info-value">
+                                    <span id="displayDescription">-</span>
+                                    <textarea id="editDescription" class="hidden"></textarea>
+                                </div>
                             </div>
                         </div>
                     </div>
 
-                    <!-- 영업 정보 -->
+                    <!-- 운영 정보 -->
                     <div class="info-section">
-                        <h3 class="section-title">영업 정보</h3>
-                        <div class="form-grid">
-                            <div class="form-group">
-                                <label>영업 시작 시간</label>
-                                <input type="time" id="openTime" value="09:00">
+                        <h3 class="section-title">운영 정보</h3>
+                        <div class="info-grid">
+                            <div class="info-item">
+                                <div class="info-label">영업 시작 시간</div>
+                                <div class="info-value" id="displayOpenTime">-</div>
                             </div>
-
-                            <div class="form-group">
-                                <label>영업 종료 시간</label>
-                                <input type="time" id="closeTime" value="22:00">
+                            <div class="info-item">
+                                <div class="info-label">영업 종료 시간</div>
+                                <div class="info-value" id="displayCloseTime">-</div>
                             </div>
-
-                            <div class="form-group">
-                                <label>휴무일</label>
-                                <div class="checkbox-group">
-                                    <label><input type="checkbox" value="월"> 월</label>
-                                    <label><input type="checkbox" value="화"> 화</label>
-                                    <label><input type="checkbox" value="수"> 수</label>
-                                    <label><input type="checkbox" value="목"> 목</label>
-                                    <label><input type="checkbox" value="금"> 금</label>
-                                    <label><input type="checkbox" value="토"> 토</label>
-                                    <label><input type="checkbox" value="일"> 일</label>
-                                </div>
-                            </div>
-
-                            <div class="form-group">
-                                <label>영업 상태</label>
-                                <select id="storeStatus">
-                                    <option value="active">영업중</option>
-                                    <option value="休업">휴업</option>
-                                    <option value="정지">영업 정지</option>
-                                </select>
+                            <div class="info-item">
+                                <div class="info-label">영업 상태</div>
+                                <div class="info-value" id="displayIsOpen">-</div>
                             </div>
                         </div>
                     </div>
@@ -121,103 +242,20 @@
                     <!-- 배달 정보 -->
                     <div class="info-section">
                         <h3 class="section-title">배달 정보</h3>
-                        <div class="form-grid">
-                            <div class="form-group">
-                                <label>최소 주문 금액</label>
-                                <div class="input-with-unit">
-                                    <input type="number" id="minOrderAmount" placeholder="12000" min="0">
-                                    <span class="unit">원</span>
-                                </div>
+                        <div class="info-grid">
+                            <div class="info-item">
+                                <div class="info-label">배달 반경 (km)</div>
+                                <div class="info-value" id="displayDeliveryRadius">-</div>
                             </div>
-
-                            <div class="form-group">
-                                <label>배달 소요 시간</label>
-                                <div class="input-with-unit">
-                                    <input type="number" id="deliveryTime" placeholder="30" min="0">
-                                    <span class="unit">분</span>
-                                </div>
+                            <div class="info-item">
+                                <div class="info-label">위도</div>
+                                <div class="info-value" id="displayLatitude">-</div>
                             </div>
-
-                            <div class="form-group">
-                                <label>배달비</label>
-                                <div class="input-with-unit">
-                                    <input type="number" id="deliveryFee" placeholder="3000" min="0">
-                                    <span class="unit">원</span>
-                                </div>
-                            </div>
-
-                            <div class="form-group">
-                                <label>배달 가능 지역</label>
-                                <select id="deliveryArea" multiple>
-                                    <option value="강남구">강남구</option>
-                                    <option value="서초구">서초구</option>
-                                    <option value="송파구">송파구</option>
-                                    <option value="강동구">강동구</option>
-                                    <option value="마포구">마포구</option>
-                                    <option value="용산구">용산구</option>
-                                    <option value="중구">중구</option>
-                                </select>
-                                <small class="helper-text">Ctrl/Cmd를 누르고 클릭하여 여러 지역 선택</small>
-                            </div>
-
-                            <div class="form-group full-width">
-                                <label>배달 가능 지역 상세</label>
-                                <textarea id="deliveryAreaDetail" rows="3" placeholder="예: 강남역 2km 이내, 역삼동, 논현동 일대"></textarea>
+                            <div class="info-item">
+                                <div class="info-label">경도</div>
+                                <div class="info-value" id="displayLongitude">-</div>
                             </div>
                         </div>
-                    </div>
-
-                    <!-- 매장 소개 -->
-                    <div class="info-section">
-                        <h3 class="section-title">매장 소개</h3>
-                        <div class="form-grid">
-                            <div class="form-group full-width">
-                                <label>매장 설명</label>
-                                <textarea id="storeDescription" rows="5" placeholder="매장을 소개하는 내용을 입력하세요"></textarea>
-                            </div>
-
-                            <div class="form-group full-width">
-                                <label>매장 이미지</label>
-                                <div class="image-upload-area">
-                                    <input type="file" id="storeImage" accept="image/*" style="display: none;">
-                                    <button type="button" class="btn-upload" onclick="document.getElementById('storeImage').click()">
-                                        이미지 업로드
-                                    </button>
-                                    <div id="imagePreview" class="image-preview"></div>
-                                </div>
-                                <small class="helper-text">권장 크기: 800x600px, 최대 5MB</small>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- 추가 정보 -->
-                    <div class="info-section">
-                        <h3 class="section-title">추가 정보</h3>
-                        <div class="form-grid">
-                            <div class="form-group">
-                                <label>사업자 등록번호</label>
-                                <input type="text" id="businessNumber" placeholder="123-45-67890">
-                            </div>
-
-                            <div class="form-group">
-                                <label>정산 수수료</label>
-                                <div class="input-with-unit">
-                                    <input type="number" id="commission" placeholder="15" min="0" max="100" step="0.1">
-                                    <span class="unit">%</span>
-                                </div>
-                            </div>
-
-                            <div class="form-group full-width">
-                                <label>관리자 메모</label>
-                                <textarea id="adminMemo" rows="3" placeholder="내부 관리용 메모"></textarea>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- 버튼 영역 -->
-                    <div class="action-buttons">
-                        <button type="button" class="btn-secondary" onclick="history.back()">취소</button>
-                        <button type="button" class="btn-primary" onclick="saveStoreInfo()">저장</button>
                     </div>
                 </div>
             </main>
@@ -225,252 +263,165 @@
     </div>
 
     <script>
-        // URL에서 매장 ID 가져오기
+        const ADMIN_PASSWORD = '235811';
+        const API_BASE = '';
         const urlParams = new URLSearchParams(window.location.search);
         const storeId = urlParams.get('id');
+        let storeData = null;
 
-        // 페이지 로드 시 매장 정보 불러오기 (더미 데이터)
         window.addEventListener('DOMContentLoaded', () => {
-            loadStoreInfo(storeId);
+            loadStoreDetail();
         });
 
-        // 매장 정보 불러오기 (더미 함수)
-        function loadStoreInfo(id) {
-            // 실제로는 서버에서 데이터를 가져와야 함
-            const dummyData = {
-                '101': {
-                    storeName: '맛있는 떡볶이',
-                    category: '분식',
-                    storeAddress: '서울특별시 강남구 테헤란로 123',
-                    storePhone: '010-1234-5678',
-                    ownerName: '김철수',
-                    openTime: '09:00',
-                    closeTime: '22:00',
-                    minOrderAmount: '12000',
-                    deliveryTime: '30',
-                    deliveryFee: '3000',
-                    storeDescription: '매콤달콤한 떡볶이 전문점입니다. 신선한 재료로 매일 아침 직접 만들어요!',
-                    businessNumber: '123-45-67890',
-                    commission: '15',
-                    deliveryAreaDetail: '강남역 3km 이내, 역삼동, 대치동 일대'
-                },
-                '102': {
-                    storeName: '강남 피자',
-                    category: '피자',
-                    storeAddress: '서울특별시 강남구 역삼로 456',
-                    storePhone: '010-9876-5432',
-                    ownerName: '이영희',
-                    openTime: '11:00',
-                    closeTime: '23:00',
-                    minOrderAmount: '15000',
-                    deliveryTime: '40',
-                    deliveryFee: '3500',
-                    storeDescription: '정통 이탈리안 피자를 제공합니다. 이탈리아에서 수입한 재료 사용!',
-                    businessNumber: '234-56-78901',
-                    commission: '18',
-                    deliveryAreaDetail: '강남구 전역'
-                },
-                '103': {
-                    storeName: '서울 초밥',
-                    category: '일식',
-                    storeAddress: '서울특별시 강남구 논현로 789',
-                    storePhone: '010-5555-4444',
-                    ownerName: '박지성',
-                    openTime: '11:30',
-                    closeTime: '22:00',
-                    minOrderAmount: '20000',
-                    deliveryTime: '35',
-                    deliveryFee: '4000',
-                    storeDescription: '신선한 생선으로 만드는 프리미엄 초밥 전문점',
-                    businessNumber: '345-67-89012',
-                    commission: '20',
-                    deliveryAreaDetail: '강남구, 서초구 일대'
-                },
-                '104': {
-                    storeName: '할매 순대국',
-                    category: '한식',
-                    storeAddress: '서울특별시 강남구 봉은사로 234',
-                    storePhone: '010-1111-2222',
-                    ownerName: '최민수',
-                    openTime: '07:00',
-                    closeTime: '21:00',
-                    minOrderAmount: '10000',
-                    deliveryTime: '25',
-                    deliveryFee: '2500',
-                    storeDescription: '3대째 이어온 전통 순대국 맛집',
-                    businessNumber: '456-78-90123',
-                    commission: '12',
-                    deliveryAreaDetail: '강남구 전역'
-                },
-                '105': {
-                    storeName: '진짜 맛있는 치킨',
-                    category: '치킨',
-                    storeAddress: '서울특별시 강남구 선릉로 567',
-                    storePhone: '010-2222-3333',
-                    ownerName: '정대한',
-                    openTime: '16:00',
-                    closeTime: '01:00',
-                    minOrderAmount: '16000',
-                    deliveryTime: '35',
-                    deliveryFee: '3000',
-                    storeDescription: '바삭바삭 진짜 맛있는 치킨! 당일 도계한 신선한 닭만 사용합니다.',
-                    businessNumber: '567-89-01234',
-                    commission: '17',
-                    deliveryAreaDetail: '강남역 2km 이내'
-                },
-                '106': {
-                    storeName: '역삼동 짜장면',
-                    category: '중식',
-                    storeAddress: '서울특별시 강남구 역삼로 345',
-                    storePhone: '010-3333-4444',
-                    ownerName: '왕리웨이',
-                    openTime: '10:00',
-                    closeTime: '21:00',
-                    minOrderAmount: '13000',
-                    deliveryTime: '30',
-                    deliveryFee: '3000',
-                    storeDescription: '정통 중화요리 전문점, 30년 경력의 주방장이 직접 만듭니다.',
-                    businessNumber: '678-90-12345',
-                    commission: '16',
-                    deliveryAreaDetail: '역삼동, 논현동 일대'
-                },
-                '107': {
-                    storeName: '엄마손 김밥',
-                    category: '분식',
-                    storeAddress: '서울특별시 강남구 강남대로 890',
-                    storePhone: '010-4444-5555',
-                    ownerName: '김영자',
-                    openTime: '07:00',
-                    closeTime: '20:00',
-                    minOrderAmount: '8000',
-                    deliveryTime: '20',
-                    deliveryFee: '2000',
-                    storeDescription: '엄마가 정성스럽게 싸는 건강한 김밥',
-                    businessNumber: '789-01-23456',
-                    commission: '10',
-                    deliveryAreaDetail: '강남역, 신논현역 인근'
-                },
-                '108': {
-                    storeName: '스타벅스 강남점',
-                    category: '카페/디저트',
-                    storeAddress: '서울특별시 강남구 테헤란로 678',
-                    storePhone: '010-5555-6666',
-                    ownerName: '이민호',
-                    openTime: '07:00',
-                    closeTime: '22:00',
-                    minOrderAmount: '5000',
-                    deliveryTime: '25',
-                    deliveryFee: '2500',
-                    storeDescription: '프리미엄 커피와 다양한 디저트를 제공합니다.',
-                    businessNumber: '890-12-34567',
-                    commission: '22',
-                    deliveryAreaDetail: '강남구 테헤란로 일대'
-                },
-                '109': {
-                    storeName: '이태리 파스타',
-                    category: '양식',
-                    storeAddress: '서울특별시 강남구 압구정로 123',
-                    storePhone: '010-6666-7777',
-                    ownerName: '안토니오',
-                    openTime: '11:30',
-                    closeTime: '22:30',
-                    minOrderAmount: '18000',
-                    deliveryTime: '40',
-                    deliveryFee: '4000',
-                    storeDescription: '이탈리아 정통 파스타 레시피로 만든 진짜 파스타',
-                    businessNumber: '901-23-45678',
-                    commission: '19',
-                    deliveryAreaDetail: '압구정동, 청담동 일대'
-                },
-                '110': {
-                    storeName: '전주 비빔밥',
-                    category: '한식',
-                    storeAddress: '서울특별시 강남구 도산대로 456',
-                    storePhone: '010-7777-8888',
-                    ownerName: '박순례',
-                    openTime: '11:00',
-                    closeTime: '21:00',
-                    minOrderAmount: '12000',
-                    deliveryTime: '30',
-                    deliveryFee: '3000',
-                    storeDescription: '전주 콩나물과 참기름으로 만든 정통 비빔밥',
-                    businessNumber: '012-34-56789',
-                    commission: '14',
-                    deliveryAreaDetail: '강남구 전역'
-                }
-            };
+        async function loadStoreDetail() {
+            try {
+                const response = await fetch(`${API_BASE}/api/v1/store/${storeId}`);
+                const result = await response.json();
 
-            if (id && dummyData[id]) {
-                const data = dummyData[id];
-                document.getElementById('storeName').value = data.storeName || '';
-                document.getElementById('category').value = data.category || '';
-                document.getElementById('storeAddress').value = data.storeAddress || '';
-                document.getElementById('storePhone').value = data.storePhone || '';
-                document.getElementById('ownerName').value = data.ownerName || '';
-                document.getElementById('openTime').value = data.openTime || '';
-                document.getElementById('closeTime').value = data.closeTime || '';
-                document.getElementById('minOrderAmount').value = data.minOrderAmount || '';
-                document.getElementById('deliveryTime').value = data.deliveryTime || '';
-                document.getElementById('deliveryFee').value = data.deliveryFee || '';
-                document.getElementById('deliveryAreaDetail').value = data.deliveryAreaDetail || '';
-                document.getElementById('storeDescription').value = data.storeDescription || '';
-                document.getElementById('businessNumber').value = data.businessNumber || '';
-                document.getElementById('commission').value = data.commission || '';
+                if (!result.success || !result.data) {
+                    alert('매장 정보를 불러올 수 없습니다.');
+                    location.href = 'index.html';
+                    return;
+                }
+
+                storeData = result.data;
+                displayStoreInfo(storeData);
+
+            } catch (error) {
+                console.error('매장 정보 로드 실패:', error);
+                alert('매장 정보를 불러오는 중 오류가 발생했습니다.');
             }
         }
 
-        // 이미지 미리보기
-        document.getElementById('storeImage').addEventListener('change', function(e) {
-            const file = e.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    const preview = document.getElementById('imagePreview');
-                    preview.innerHTML = `<img src="${e.target.result}" alt="매장 이미지">`;
-                };
-                reader.readAsDataURL(file);
+        function displayStoreInfo(data) {
+            document.getElementById('storeTitleName').textContent = data.storeName || '매장 정보';
+            document.getElementById('displayStoreId').textContent = data.storeId || '-';
+            document.getElementById('displaySubdomain').textContent = data.subdomain || '-';
+            document.getElementById('displayStoreName').textContent = data.storeName || '-';
+            document.getElementById('displayOwnerId').textContent = data.ownerId || '미지정';
+            document.getElementById('displayAddress').textContent = data.address || '-';
+            document.getElementById('displayDescription').textContent = data.description || '-';
+            document.getElementById('displayOpenTime').textContent = data.openTime || '-';
+            document.getElementById('displayCloseTime').textContent = data.closeTime || '-';
+            document.getElementById('displayIsOpen').textContent = data.isOpen ? '영업중' : '영업종료';
+            document.getElementById('displayDeliveryRadius').textContent = data.deliveryRadius || '-';
+            document.getElementById('displayLatitude').textContent = data.latitude || '-';
+            document.getElementById('displayLongitude').textContent = data.longitude || '-';
+
+            // 수정 폼에도 값 넣기
+            document.getElementById('editSubdomain').value = data.subdomain || '';
+            document.getElementById('editStoreName').value = data.storeName || '';
+            document.getElementById('editAddress').value = data.address || '';
+            document.getElementById('editDescription').value = data.description || '';
+        }
+
+        function enableEditMode() {
+            // 버튼 토글
+            document.getElementById('btnEdit').classList.add('hidden');
+            document.getElementById('btnDelete').classList.add('hidden');
+            document.getElementById('btnSave').classList.remove('hidden');
+            document.getElementById('btnCancel').classList.remove('hidden');
+
+            // 편집 가능 필드 활성화
+            document.getElementById('displaySubdomain').classList.add('hidden');
+            document.getElementById('editSubdomain').classList.remove('hidden');
+            
+            document.getElementById('displayStoreName').classList.add('hidden');
+            document.getElementById('editStoreName').classList.remove('hidden');
+            
+            document.getElementById('displayAddress').classList.add('hidden');
+            document.getElementById('editAddress').classList.remove('hidden');
+            
+            document.getElementById('displayDescription').classList.add('hidden');
+            document.getElementById('editDescription').classList.remove('hidden');
+        }
+
+        function cancelEdit() {
+            // 버튼 토글
+            document.getElementById('btnEdit').classList.remove('hidden');
+            document.getElementById('btnDelete').classList.remove('hidden');
+            document.getElementById('btnSave').classList.add('hidden');
+            document.getElementById('btnCancel').classList.add('hidden');
+
+            // 편집 필드 숨기기
+            document.getElementById('displaySubdomain').classList.remove('hidden');
+            document.getElementById('editSubdomain').classList.add('hidden');
+            
+            document.getElementById('displayStoreName').classList.remove('hidden');
+            document.getElementById('editStoreName').classList.add('hidden');
+            
+            document.getElementById('displayAddress').classList.remove('hidden');
+            document.getElementById('editAddress').classList.add('hidden');
+            
+            document.getElementById('displayDescription').classList.remove('hidden');
+            document.getElementById('editDescription').classList.add('hidden');
+
+            // 원래 값으로 복원
+            displayStoreInfo(storeData);
+        }
+
+        async function saveStore() {
+            const updatedData = {
+                userId: storeData.ownerId,
+                storeName: document.getElementById('editStoreName').value,
+                subdomain: document.getElementById('editSubdomain').value,
+                address: document.getElementById('editAddress').value,
+                description: document.getElementById('editDescription').value
+            };
+
+            try {
+                const response = await fetch(`${API_BASE}/api/v1/admin/store/${storeId}/update`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Admin-Password': ADMIN_PASSWORD
+                    },
+                    body: JSON.stringify(updatedData)
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    alert('매장 정보가 수정되었습니다.');
+                    loadStoreDetail();
+                    cancelEdit();
+                } else {
+                    alert('수정 실패: ' + (result.message || '알 수 없는 오류'));
+                }
+
+            } catch (error) {
+                console.error('매장 수정 실패:', error);
+                alert('매장 정보 수정 중 오류가 발생했습니다.');
             }
-        });
+        }
 
-        // 매장 정보 저장
-        function saveStoreInfo() {
-            // 필수 항목 확인
-            const storeName = document.getElementById('storeName').value;
-            const category = document.getElementById('category').value;
-            const storeAddress = document.getElementById('storeAddress').value;
-            const storePhone = document.getElementById('storePhone').value;
-
-            if (!storeName || !category || !storeAddress || !storePhone) {
-                alert('필수 항목을 모두 입력해주세요.');
+        async function deleteStore() {
+            if (!confirm('정말로 이 매장을 삭제하시겠습니까?\n\n⚠️ 주의: 관련된 모든 데이터(메뉴, 주문 등)가 함께 삭제될 수 있습니다.\n\n비활성화를 원하시면 매장 목록에서 "비활성화" 버튼을 사용하세요.')) {
                 return;
             }
 
-            // 실제로는 서버에 데이터를 전송해야 함
-            const formData = {
-                storeId: storeId,
-                storeName: storeName,
-                category: category,
-                storeAddress: storeAddress,
-                storePhone: storePhone,
-                ownerName: document.getElementById('ownerName').value,
-                openTime: document.getElementById('openTime').value,
-                closeTime: document.getElementById('closeTime').value,
-                storeStatus: document.getElementById('storeStatus').value,
-                minOrderAmount: document.getElementById('minOrderAmount').value,
-                deliveryTime: document.getElementById('deliveryTime').value,
-                deliveryFee: document.getElementById('deliveryFee').value,
-                deliveryAreaDetail: document.getElementById('deliveryAreaDetail').value,
-                storeDescription: document.getElementById('storeDescription').value,
-                businessNumber: document.getElementById('businessNumber').value,
-                commission: document.getElementById('commission').value,
-                adminMemo: document.getElementById('adminMemo').value
-            };
+            try {
+                const response = await fetch(`${API_BASE}/api/v1/admin/store/${storeId}/delete`, {
+                    method: 'DELETE',
+                    headers: {
+                        'X-Admin-Password': ADMIN_PASSWORD
+                    }
+                });
 
-            console.log('저장할 데이터:', formData);
-            alert('매장 정보가 저장되었습니다.');
-            // window.location.href = 'index.html';
+                const result = await response.json();
+
+                if (result.success) {
+                    alert('매장이 삭제되었습니다.');
+                    location.href = 'index.html';
+                } else {
+                    alert('삭제 실패: ' + (result.message || '알 수 없는 오류'));
+                }
+
+            } catch (error) {
+                console.error('매장 삭제 실패:', error);
+                alert('매장 삭제 중 오류가 발생했습니다.');
+            }
         }
     </script>
 </body>
 </html>
-

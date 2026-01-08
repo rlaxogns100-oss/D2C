@@ -174,6 +174,89 @@ public class AdminController {
 
         return ResponseEntity.ok(JSONResponse.success(null));
     }
+
+    @Operation(summary = "전체 유저 조회", description = "모든 유저 목록을 조회합니다.")
+    @GetMapping("/users/all")
+    @Transactional(readOnly = true)
+    public ResponseEntity<JSONResponse<List<AdminUserResponse>>> getAllUsers(
+            @RequestHeader(value = "X-Admin-Password", required = false) String password
+    ) {
+        if (!validatePassword(password)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(JSONResponse.error(HttpStatus.UNAUTHORIZED, "관리자 인증 실패"));
+        }
+
+        List<User> users = userRepository.findAll();
+        List<AdminUserResponse> response = users.stream()
+                .map(AdminUserResponse::from)
+                .collect(Collectors.toList());
+
+        return ResponseEntity.ok(JSONResponse.success(response));
+    }
+
+    @Operation(summary = "매장 정보 수정", description = "매장 정보를 수정합니다.")
+    @PutMapping("/store/{storeId}/update")
+    @Transactional
+    public ResponseEntity<JSONResponse<Void>> updateStore(
+            @RequestHeader(value = "X-Admin-Password", required = false) String password,
+            @PathVariable Long storeId,
+            @Valid @RequestBody AdminStoreCreateRequest req
+    ) {
+        if (!validatePassword(password)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(JSONResponse.error(HttpStatus.UNAUTHORIZED, "관리자 인증 실패"));
+        }
+
+        Store store = storeRepository.findById(storeId)
+                .orElseThrow(() -> new RuntimeException("매장을 찾을 수 없습니다."));
+
+        // 서브도메인이 변경되었고 중복인지 확인
+        if (req.subdomain() != null && !req.subdomain().equals(store.getSubdomain())) {
+            if (storeRepository.existsBySubdomain(req.subdomain())) {
+                return ResponseEntity.badRequest()
+                        .body(JSONResponse.error(HttpStatus.BAD_REQUEST, "이미 사용 중인 서브도메인입니다."));
+            }
+            store.setSubdomain(req.subdomain());
+        }
+
+        // 점주 변경 (선택사항)
+        if (req.userId() != null) {
+            User newOwner = userRepository.findById(req.userId())
+                    .orElseThrow(() -> new RuntimeException("유저를 찾을 수 없습니다."));
+            store.setOwner(newOwner);
+        }
+
+        // 매장 정보 업데이트
+        store.setStoreName(req.storeName());
+        store.setAddress(req.address());
+        if (req.description() != null) {
+            store.setDescription(req.description());
+        }
+
+        storeRepository.save(store);
+
+        return ResponseEntity.ok(JSONResponse.success(null));
+    }
+
+    @Operation(summary = "매장 완전 삭제", description = "매장을 DB에서 완전히 삭제합니다.")
+    @DeleteMapping("/store/{storeId}/delete")
+    @Transactional
+    public ResponseEntity<JSONResponse<Void>> deleteStore(
+            @RequestHeader(value = "X-Admin-Password", required = false) String password,
+            @PathVariable Long storeId
+    ) {
+        if (!validatePassword(password)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(JSONResponse.error(HttpStatus.UNAUTHORIZED, "관리자 인증 실패"));
+        }
+
+        Store store = storeRepository.findById(storeId)
+                .orElseThrow(() -> new RuntimeException("매장을 찾을 수 없습니다."));
+
+        storeRepository.delete(store);
+
+        return ResponseEntity.ok(JSONResponse.success(null));
+    }
 }
 
 
