@@ -22,8 +22,8 @@ public interface StoreRepository extends JpaRepository<Store, Long> {
     @Query("SELECT CASE WHEN COUNT(s) > 0 THEN true ELSE false END FROM Store s WHERE s.subdomain = :subdomain AND s.subdomain NOT LIKE '%deprecated%'")
     boolean existsBySubdomainExcludingDeprecated(@Param("subdomain") String subdomain);
     
-    // Admin용: Owner 정보 함께 조회 (Lazy Loading 문제 해결)
-    @Query("SELECT s FROM Store s JOIN FETCH s.owner")
+    // Admin용: Owner 정보 함께 조회 (Lazy Loading 문제 해결, owner가 null일 수도 있음)
+    @Query("SELECT s FROM Store s LEFT JOIN FETCH s.owner")
     List<Store> findAllWithOwner();
 }
 

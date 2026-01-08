@@ -51,6 +51,15 @@ async function loadStoreConfig() {
       throw new Error('매장 정보가 없습니다.');
     }
     
+    // 비활성화된 매장인 경우 리다이렉트
+    if (result.data.subdomain && result.data.subdomain.includes('deprecated')) {
+      console.log('🔄 [API] 비활성화된 매장입니다. maejang.com으로 리다이렉트합니다.');
+      if (window.location.hostname !== 'maejang.com' && window.location.hostname !== 'localhost') {
+        window.location.href = 'https://maejang.com';
+        throw new Error('비활성화된 매장');
+      }
+    }
+    
     STORE_INFO = result.data;
     OWNER_ID = STORE_INFO.ownerId;
     STORE_ID = STORE_INFO.storeId;

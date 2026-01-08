@@ -21,7 +21,7 @@ public record StoreResponse(
     public static StoreResponse from(Store s) {
         return new StoreResponse(
                 s.getId(),
-                s.getOwner().getId(),
+                s.getOwner() != null ? s.getOwner().getId() : null,
                 s.getStoreName(),
                 s.getSubdomain(),
                 s.getAddress(),

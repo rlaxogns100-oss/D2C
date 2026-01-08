@@ -15,6 +15,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -39,6 +40,7 @@ public class AdminController {
 
     @Operation(summary = "전체 매장 목록 조회", description = "모든 매장 목록을 조회합니다.")
     @GetMapping("/stores")
+    @Transactional(readOnly = true)
     public ResponseEntity<JSONResponse<List<AdminStoreResponse>>> getAllStores(
             @RequestHeader(value = "X-Admin-Password", required = false) String password
     ) {
@@ -97,8 +99,8 @@ public class AdminController {
                     .orElseThrow(() -> new RuntimeException("유저를 찾을 수 없습니다."));
         }
 
-        // 서브도메인 중복 확인 (비활성화된 것 제외)
-        if (req.subdomain() != null && storeRepository.existsBySubdomainExcludingDeprecated(req.subdomain())) {
+        // 서브도메인 중복 확인 (비활성화된 것도 포함)
+        if (req.subdomain() != null && storeRepository.existsBySubdomain(req.subdomain())) {
             return ResponseEntity.badRequest()
                     .body(JSONResponse.error(HttpStatus.BAD_REQUEST, "이미 사용 중인 서브도메인입니다."));
         }
@@ -160,7 +162,7 @@ public class AdminController {
         if (currentSubdomain != null && currentSubdomain.contains("-deprecated")) {
             String newSubdomain = currentSubdomain.replace("-deprecated", "");
             
-            // 활성화할 서브도메인이 이미 사용 중인지 확인
+            // 활성화할 서브도메인이 이미 사용 중인지 확인 (비활성화된 것 제외)
             if (storeRepository.existsBySubdomainExcludingDeprecated(newSubdomain)) {
                 return ResponseEntity.badRequest()
                         .body(JSONResponse.error(HttpStatus.BAD_REQUEST, "해당 서브도메인은 이미 다른 매장에서 사용 중입니다."));

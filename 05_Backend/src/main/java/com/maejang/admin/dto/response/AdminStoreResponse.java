@@ -14,8 +14,8 @@ public record AdminStoreResponse(
     public static AdminStoreResponse from(Store s) {
         return new AdminStoreResponse(
                 s.getId(),
-                s.getOwner().getId(),
-                s.getOwner().getEmail(),
+                s.getOwner() != null ? s.getOwner().getId() : null,
+                s.getOwner() != null ? s.getOwner().getEmail() : null,
                 s.getStoreName(),
                 s.getSubdomain(),
                 s.getAddress(),

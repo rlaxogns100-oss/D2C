@@ -29,11 +29,11 @@ public class Store {
     private Long id;
 
     /**
-     * OWNER 유저
+     * OWNER 유저 (선택사항)
      */
     @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false)
+    @JoinColumn(name = "user_id", nullable = true)
     private User owner;
 
     @Column(name = "store_name", nullable = false, length = 200)

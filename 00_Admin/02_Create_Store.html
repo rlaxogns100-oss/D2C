@@ -608,18 +608,6 @@
             console.log('매장 등록 요청:', requestData);
 
             try {
-                // 테스트용: 콘솔에 출력
-                console.log('=== 매장 등록 데이터 ===');
-                console.log('서브도메인:', subdomain);
-                console.log('매장명:', storeName);
-                console.log('주소:', fullAddress);
-                console.log('설명:', description);
-                console.log('점주 ID:', ownerId || '미지정');
-                console.log('영업시간:', openTime, '~', closeTime);
-                console.log('이미지 크기:', uploadedImageBase64.length, 'bytes');
-
-                alert(`✅ 매장 등록 준비 완료!\n\n다음 정보로 등록됩니다:\n\n서브도메인: ${subdomain}.maejang.com\n매장명: ${storeName}\n주소: ${fullAddress}\n\n※ 실제 API 연결은 백엔드 준비 후 활성화됩니다.`);
-
                 // 실제 API 호출
                 const response = await fetch(`${API_BASE_URL}/api/v1/admin/store/create`, {
                     method: 'POST',
